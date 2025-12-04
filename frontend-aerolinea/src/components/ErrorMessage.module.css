@@ -1,0 +1,38 @@
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #ffeeee;
+    border: 1px solid #ffcccc;
+    border-radius: 8px;
+    max-width: 500px;
+    margin: 2rem auto;
+    text-align: center;
+}
+
+.errorIcon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.errorText {
+    color: #d32f2f;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.retryButton {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.retryButton:hover {
+    background-color: #b71c1c;
+}

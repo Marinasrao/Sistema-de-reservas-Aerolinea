@@ -1,0 +1,230 @@
+/*  CONTENEDOR Y TITULOS */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+  text-align: center;
+  color: #003580;
+  margin-bottom: 1.5rem;
+}
+
+/* FORM */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* IMAGEN PRINCIPAL */
+.imageBlock {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 8px 0 16px;
+  flex-wrap: wrap;            
+}
+
+.imageBlock label {
+  width: 150px;               
+  font-weight: 600;
+  color: #333;
+  flex: 0 0 auto;
+}
+
+
+.fileCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 260px;            
+  min-width: 200px;
+  max-width: 340px;
+  overflow: hidden;
+}
+
+
+.hiddenFileInput {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+
+.fileButton {
+  display: inline-block;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #003580;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+.fileButton:hover { background: #002c6f; }
+
+
+.fileCol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 240px;
+  max-width: 340px;
+  overflow: hidden;
+}
+
+
+.fileName {
+  font-size: 0.9rem;
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.imagePreview {
+  width: 160px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  flex: 0 0 auto;
+}
+
+
+/* IMÁGENES ADICIONALES*/
+.imageGroup {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.imageItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px;
+  overflow: hidden;           }
+
+.imageItem label {
+  font-weight: 600;
+  color: #333;
+}
+
+.imageItem .fileInput {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* BOTONES*/
+button {
+  background: linear-gradient(to right, #003580, #0077c8);
+  color: white;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: center;
+  transition: 0.3s ease;
+}
+button:hover { background: linear-gradient(to right, #002c6f, #005fa3); }
+
+.deleteButton {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  margin-top: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.deleteButton:hover { background-color: #c9302c; }
+
+/* CARDS LISTA */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.cardImage {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+.noImage {
+  width: 100%;
+  height: 140px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+.complete { color: #28a745; font-weight: bold; margin: 0.5rem 0; }
+.incomplete { color: #dc3545; font-weight: bold; margin: 0.5rem 0; }
+.card button {
+  background-color: #003580;
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-size: 0.9rem;
+}
+.card button:hover { background-color: #002c6f; }
+.alert {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: bold;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1000px) {
+  .imageGroup { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .imageGroup { grid-template-columns: 1fr; }
+  .imageBlock { flex-direction: column; align-items: flex-start; }
+  .imageBlock label { width: auto; }
+}

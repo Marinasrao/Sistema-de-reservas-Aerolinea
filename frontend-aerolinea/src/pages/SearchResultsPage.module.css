@@ -1,0 +1,284 @@
+
+:root {
+  --max-w: 1100px;
+
+  --space-1: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --brand: #00bb55;         
+  --text: #333;
+  --muted: #666;
+  --muted-2: #555;
+
+  --border: #2fec68;
+  --border-2: #dddddd;
+  --bg-soft: #fafafa;
+
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
+
+  --header-offset: 96px;   
+  --card-bg: #f6f7f9;       
+  --card-bg-hover: #eef0f4;     
+}
+
+
+.topSpacer { height: 96px; } 
+/* Layout general */
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.dest {
+  color: var(--brand);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.monthLabel {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.monthInput {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+}
+
+.counter {
+  color: var(--muted);
+}
+
+.empty {
+  padding: var(--space-5);
+  background: var(--bg-soft);
+  border: 1px dashed var(--border-2);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  text-align: center;
+}
+
+/*  Listado por día  */
+.daySection {
+  margin-top: var(--space-5);
+  padding-top: 4px;
+}
+
+.dayTitle {
+  position:static;
+  top: var(--header-offset, 96px);
+  z-index: 20;
+
+  font-size: 18px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  background: #fff;
+  border-left: 4px solid var(--accent, #0ea5e9);
+  border-radius: 10px;
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/*  Card de vuelo  */
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4, 16px);
+  border: 1px solid #e6f3ea;
+  border-left: 4px solid var(--accent, #0ea5e9);
+  border-radius: 16px;
+  padding: 14px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm, 0 2px 6px rgba(0,0,0,0.05));
+  transition: 15s ease, box-shadow .15s ease, transform .06s ease;
+  backface-visibility: hidden;
+  will-change: transform;
+
+}
+
+.card:hover {
+  background: var(--card-bg-hover,#eef0f4);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+
+.price {
+  color: #111;                 
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+
+.buyBtn {
+  background: var(--brand, #00bb55);
+  color: #fff;
+  border: none;
+  padding: var(--space-2, 8px) var(--space-3, 12px);
+  border-radius: var(--radius-md, 10px);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+time strong{ 
+    color: var(--accent, #0ea5e9);
+}
+
+
+.cardMain {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.times {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.time span {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.time strong {
+  display: block;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.time small {
+  color: var(--muted-2);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #444;
+  font-size: 13px;
+}
+
+.cardAside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.seats {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.buyBtn {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/*  Paginación  */
+
+.pager {
+  display: flex;
+  gap: var(--space-3, 12px);
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-5, 24px) 0;
+}
+
+.pager button {
+  background: var(--brand, #00bb55);   
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 10px);
+  font-weight: 600;
+  letter-spacing: .2px;
+  box-shadow: var(--shadow-sm, 0 2px 6px rgba(0,0,0,.08));
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease,  .12s ease;
+  cursor: pointer;
+}
+
+.pager button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
+
+.pager button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.pager button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,187,85,.25); 
+}
+
+
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cardAside {
+    align-items: flex-start;
+  }
+
+  .times {
+    gap: var(--space-3);
+  }
+}
+

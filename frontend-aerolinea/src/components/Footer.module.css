@@ -1,0 +1,50 @@
+/* FOOTER DEL HOME */
+.footer {
+  box-sizing: border-box;
+  height: var(--footer-height);
+  background-color: #003580;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  width: 100%;
+  margin-left: 0;
+  z-index: 998;
+}
+
+/* FOOTER DEL ADMIN */
+
+.adminFooter {
+  box-sizing: border-box;
+  height: var(--footer-height);
+  background-color: #003580;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  width: 100%;
+  margin-left: 0;
+  z-index: 998;
+}
+
+
+.left {
+  flex: 1;
+}
+
+.right {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.right img {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s ease;
+}
+
+.right a:hover img {
+  transform: scale(1.2);
+}

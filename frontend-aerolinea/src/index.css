@@ -1,0 +1,18 @@
+:root {
+  --sidebar-width: 280px;
+  --header-height: 80px;
+  --footer-height: 60px;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+
+
+

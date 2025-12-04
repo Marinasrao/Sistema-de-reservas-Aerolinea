@@ -1,0 +1,88 @@
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.pageTitle {
+  color: #2c3e50;
+  margin: 0;
+  font-size: 28px;
+}
+
+
+.menuGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+
+.card {
+  border-radius: 10px;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+
+.serviceContent {
+  padding: 15px;
+}
+
+.price {
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.category {
+  background: #f3f3f3;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #555;
+  display: inline-block;
+}
+
+.description {
+  color: #444;
+  line-height: 1.5;
+  margin: 15px 0;
+}
+
+
+.addButton {
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.editButton {
+  background: #3498db;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 15px;
+}
