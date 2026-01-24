@@ -70,8 +70,8 @@ http://localhost:5173/login
 
 **Credenciales de administrador:**
 
-- **Usuario:** admin
-- **Contraseña:** admin123
+- **Usuario:** maru@test.com
+- **Contraseña:** Admin123
 
 Desde este panel es posible gestionar:
 - Vuelos
@@ -87,6 +87,40 @@ Desde este panel es posible gestionar:
 - **Base de datos:** MySQL en puerto 3306
 
 Asegurarse de tener ambos servidores corriendo para el correcto funcionamiento del sistema.
+
+## 🧩 Sprint 2 – Funcionalidades Implementadas
+
+En esta segunda etapa del proyecto se incorporaron funcionalidades avanzadas de seguridad, administración y experiencia de usuario.
+
+### 🔐 Autenticación y Seguridad
+- Registro y login de usuarios
+- Autenticación basada en cookies
+- Roles de usuario: ADMIN y USER
+- Protección de rutas administrativas
+- Persistencia de sesión
+
+### 👤 Gestión de Usuarios
+- Panel de administración de usuarios
+- Creación y asignación de roles
+- Perfil de usuario con información personal
+
+### 🗂️ Categorías y Características
+- Categorías asociadas a vuelos (Nacionales, Internacionales, Low Cost, Premium)
+- Gestión completa de categorías desde el panel admin
+- Sistema de características asociadas a categorías
+- Visualización dinámica en el home
+
+### ✉️ Sistema de Mailing
+- Envío de emails desde backend
+- Endpoint de prueba de correo
+- Configuración de servicio de mail
+
+### 🛠️ Mejoras Técnicas
+- DTOs y mappers para separar lógica de entidades
+- Seguridad centralizada con Spring Security
+- Configuración de CORS y proxy para entorno de desarrollo
+
+
 ## 🚀 Cómo iniciar el proyecto
 
 ### 1️⃣ Backend (Spring Boot)
