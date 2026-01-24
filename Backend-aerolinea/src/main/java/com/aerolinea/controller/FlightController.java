@@ -1,6 +1,7 @@
 package com.aerolinea.controller;
 
 import com.aerolinea.entity.Flight;
+import com.aerolinea.mapper.FlightMapper;
 import com.aerolinea.repository.FlightRepository;
 import com.aerolinea.service.FlightService;
 import com.aerolinea.service.RecommendationService;
@@ -13,81 +14,110 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.aerolinea.dto.FlightRequestDTO;
+import com.aerolinea.dto.FlightResponseDTO;
 
 import java.time.LocalDate;
 import java.util.*;
 
-@RestController
-@RequestMapping("/api/flights")
-@CrossOrigin(origins = "http://localhost:5173")
-public class FlightController {
 
-    private static final Logger log = LoggerFactory.getLogger(FlightController.class);
 
-    @Autowired
-    private FlightService flightService;
+    @RestController
+    @RequestMapping("/api/flights")
+    @CrossOrigin(origins = "http://localhost:5173")
+    public class FlightController {
 
-    @Autowired
-    private RecommendationService recommendationService;
+        private static final Logger log = LoggerFactory.getLogger(com.aerolinea.controller.FlightController.class);
 
-    @Autowired
-    private FlightRepository flightRepository;
+        @Autowired
+        private FlightService flightService;
 
-    /* ==================== HEALTH ==================== */
-    @GetMapping("/ping")
-    public ResponseEntity<String> ping() {
-        return ResponseEntity.ok("flights-ok");
-    }
+        @Autowired
+        private RecommendationService recommendationService;
 
-    /* ==================== CRUD ==================== */
+        @Autowired
+        private FlightRepository flightRepository;
 
-    @GetMapping
-    public ResponseEntity<List<Flight>> getAllFlights() {
-        return ResponseEntity.ok(flightService.getAllFlights());
-    }
+        @Autowired
+        private FlightMapper flightMapper;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Flight> getFlightById(@PathVariable Long id) {
-        return flightService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
-    @PostMapping({"", "/add"})
-    public ResponseEntity<?> addFlight(@Valid @RequestBody Flight flight) {
-        try {
-            Flight saved = flightService.saveFlight(flight);
-            return ResponseEntity.ok(saved);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        /* ==================== HEALTH ==================== */
+        @GetMapping("/ping")
+        public ResponseEntity<String> ping() {
+            return ResponseEntity.ok("flights-ok");
         }
-    }
+
+        /* ==================== CRUD ==================== */
+
+        @GetMapping
+        public ResponseEntity<List<?>> getAllFlights() {
+            return ResponseEntity.ok(
+                    flightService.getAllFlights()
+                            .stream()
+                            .map(flightMapper::toDTO)
+                            .toList()
+            );
+        }
+
+
+        @GetMapping("/{id}")
+        public ResponseEntity<FlightResponseDTO> getFlightById(@PathVariable Long id) {
+            return flightService.findById(id)
+                    .map(flightMapper::toDTO)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        }
+
+
+        @PostMapping({"", "/add"})
+        public ResponseEntity<FlightResponseDTO> addFlight(
+                @Valid @RequestBody FlightRequestDTO dto) {
+
+            Flight flight = flightMapper.toEntity(dto);
+            Flight saved = flightService.saveFlight(flight);
+
+            return ResponseEntity.ok(flightMapper.toDTO(saved));
+        }
+
 
     @PostMapping("/add/{recommendationId}")
-    public ResponseEntity<?> addFlightToRecommendation(@PathVariable Long recommendationId,
-                                                       @RequestBody Flight flight) {
+    public ResponseEntity<?> addFlightToRecommendation(
+            @PathVariable Long recommendationId,
+            @Valid @RequestBody FlightRequestDTO dto) {
+
         var rec = recommendationService.findById(recommendationId);
         if (rec == null) return ResponseEntity.notFound().build();
-        flight.setRecommendation(rec);
+
         try {
+            Flight flight = flightMapper.toEntity(dto);
+            flight.setRecommendation(rec);
+
             Flight saved = flightService.saveFlight(flight);
-            return ResponseEntity.ok(saved);
+            return ResponseEntity.ok(flightMapper.toDTO(saved));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
-    @PutMapping({"/{id}", "/edit/{id}"})
-    public ResponseEntity<?> updateFlight(@PathVariable Long id, @Valid @RequestBody Flight flight) {
-        try {
+
+
+        @PutMapping({"/{id}", "/edit/{id}"})
+        public ResponseEntity<FlightResponseDTO> updateFlight(
+                @PathVariable Long id,
+                @Valid @RequestBody FlightRequestDTO dto) {
+
+            Flight flight = flightMapper.toEntity(dto);
             Flight updated = flightService.updateFlight(id, flight);
-            return ResponseEntity.ok(updated);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
-    }
 
-    @DeleteMapping("/{id}")
+            return ResponseEntity.ok(flightMapper.toDTO(updated));
+        }
+
+
+
+
+        @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFlight(@PathVariable Long id,
                                           @RequestParam(defaultValue = "false") boolean force) {
         try {
@@ -108,66 +138,102 @@ public class FlightController {
 
     /* ==================== RELACIÓN CON RECOMMENDATION ==================== */
 
-    @GetMapping("/recommendation/{recommendationId}")
-    public ResponseEntity<List<Flight>> getFlightsByRecommendation(@PathVariable Long recommendationId) {
-        return ResponseEntity.ok(flightService.getFlightsByRecommendation(recommendationId));
-    }
+        @GetMapping("/recommendation/{recommendationId}")
+        public ResponseEntity<List<FlightResponseDTO>> getFlightsByRecommendation(
+                @PathVariable Long recommendationId) {
 
-    /* ==================== BÚSQUEDAS ==================== */
+            var flights = flightService.getFlightsByRecommendation(recommendationId)
+                    .stream()
+                    .map(flightMapper::toDTO)
+                    .toList();
 
-    @GetMapping("/search/by-destination")
-    public ResponseEntity<List<Flight>> searchByDestination(@RequestParam String destination) {
-        return ResponseEntity.ok(flightService.getFlightsByDestination(destination));
-    }
-
-    @GetMapping("/search/by-destination-and-month")
-    public ResponseEntity<?> searchByDestinationAndMonth_List(
-            @RequestParam String destination,
-            @RequestParam String ym,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        try {
-            var yearMonth = java.time.YearMonth.parse(ym);
-            var start = yearMonth.atDay(1);
-            var end = yearMonth.atEndOfMonth();
-
-            var all = flightService.searchFlightsByDestinationAndDateRange(destination, start, end);
-            all.sort(Comparator
-                    .comparing(Flight::getDepartureDate, Comparator.nullsLast(Comparator.naturalOrder()))
-                    .thenComparing(Flight::getDepartureTime, Comparator.nullsLast(Comparator.naturalOrder()))
-            );
-
-            int s = Math.min(Math.max(size, 1), 50);
-            int p = Math.max(page, 0);
-            int total = all.size();
-            int from = p * s;
-            int to = Math.min(from + s, total);
-            var content = (from >= total) ? List.<Flight>of() : all.subList(from, to);
-            int totalPages = (int) Math.ceil(total / (double) s);
-
-            return ResponseEntity.ok(Map.of(
-                    "content", content,
-                    "page", p,
-                    "size", s,
-                    "totalPages", totalPages,
-                    "totalElements", total,
-                    "destination", destination,
-                    "ym", ym
-            ));
-        } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "message", "Parámetro ym inválido. Usá YYYY-MM (ej: 2025-08)",
-                    "error", ex.getMessage()
-            ));
+            return ResponseEntity.ok(flights);
         }
-    }
 
-    @GetMapping("/random")
-    public ResponseEntity<List<Flight>> getRandom(@RequestParam(defaultValue = "10") int max) {
-        return ResponseEntity.ok(flightService.getRandomFlights(Math.max(1, max)));
-    }
+        /* ==================== BÚSQUEDAS ==================== */
 
-    @PostMapping("/admin/backfill")
+        @GetMapping("/search/by-destination")
+        public ResponseEntity<List<FlightResponseDTO>> searchByDestination(@RequestParam String destination) {
+
+            var flights = flightService.getFlightsByDestination(destination)
+                    .stream()
+                    .map(flightMapper::toDTO)
+                    .toList();
+
+            return ResponseEntity.ok(flights);
+        }
+
+
+        @GetMapping("/search/by-destination-and-month")
+        public ResponseEntity<?> searchByDestinationAndMonth_List(
+                @RequestParam String destination,
+                @RequestParam String ym,
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "20") int size) {
+
+            try {
+                var yearMonth = java.time.YearMonth.parse(ym);
+                var start = yearMonth.atDay(1);
+                var end = yearMonth.atEndOfMonth();
+
+                var all = flightService.searchFlightsByDestinationAndDateRange(destination, start, end);
+
+                // Ordenar
+                all.sort(
+                        Comparator.comparing(Flight::getDepartureDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                                .thenComparing(Flight::getDepartureTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                );
+
+                // Paginación manual
+                int s = Math.min(Math.max(size, 1), 50);
+                int p = Math.max(page, 0);
+                int total = all.size();
+
+                int from = p * s;
+                int to = Math.min(from + s, total);
+                var content = (from >= total) ? List.<Flight>of() : all.subList(from, to);
+
+                // Convertimos a DTOs
+                var dtoContent = content
+                        .stream()
+                        .map(flightMapper::toDTO)
+                        .toList();
+
+                int totalPages = (int) Math.ceil(total / (double) s);
+
+                // Respondemos SOLO DTOs
+                return ResponseEntity.ok(Map.of(
+                        "content", dtoContent,
+                        "page", p,
+                        "size", s,
+                        "totalPages", totalPages,
+                        "totalElements", total,
+                        "destination", destination,
+                        "ym", ym
+                ));
+
+            } catch (Exception ex) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Parámetro ym inválido. Usá YYYY-MM (ej: 2025-08)",
+                        "error", ex.getMessage()
+                ));
+            }
+        }
+
+        @GetMapping("/random")
+        public ResponseEntity<List<FlightResponseDTO>> getRandom(
+                @RequestParam(defaultValue = "10") int max) {
+
+            var flights = flightService.getRandomFlights(max)
+                    .stream()
+                    .map(flightMapper::toDTO)
+                    .toList();
+
+            return ResponseEntity.ok(flights);
+        }
+
+
+        @PostMapping("/admin/backfill")
     public ResponseEntity<?> backfillFlights() {
         int created = flightService.backfillFlightsForAllRecommendations();
         return ResponseEntity.ok(Map.of("created", created));
@@ -203,12 +269,18 @@ public class FlightController {
         return ResponseEntity.ok(flightService.getDistinctDestinations());
     }
 
-    @GetMapping("/search/fuzzy")
-    public ResponseEntity<List<Flight>> searchFuzzy(@RequestParam String term) {
-        return ResponseEntity.ok(flightService.searchFuzzy(term));
-    }
+        @GetMapping("/search/fuzzy")
+        public ResponseEntity<List<FlightResponseDTO>> searchFuzzy(@RequestParam String term) {
+            var flights = flightService.searchFuzzy(term)
+                    .stream()
+                    .map(flightMapper::toDTO)
+                    .toList();
 
-    @GetMapping("/{id}/available-seats")
+            return ResponseEntity.ok(flights);
+        }
+
+
+        @GetMapping("/{id}/available-seats")
     public ResponseEntity<List<String>> getAvailableSeats(
             @PathVariable Long id,
             @RequestParam("flightClass") String flightClass) {
@@ -226,15 +298,22 @@ public class FlightController {
         return Map.of("deleted", deleted);
     }
 
-    @GetMapping("/search")
-    public List<Flight> searchFlights(
-            @RequestParam String origin,
-            @RequestParam String destination,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate) {
-        return flightService.searchFlights(origin, destination, fromDate);
-    }
+        @GetMapping("/search")
+        public ResponseEntity<List<FlightResponseDTO>> searchFlights(
+                @RequestParam String origin,
+                @RequestParam String destination,
+                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate) {
 
-    /* ==================== AUTOCOMPLETE DE CIUDADES ==================== */
+            var flights = flightService.searchFlights(origin, destination, fromDate)
+                    .stream()
+                    .map(flightMapper::toDTO)
+                    .toList();
+
+            return ResponseEntity.ok(flights);
+        }
+
+
+        /* ==================== AUTOCOMPLETE DE CIUDADES ==================== */
 
     @GetMapping("/search/cities")
     public ResponseEntity<List<String>> getUniqueCities() {
@@ -246,4 +325,13 @@ public class FlightController {
             return ResponseEntity.internalServerError().body(Collections.emptyList());
         }
     }
-}
+        @GetMapping("/assign-categories")
+        public String assignCategories() {
+            int n = flightService.assignCategoriesToExistingFlights();
+            return "Vuelos actualizados: " + n;
+        }
+
+    }
+
+
+

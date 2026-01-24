@@ -10,7 +10,7 @@ import {
 import { recoUrl } from '../config/mediaPaths';
 
 function useFilePreview(file) {
-  const [url, setUrl] = React.useState('');
+  const [url, setUrl] = React.useState ('');
   React.useEffect(() => {
     if (!file) { setUrl(''); return; }
     const u = URL.createObjectURL(file);

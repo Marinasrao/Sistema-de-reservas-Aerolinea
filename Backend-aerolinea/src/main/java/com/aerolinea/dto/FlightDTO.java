@@ -1,4 +1,3 @@
-
 package com.aerolinea.dto;
 
 import lombok.Data;
@@ -20,4 +19,8 @@ public class FlightDTO {
     private String airline;
     private String aircraftType;
     private String flightStatus;
+
+    private Long categoryId;
+    private String categoryTitle;
 }
+

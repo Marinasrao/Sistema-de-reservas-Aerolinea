@@ -80,10 +80,9 @@ public class CategoryService {
         File dest = new File(dir, filename);
         file.transferTo(dest);
 
-        // Generar URL completa accesible desde el navegador
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        return baseUrl + "/uploads/categories/" + filename;
+        return filename;
     }
+
 
     private void deleteImageFile(String imagePath) {
         try {

@@ -1,0 +1,37 @@
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 2rem;
+  border: 1px solid #e0e0e0;
+}
+
+.title {
+  margin-bottom: 1.5rem;
+  color: #003580;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btnDelete {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btnDelete:hover {
+  opacity: 0.85;
+}

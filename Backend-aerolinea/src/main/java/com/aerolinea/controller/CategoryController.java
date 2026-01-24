@@ -10,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "*")
 public class CategoryController {
 
     private final CategoryService service;
@@ -19,12 +18,19 @@ public class CategoryController {
         this.service = service;
     }
 
+    // ===================== PÚBLICO (HOME) =====================
+
     @GetMapping
     public ResponseEntity<List<Category>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
-    @PostMapping
+    // ===================== ADMIN =====================
+
+    @PostMapping(
+            value = "/admin",
+            consumes = "multipart/form-data"
+    )
     public ResponseEntity<?> createCategory(
             @RequestParam("title") String title,
             @RequestParam("promoText") String promoText,
@@ -38,7 +44,10 @@ public class CategoryController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(
+            value = "/admin/{id}",
+            consumes = "multipart/form-data"
+    )
     public ResponseEntity<?> updateCategory(
             @PathVariable Long id,
             @RequestParam("title") String title,
@@ -52,7 +61,8 @@ public class CategoryController {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
-    @DeleteMapping("/{id}")
+
+    @DeleteMapping("/admin/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
         try {
             service.deleteCategory(id);
@@ -61,5 +71,4 @@ public class CategoryController {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
-
 }

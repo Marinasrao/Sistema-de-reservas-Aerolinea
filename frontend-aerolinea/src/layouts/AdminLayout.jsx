@@ -4,32 +4,28 @@ import styles from './AdminLayout.module.css';
 import AdminSidebar from './AdminSidebar';
 import Footer from '../components/Footer';
 
-const AdminLayout = () => {
+const AdminLayout = ({ auth }) => {
 
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
 
- 
   useEffect(() => {
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth < 768);
     };
 
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  
   if (isSmallScreen) {
     return (
       <div className={styles.mobileBlock}>
-        <h2> ⛔Panel no disponible</h2>
+        <h2>⛔ Panel no disponible</h2>
         <p>El panel de administración solo puede utilizarse desde una computadora.</p>
       </div>
     );
   }
 
- 
   return (
     <div className={styles.adminContainer}>
 
@@ -37,9 +33,12 @@ const AdminLayout = () => {
         <h2>FlightBooking</h2>
       </header>
 
-      <aside className={styles.sidebarWrapper}>
-        <AdminSidebar />
-      </aside>
+      {/* SIDEBAR SOLO SI ES ADMIN */}
+      {auth?.isAdmin && (
+        <aside className={styles.sidebarWrapper}>
+          <AdminSidebar />
+        </aside>
+      )}
 
       <div className={styles.adminContent}>
         <main className={styles.adminMain}>

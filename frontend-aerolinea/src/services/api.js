@@ -2,7 +2,7 @@ const API_BASE_URL = '/api';
 
 const makeRequest = async (endpoint, method, body = null, isFormData = false) => {
     const url = `${API_BASE_URL}${endpoint}`;
-    const token = localStorage.getItem ('token') || '';
+    const token = localStorage.getItem('token') || '';
 
     const headers = {};
     if (!isFormData) {
@@ -15,8 +15,10 @@ const makeRequest = async (endpoint, method, body = null, isFormData = false) =>
     const config = {
         method,
         headers,
+        credentials: 'include',
         body: isFormData ? body : (body ? JSON.stringify(body) : null)
     };
+
 
     try {
         const response = await fetch(url, config);
@@ -160,24 +162,28 @@ export const deletePassenger = async (id) => {
 // ===================== ASIENTOS DISPONIBLES =====================
 
 export const getAvailableSeats = async (flightId, flightClass) => {
-  return makeRequest(`/flights/${flightId}/available-seats?flightClass=${flightClass}`, 'GET');
+    return makeRequest(`/flights/${flightId}/available-seats?flightClass=${flightClass}`, 'GET');
 };
 
 // ===================== CATEGORÍAS =====================
 
+// ===================== CATEGORÍAS =====================
+
+// Público (Home, vuelos, filtros) 
 export const getAllCategories = async () => {
-  return makeRequest('/categories', 'GET');
+    return makeRequest('/categories', 'GET');
 };
 
+// Admin (gestión)
 export const saveCategory = async (formData, id = null) => {
-  if (id) {
-    return makeRequest(`/categories/${id}`, 'PUT', formData, true);
-  }
-  return makeRequest('/categories', 'POST', formData, true);
+    if (id) {
+        return makeRequest(`/categories/admin/${id}`, 'PUT', formData, true);
+    }
+    return makeRequest('/categories/admin', 'POST', formData, true);
 };
 
 export const deleteCategory = async (id) => {
-  return makeRequest(`/categories/${id}`, 'DELETE');
+    return makeRequest(`/categories/admin/${id}`, 'DELETE');
 };
 
 

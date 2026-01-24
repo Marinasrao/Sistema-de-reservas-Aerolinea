@@ -22,6 +22,7 @@ const AddPassengerPage = () => {
   const [availableSeats, setAvailableSeats] = useState([]);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const [errors, setErrors] = useState([]);
 
   useEffect(() => {
     const fetchFlights = async () => {
@@ -65,10 +66,42 @@ const AddPassengerPage = () => {
       setMessage('❌ No hay asientos disponibles en esta clase.');
     }
   };
+  
+  
+  const validateForm = () => {
+  const newErrors = {};
+
+  if (!form.firstName.trim()) newErrors.firstName = "El nombre es obligatorio.";
+  if (!form.lastName.trim()) newErrors.lastName = "El apellido es obligatorio.";
+
+  if (!form.documentNumber.trim()) {
+    newErrors.documentNumber = "El DNI es obligatorio.";
+  } else if (!/^\d{7,10}$/.test(form.documentNumber)) {
+    newErrors.documentNumber = "El DNI debe contener solo números (7 a 10 dígitos).";
+  }
+
+  if (!form.email.trim()) {
+    newErrors.email = "El correo es obligatorio.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    newErrors.email = "Formato de correo inválido.";
+  }
+
+  if (!form.flightId) newErrors.flightId = "Debe seleccionar un vuelo.";
+  if (!form.flightClass) newErrors.flightClass = "Debe seleccionar una clase.";
+
+  if (!form.seatNumber) {
+    newErrors.seatNumber = "Debe seleccionar o asignar un asiento.";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+    if (!validateForm()) return;
 
     if (!form.seatNumber) {
       setMessage('❌ Debe asignar un asiento antes de guardar.');
@@ -106,6 +139,9 @@ const AddPassengerPage = () => {
           value={form.firstName}
           onChange={handleChange}
         />
+{errors.firstName && <p className={styles.error}>{errors.firstName}</p>}
+
+
         <input
           type="text"
           name="lastName"
@@ -113,6 +149,9 @@ const AddPassengerPage = () => {
           value={form.lastName}
           onChange={handleChange}
         />
+        {errors.lastName && <p className={styles.error}>{errors.lastName}</p>}
+
+
         <input
           type="text"
           name="documentNumber"
@@ -120,6 +159,9 @@ const AddPassengerPage = () => {
           value={form.documentNumber}
           onChange={handleChange}
         />
+        {errors.documentNumber && <p className={styles.error}>{errors.documentNumber}</p>}
+
+
         <input
           type="email"
           name="email"
@@ -127,6 +169,7 @@ const AddPassengerPage = () => {
           value={form.email}
           onChange={handleChange}
         />
+        {errors.email && <p className={styles.error}>{errors.email}</p>}
 
         <select name="flightId" value={form.flightId} onChange={handleChange}>
           <option value="">Seleccionar vuelo</option>
@@ -136,12 +179,16 @@ const AddPassengerPage = () => {
             </option>
           ))}
         </select>
+        {errors.flightId && <p className={styles.error}>{errors.flightId}</p>}
 
         <select name="flightClass" value={form.flightClass} onChange={handleChange}>
           <option value="ECONOMY">ECONOMY</option>
           <option value="BUSINESS">BUSINESS</option>
           <option value="FIRST">FIRST</option>
         </select>
+        {errors.flightClass && <p className={styles.error}>{errors.flightClass}</p>}
+
+
 
         <div className={styles.seatAssignRow}>
           <select
@@ -156,6 +203,8 @@ const AddPassengerPage = () => {
               </option>
             ))}
           </select>
+          {errors.seatNumber && <p className={styles.error}>{errors.seatNumber}</p>}
+
           <button type="button" onClick={assignSeat}>
             Asignar automáticamente
           </button>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 
-const LoginPage = ({ onLogin }) => {  
+const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,17 +15,14 @@ const LoginPage = ({ onLogin }) => {
     setError('');
 
     try {
-      const { success, isAdmin } = await onLogin({ email, password });
-      if (success) {
-        navigate(isAdmin ? '/admin' : '/');
-      } else {
-        setError('Credenciales incorrectas');
-      }
+      const { isAdmin } = await onLogin({ email, password });
+      navigate(isAdmin ? '/admin' : '/profile');
     } catch (err) {
-      setError('Error al conectar con el servidor');
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
+
   };
 
   return (

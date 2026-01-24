@@ -133,3 +133,11 @@ button:hover {
   flex: 1; 
   min-width: 160px; }
 
+  .error {
+  color: #d9534f;
+  font-size: 0.9rem;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+

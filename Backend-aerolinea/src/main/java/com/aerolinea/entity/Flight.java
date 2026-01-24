@@ -24,9 +24,11 @@ public class Flight {
 
 
     @Pattern(
-            regexp = "^(\\d{3,10}|[A-Za-z]{2,3}\\d{3,5}|[A-Za-z]{2,3}-[A-Za-z]{3}-[A-Za-z]{3}-\\d{4})$",
-            message = "Formato inválido. Ej: 655500, AR1234 o AR-BAI-COR-0830"
+            regexp = "^[A-Za-z]{2}-[A-Za-z]{3}-[A-Za-z]{3}-\\d{4}$",
+            message = "Formato inválido. Ej: AR-BUE-COR-0830"
     )
+
+
     private String flightNumber;
 
     private String origin;
@@ -79,4 +81,8 @@ public class Flight {
         if (flightStatus != null) flightStatus = flightStatus.trim();
         if (description != null) description = description.trim();
     }
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
 }

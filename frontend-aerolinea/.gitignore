@@ -51,7 +51,7 @@ Thumbs.db
 ###################################
 #   ARCHIVOS QUE NO DEBEN SUBIRSE
 ###################################
-uploads/
+
 application.properties
 application.yml
 
@@ -60,3 +60,4 @@ application.yml
 ###################################
 aerolinea.code-workspace
 
+out/

@@ -16,12 +16,11 @@ const AdminSidebar = () => {
                 <NavItem to="/admin/listar-vuelos" icon="📋" text="Listar Vuelos" />
                 <NavItem to="/admin/passengers" icon="👥" text="Pasajeros" />
                 <NavItem to="/admin/categories" icon="📂" text="Gestionar Categorías" />
+                <NavItem to="/admin/characteristics" icon="⚙️" text=" Administrar Características" />
                 <NavItem to="/admin/recommendations" icon="💡" text="Gestionar Recomendaciones" />
                 <NavItem to="/admin/hero" icon="🖼️" text="Portada Principal" />
-                
-
+                <NavItem to="/admin/admin-users" icon="🛡️" text="Administradores" />
             </nav>
-
         </aside>
     );
 };

@@ -4,7 +4,6 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -15,34 +14,19 @@ import java.nio.file.Paths;
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("*")
-                .allowedHeaders("*");
-    }
-
-    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path uploadDir = Paths.get("uploads");
-        String uploadPath = uploadDir.toFile().getAbsolutePath();
+        Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads")
+                .normalize()
+                .toAbsolutePath();
 
-        // Ruta general para cualquier archivo dentro de /uploads
+        String uploadPath = "file:" + uploadDir + "/";
+
+        System.out.println("UPLOADS PATH => " + uploadPath);
+
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath + "/");
-
-        // Ruta específica para imágenes del hero
-        registry.addResourceHandler("/uploads/hero/**")
-                .addResourceLocations("file:" + uploadPath + "/hero/");
-
-        // Ruta específica para imágenes de categorías
-        registry.addResourceHandler("/uploads/categories/**")
-                .addResourceLocations("file:" + uploadPath + "/categories/");
-
-        // Ruta genérica para imágenes sueltas
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+                .addResourceLocations(uploadPath);
     }
+
 
     @Bean
     public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerCustomizer() {

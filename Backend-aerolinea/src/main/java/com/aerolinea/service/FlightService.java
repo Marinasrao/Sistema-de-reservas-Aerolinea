@@ -1,11 +1,13 @@
 package com.aerolinea.service;
 
+import com.aerolinea.entity.Category;
 import com.aerolinea.entity.Flight;
 import com.aerolinea.entity.Passenger;
 import com.aerolinea.entity.Recommendation;
 import com.aerolinea.repository.FlightRepository;
 import com.aerolinea.repository.RecommendationRepository;
 import com.aerolinea.repository.PassengerRepository;
+import com.aerolinea.repository.CategoryRepository; // <-- agregado
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,6 +29,7 @@ public class FlightService {
     @Autowired private FlightRepository flightRepository;
     @Autowired private RecommendationRepository recommendationRepository;
     @Autowired private PassengerRepository passengerRepository;
+    @Autowired private CategoryRepository categoryRepository; // <-- agregado
 
     private static final DateTimeFormatter HHMM = DateTimeFormatter.ofPattern("HHmm");
 
@@ -82,12 +85,13 @@ public class FlightService {
         if (flight.getImageUrls() != null) existing.setImageUrls(flight.getImageUrls());
         if (flight.getRecommendation() != null) existing.setRecommendation(flight.getRecommendation());
 
+
+        if (flight.getCategory() != null) existing.setCategory(flight.getCategory());
+
         return flightRepository.save(existing);
     }
 
-    public void deleteFlight(Long id) {
-        deleteFlight(id, false);
-    }
+
 
     public Map<String, Object> deleteGuard(Long flightId) {
         if (!flightRepository.existsById(flightId)) {
@@ -127,16 +131,24 @@ public class FlightService {
         return flightRepository.findByDestinationIgnoreCaseAndDepartureDateGreaterThanEqual(destination, LocalDate.now());
     }
 
-
     public List<Flight> searchFlightsByDestinationAndDateRange(String destination, LocalDate start, LocalDate end) {
         return flightRepository.findByDestinationIgnoreCaseAndDepartureDateBetween(
                 destination, start, end
         );
     }
 
-
+    // ----------------------------------------------------------------
+    // BACKFILL AUTOMÁTICO — MODIFICADO PARA AEROLÍNEAS REALES
+    // ----------------------------------------------------------------
     public int backfillFlightsForAllRecommendations() {
-        List<String> defaultAirlines = Arrays.asList("Aerolíneas Argentinas", "Jetsmart", "Flybondi");
+
+        List<String> defaultAirlines = Arrays.asList(
+                "Aerolinea",
+                "SkiWings",
+                "GlobalAir",
+                "SkyPremium"
+        );
+
         LocalTime[] idaSlots = { LocalTime.of(8, 30), LocalTime.of(19, 15) };
         LocalTime[] vueltaSlots = { LocalTime.of(10, 45), LocalTime.of(21, 0) };
 
@@ -195,14 +207,117 @@ public class FlightService {
         return Map.of("deleted", deleted, "created", created);
     }
 
+    // ------------------------------------------------------------
+// ASIGNAR CATEGORÍAS A TODOS LOS VUELOS (REESCRIBE SIEMPRE)
+// ------------------------------------------------------------
+    public int assignCategoriesToExistingFlights() {
+
+        List<String> argentinaKeywords = List.of(
+                "buenos aires", "aeroparque", "ezeiza",
+                "cordoba", "rosario", "mendoza", "bariloche",
+                "el calafate", "iguazu", "ushuaia", "salta",
+                "san juan", "neuquen", "trelew", "san luis",
+                "comodoro rivadavia", "mar del plata", "bahia blanca"
+        );
+
+
+        int updated = 0;
+
+        for (Flight f : flightRepository.findAll()) {
+
+            String origin = normalizeCityName(f.getOrigin());
+            String destination = normalizeCityName(f.getDestination());
+            String airline = f.getAirline();
+
+            Category newCategory;
+
+            // -------------------------------
+            // REGLA ESPECIAL POR AEROLÍNEA
+            // -------------------------------
+            if (airline != null && airline.equalsIgnoreCase("SkyPremium")) {
+                newCategory = getCategoryByTitle("Premium");
+
+            } else if (airline != null && airline.equalsIgnoreCase("SkiWings")) {
+                newCategory = getCategoryByTitle("Low Cost");
+
+            } else {
+                // -------------------------------
+                // REGLA GENERAL (ARG vs INT)
+                // -------------------------------
+                boolean originAR = containsKeyword(origin, argentinaKeywords);
+                boolean destAR   = containsKeyword(destination, argentinaKeywords);
+
+                if (originAR && destAR) {
+                    newCategory = getCategoryByTitle("Nacionales");
+                } else {
+                    newCategory = getCategoryByTitle("Internacionales");
+                }
+            }
+
+            f.setCategory(newCategory);
+            flightRepository.save(f);
+            updated++;
+        }
+
+        return updated;
+    }
+
+    // ------------------------------------------------------------
+// NORMALIZAR CIUDAD
+// ------------------------------------------------------------
+    private String normalizeCityName(String text) {
+        if (text == null) return "";
+        return Normalizer.normalize(text, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .replaceAll("[^a-zA-Z\\s]", "")
+                .toLowerCase()
+                .trim();
+    }
+
+
+    private boolean containsKeyword(String text, List<String> keywords) {
+        return keywords.stream().anyMatch(text::contains);
+    }
+
+
+    // ------------------------------------------------------------
+// LÓGICA DE CATEGORIZACIÓN AUTOMÁTICA (REUTILIZADA)
+// ------------------------------------------------------------
+    private Category calcularCategoria(String airline, String destination) {
+
+        if (airline == null || destination == null) {
+            return getCategoryByTitle("Internacional"); // fallback seguro
+        }
+
+        if (airline.equalsIgnoreCase("SkyPremium")) {
+            return getCategoryByTitle("Premium");
+
+        } else if (airline.equalsIgnoreCase("SkiWings")) {
+            return getCategoryByTitle("Low Cost");
+
+        } else if (isDestinoEnArgentina(destination)) {
+            return getCategoryByTitle("Nacionales");
+
+        } else {
+            return getCategoryByTitle("Internacionales");
+        }
+    }
+
+
+
+    // ------------------------------------------------------------
+    // CREACIÓN DE VUELO INDIVIDUAL CON CATEGORÍA AUTOMÁTICA
+    // ------------------------------------------------------------
     private int maybeCreateFlight(String flightNumber, String origin, String destination,
                                   LocalDate depDate, LocalTime depTime,
                                   LocalDate arrDate, LocalTime arrTime,
                                   String airline, double price, String aircraft, String status,
                                   Recommendation rec) {
+
         boolean exists = flightRepository.existsByFlightNumberAndDepartureDateAndOriginAndDestination(
                 flightNumber, depDate, origin, destination
         );
+
         if (exists) return 0;
 
         Flight f = new Flight();
@@ -225,6 +340,26 @@ public class FlightService {
         f.setBusinessSeats(20);
         f.setFirstSeats(10);
 
+        // -------------------------------------------
+        // CATEGORIZACIÓN AUTOMÁTICA
+        // -------------------------------------------
+        Category category;
+
+        if (airline.equalsIgnoreCase("SkyPremium")) {
+            category = getCategoryByTitle("Premium");
+
+        } else if (airline.equalsIgnoreCase("SkiWings")) {
+            category = getCategoryByTitle("Low Cost");
+
+        } else if (isDestinoEnArgentina(destination)) {
+            category = getCategoryByTitle("Nacionales");
+
+        } else {
+            category = getCategoryByTitle("Internacionales");
+        }
+
+        f.setCategory(category);
+
         flightRepository.save(f);
         return 1;
     }
@@ -240,9 +375,10 @@ public class FlightService {
     private String airlineCode(String name) {
         if (name == null) return "XX";
         String n = name.toLowerCase();
-        if (n.contains("aerolíneas")) return "AR";
-        if (n.contains("jetsmart")) return "JS";
-        if (n.contains("flybondi")) return "FB";
+        if (n.contains("aerolinea")) return "AR";
+        if (n.contains("skiwings")) return "SW";
+        if (n.contains("globalair")) return "GA";
+        if (n.contains("skypremium")) return "SP";
         return "XX";
     }
 
@@ -265,6 +401,18 @@ public class FlightService {
 
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    private boolean isDestinoEnArgentina(String destination) {
+        if (destination == null) return false;
+
+        Set<String> destinosArg = Set.of(
+                "Bariloche", "Córdoba", "Mendoza", "Ushuaia", "Iguazú",
+                "Salta", "Rosario", "Mar del Plata", "Neuquén", "Bahía Blanca"
+        );
+
+        return destinosArg.stream()
+                .anyMatch(d -> d.equalsIgnoreCase(destination.trim()));
     }
 
     private String normalizeCity(String s) {
@@ -334,10 +482,7 @@ public class FlightService {
         int total = 0;
 
         for (Flight vuelo : vencidos) {
-            // Borrar pasajeros asociados primero
             passengerRepository.deleteByFlight_Id(vuelo.getId());
-
-            // Luego borrar el vuelo
             flightRepository.deleteById(vuelo.getId());
             total++;
         }
@@ -351,5 +496,12 @@ public class FlightService {
         );
     }
 
+    // --------------------------------------------
+    // MÉTODO PARA BUSCAR CATEGORÍAS
+    // --------------------------------------------
+    private Category getCategoryByTitle(String title) {
+        return categoryRepository.findByTitleIgnoreCase(title)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada: " + title));
+    }
 
 }

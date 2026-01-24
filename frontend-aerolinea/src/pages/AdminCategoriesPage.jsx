@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './AdminCategoriesPage.module.css';
-import { getAllCategories, saveCategory } from '../services/api';
+import { getAllCategories, saveCategory, deleteCategory } from '../services/api';
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState([]);
@@ -85,31 +85,45 @@ const AdminCategoriesPage = () => {
               className={styles.input}
             />
 
-            <input
-              type="text"
-              value={cat.promoText || ''}
-              onChange={(e) => handlePromoChange(cat.id, e.target.value)}
-              placeholder="Texto promocional (opcional)"
-              className={styles.input}
-            />
+            {!(cat.imageFile || cat.image) && (
+              <input
+                type="text"
+                value={cat.promoText || ''}
+                onChange={(e) => handlePromoChange(cat.id, e.target.value)}
+                placeholder="Texto promocional (opcional)"
+                className={styles.input}
+              />
+            )}
+
 
             <input
               type="file"
               accept="image/*"
               onChange={(e) => handleImageChange(cat.id, e.target.files[0])}
-              className={styles.fileInput}
+              className={styles.fileInputHidden}
+              id={`file-${cat.id}`}
             />
+
+            <label htmlFor={`file-${cat.id}`} className={styles.imageButton}>
+              {cat.image || cat.imageFile ? "Cambiar imagen" : "Seleccionar imagen"}
+            </label>
+
+
 
             {(cat.imageFile || cat.image) && (
               <div className={styles.previewWrapper}>
                 <img
-                  src={cat.imageFile
-                    ? URL.createObjectURL(cat.imageFile)
-                    : cat.image}
-
+                  src={
+                    cat.imageFile
+                      ? URL.createObjectURL(cat.imageFile)
+                      : cat.image
+                        ? `http://localhost:8080/uploads/categories/${cat.image}`
+                        : undefined
+                  }
                   alt="preview"
                   className={styles.preview}
                 />
+
                 {cat.promoText && (
                   <div className={styles.promoBadge}>
                     {cat.promoText}
