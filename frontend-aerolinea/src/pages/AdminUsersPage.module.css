@@ -2,7 +2,19 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  margin-bottom: 50px;
 }
+
+.header {
+  padding-top: 4rem;      /* baja el título de forma segura */
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  margin: 0;              /* mata el margen default del h2 */
+}
+
+
 
 .grid {
   display: grid;

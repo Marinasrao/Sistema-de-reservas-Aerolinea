@@ -18,22 +18,35 @@ const AdminUsersPage = () => {
   };
 
   const handleCreate = () => {
-    navigate('/admin/admin-user');
+    navigate('/admin/admin-user', {
+      state: { mode: 'create' }
+    });
   };
 
-  const handleEdit = (admin) => {
-    navigate(`/admin/admin-user/${admin.id}`);
-  };
+ 
+const handleEdit = (admin) => {
+  navigate(`/admin/admin-user/${admin.id}`);
+};
+
+  
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Administradores</h2>
+        <h2 className={styles.title}>Administradores</h2>
       </div>
 
-      <div className={styles.actionCard} onClick={handleCreate}>
+      <button
+        onClick={handleCreate}
+        style={{
+          padding: '1rem',
+          marginBottom: '1rem',
+          cursor: 'pointer',
+          position: 'relative'
+        }}
+      >
         ➕ Agregar administrador
-      </div>
+      </button>
 
       <div className={styles.tableWrapper}>
         <AdminUsersList admins={admins} onEdit={handleEdit} />
