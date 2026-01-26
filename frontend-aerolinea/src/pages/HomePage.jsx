@@ -303,11 +303,11 @@ const HomePage = () => {
                     {Array.isArray(categories) && categories.length > 0 ? (
                         <div className={styles.categoriesGrid}>
                             {categories.map((cat) => (
-                                <div
+                                <Link
                                     key={cat.id}
+                                    to={`/category-results?categories=${cat.id}`}
                                     className={styles.categoryCard}
                                 >
-
                                     {cat.image ? (
                                         <img
                                             src={`http://localhost:8080/uploads/categories/${cat.image}`}
@@ -321,17 +321,21 @@ const HomePage = () => {
                                     ) : (
                                         <div className={styles.noImage}>Sin imagen</div>
                                     )}
+
                                     <h4>{cat.title}</h4>
+
                                     {cat.promoText && (
                                         <p className={styles.categoryPromo}>{cat.promoText}</p>
                                     )}
-                                </div>
+                                </Link>
                             ))}
+
                         </div>
                     ) : (
                         <p style={{ opacity: 0.6 }}>No hay categorías disponibles</p>
                     )}
                 </section>
+
                 {/* FILTRO POR CATEGORÍAS – */}
                 <section className={styles.filterSection}>
                     <h4 className={styles.filterTitle}>🎛️ Filtrar por categorías</h4>
@@ -368,7 +372,7 @@ const HomePage = () => {
                                     );
                                 }}
                             >
-                            Buscar
+                                Buscar
                             </button>
 
                             <button

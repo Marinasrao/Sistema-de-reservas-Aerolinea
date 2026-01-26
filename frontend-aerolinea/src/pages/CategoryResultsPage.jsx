@@ -90,27 +90,28 @@ const CategoryResultsPage = () => {
             : `Vuelos ${categoryTitles.join(" y ")}`;
 
 
-   return (
-    <div className={styles.container}>
-        <h2 className={styles.title}>{titleText}</h2>
+    return (
+        <div className={styles.container}>
+            <h2 className={styles.title}>{titleText}</h2>
 
-        <p className={styles.counter}>
-            Mostrando {filteredFlights.length} vuelos
-        </p>
+            <p className={styles.counter}>
+                Mostrando {filteredFlights.length} vuelos de {flights.length}
+            </p>
 
-        {!loading && filteredFlights.length === 0 && (
-            <p>No se encontraron vuelos para estas categorías.</p>
-        )}
 
-        <div className={styles.list}>
-            {filteredFlights.map(flight => (
-                <div key={flight.id} className={styles.card}>
-                    <h4>{flight.flightNumber}</h4>
-                    <p>{flight.origin} → {flight.destination}</p>
-                </div>
-            ))}
+            {!loading && filteredFlights.length === 0 && (
+                <p>No se encontraron vuelos para estas categorías.</p>
+            )}
+
+            <div className={styles.list}>
+                {filteredFlights.map(flight => (
+                    <div key={flight.id} className={styles.card}>
+                        <h4>{flight.flightNumber}</h4>
+                        <p>{flight.origin} → {flight.destination}</p>
+                    </div>
+                ))}
+            </div>
         </div>
-    </div>
-)
+    )
 };
 export default CategoryResultsPage;

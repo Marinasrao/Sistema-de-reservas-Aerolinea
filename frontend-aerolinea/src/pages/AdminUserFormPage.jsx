@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AdminUserForm from "../components/AdminUserForm";
-import { createAdmin, updateAdmin, deleteAdmin, getAdmins } from "../services/adminUsersService";
+import {
+  createAdmin,
+  updateAdmin,
+  deleteAdmin,
+  getAdmins,
+} from "../services/adminUsersService";
 import styles from "./AdminUserFormPage.module.css";
 
 const AdminUserFormPage = () => {
@@ -9,7 +13,13 @@ const AdminUserFormPage = () => {
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
-  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
+
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -19,68 +29,111 @@ const AdminUserFormPage = () => {
 
   const loadUser = async () => {
     try {
-      setError("");
       const admins = await getAdmins();
-      const admin = Array.isArray(admins) ? admins.find((a) => a.id === Number(id)) : null;
-      setUser(admin || null);
-    } catch (e) {
-      setError(e?.message || "Error al cargar administrador");
+      const admin = admins.find((a) => a.id === Number(id));
+      if (admin) {
+        setFormData({
+          firstName: admin.firstName || "",
+          lastName: admin.lastName || "",
+          email: admin.email || "",
+          password: "",
+        });
+      }
+    } catch {
+      setError("Error al cargar administrador");
     }
   };
 
-  const handleSave = async (data) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async () => {
     try {
-      setError("");
       setIsSaving(true);
+      setError("");
 
       if (isEdit) {
-        await updateAdmin(id, data);
+        await updateAdmin(id, formData);
       } else {
-        await createAdmin(data);
+        await createAdmin(formData);
       }
 
       navigate("/admin/admin-users");
-    } catch (e) {
-      setError(e?.message || "Error al guardar administrador");
+    } catch {
+      setError("Error al guardar administrador");
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    const ok = window.confirm("¿Eliminar este administrador?");
-    if (!ok) return;
-
+    if (!window.confirm("¿Eliminar este administrador?")) return;
     try {
-      setError("");
       setIsSaving(true);
       await deleteAdmin(id);
       navigate("/admin/admin-users");
-    } catch (e) {
-      setError(e?.message || "Error al eliminar administrador");
+    } catch {
+      setError("Error al eliminar administrador");
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleSubmitClick = () => {
-    const formEl = document.getElementById("adminUserForm");
-    if (!formEl) return;
-    formEl.requestSubmit();
   };
 
   return (
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={styles.header}>
-          <h2 className={styles.title}>{isEdit ? "Editar administrador" : "Nuevo administrador"}</h2>
-          <p className={styles.subtitle}>
-            {isEdit ? "Actualizá los datos del administrador." : "Completá los datos para crear un administrador."}
-          </p>
+          <h2 className={styles.title}>
+            {isEdit ? "Editar administrador" : "Nuevo administrador"}
+          </h2>
         </div>
 
-        <div className={styles.formWrap}>
-          <AdminUserForm user={user} onSubmit={handleSave} disabled={isSaving} />
+        <div className={styles.form}>
+          <div className={styles.field}>
+            <label>Nombre</label>
+            <input
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              disabled={isSaving}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label>Apellido</label>
+            <input
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              disabled={isSaving}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={isSaving || isEdit}
+            />
+          </div>
+
+          {!isEdit && (
+            <div className={styles.field}>
+              <label>Contraseña</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                disabled={isSaving}
+              />
+            </div>
+          )}
         </div>
 
         {error && <div className={styles.error}>{error}</div>}
@@ -98,10 +151,10 @@ const AdminUserFormPage = () => {
           <button
             type="button"
             className={styles.primary}
-            onClick={handleSubmitClick}
+            onClick={handleSave}
             disabled={isSaving}
           >
-            {isSaving ? "Guardando..." : "Guardar"}
+            Guardar
           </button>
 
           {isEdit && (

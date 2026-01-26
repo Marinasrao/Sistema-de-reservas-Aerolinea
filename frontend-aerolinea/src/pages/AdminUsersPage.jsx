@@ -31,28 +31,26 @@ const handleEdit = (admin) => {
   
 
   return (
-    <div className={styles.container}>
+  <div className={styles.page}>
+    <div className={styles.card}>
+
       <div className={styles.header}>
         <h2 className={styles.title}>Administradores</h2>
-      </div>
 
-      <button
-        onClick={handleCreate}
-        style={{
-          padding: '1rem',
-          marginBottom: '1rem',
-          cursor: 'pointer',
-          position: 'relative'
-        }}
-      >
-        ➕ Agregar administrador
-      </button>
+        <button
+          className={styles.addButton}
+          onClick={handleCreate}
+        >
+          ➕ Agregar administrador
+        </button>
+      </div>
 
       <div className={styles.tableWrapper}>
         <AdminUsersList admins={admins} onEdit={handleEdit} />
       </div>
-    </div>
-  );
-};
 
+    </div>
+  </div>
+);
+};
 export default AdminUsersPage;
