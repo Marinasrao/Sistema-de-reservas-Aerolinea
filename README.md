@@ -28,9 +28,24 @@ Proyecto full stack desarrollado con **React + Spring Boot** para gestionar vuel
 - Clases: Economy, Business, First  
 
 ### 📌 **Recomendaciones**
-- Cards estilo LATAM  
-- Imágenes, precio promocional, descuento, fecha y aeropuerto  
-- Detalles extendidos con galería de imágenes  
+
+El sistema incluye una sección de recomendaciones de destinos en la página principal.
+
+Cada recomendación muestra:
+
+- Imagen del destino
+- Precio promocional
+- Descuento aplicado
+- Fecha de vuelo
+- Aeropuerto de salida
+
+👉 **Al hacer click en una recomendación se accede a la página de detalle del destino**, donde se puede visualizar:
+
+- **Descripción completa del destino**
+- **Galería principal con imágenes destacadas**
+- **Galería adicional con múltiples fotografías del destino**
+
+Esto permite explorar visualmente el destino antes de realizar una reserva.
 
 ### 🗂️ **Categorías**
 - Nacionales, Internacionales, Low Cost, Premium  
