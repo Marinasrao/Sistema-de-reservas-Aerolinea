@@ -1,0 +1,35 @@
+.available {
+  background: #4caf50 !important;
+  color: #ffffff !important;
+  border-radius: 6px;
+}
+
+.unavailable {
+  background: #cfe9f5 !important;
+  color: #003580 !important;
+  border-radius: 6px;
+}
+:global(.react-calendar__navigation) {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+:global(.react-calendar__navigation button) {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #003580;
+  cursor: pointer;
+}
+
+:global(.react-calendar__navigation button:disabled) {
+  opacity: 0.4;
+  cursor: default;
+}
+
+:global(.react-calendar__navigation__label) {
+  font-weight: 700;
+  text-transform: capitalize;
+}

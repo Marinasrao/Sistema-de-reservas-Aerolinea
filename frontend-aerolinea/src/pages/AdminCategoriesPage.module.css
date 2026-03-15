@@ -8,10 +8,13 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
-  margin-top: 2rem;
+  align-items: start;
 }
+
+
+
 
 .card {
   background: #ffffff;
@@ -113,3 +116,24 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
+.togglePromosBtn {
+  margin-top: 0.75rem;
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+  background: #f7f9fc;
+  color: #003580;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.togglePromosBtn:hover {
+  background: #eef3fb;
+}
+
+.promosWrapper {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #e0e0e0;
+}

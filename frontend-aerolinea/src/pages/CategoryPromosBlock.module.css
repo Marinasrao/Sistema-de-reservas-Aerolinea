@@ -1,0 +1,51 @@
+.container {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.title {
+    margin-bottom: 1rem;
+    color: #003580;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    background: #dbc2c2;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.label {
+    display: block;
+    font-size: 0.85rem;
+    margin: 0.5rem 0 0.25rem;
+}
+
+.saveBtn {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #003580;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.saveBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.preview {
+  margin-top: 0.5rem;
+  width: 100%;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}

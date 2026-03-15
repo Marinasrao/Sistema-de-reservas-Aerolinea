@@ -1,5 +1,6 @@
 package com.aerolinea.service;
 
+import com.aerolinea.dto.AuthResponse;
 import com.aerolinea.dto.RegisterRequest;
 import com.aerolinea.entity.Role;
 import com.aerolinea.entity.User;
@@ -15,11 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import com.aerolinea.security.JwtService;
 
 
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -31,6 +34,8 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final JwtService jwtService;
+
 
     @Override
     public void register(RegisterRequest request) {
@@ -84,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public User login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request) {
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -94,19 +99,6 @@ public class AuthServiceImpl implements AuthService {
                         )
                 );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        HttpSessionSecurityContextRepository repo =
-                new HttpSessionSecurityContextRepository();
-        repo.saveContext(
-                SecurityContextHolder.getContext(),
-                ((org.springframework.web.context.request.ServletRequestAttributes)
-                        org.springframework.web.context.request.RequestContextHolder
-                                .currentRequestAttributes())
-                        .getRequest(),
-                null
-        );
-
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -114,9 +106,31 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Cuenta no activada. Revisá tu email.");
         }
 
-        return user;
+        String token = jwtService.generateToken(user.getEmail());
+
+        return new AuthResponse(token);
     }
 
+
+    @Override
+    public Map<String, Object> getCurrentUser(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        var roles = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .toList();
+
+        return Map.of(
+                "id", user.getId(),
+                "firstName", user.getFirstName(),
+                "lastName", user.getLastName(),
+                "email", user.getEmail(),
+                "roles", roles
+        );
+    }
 
 }
 

@@ -4,6 +4,7 @@
   padding-top: 1rem;
   background-color: #f3f4f6;
   color: #003580;
+  overflow-y:auto;
 }
 
 /************ LOGO ************/

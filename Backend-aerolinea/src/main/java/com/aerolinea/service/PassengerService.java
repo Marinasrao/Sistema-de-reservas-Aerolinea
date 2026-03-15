@@ -6,6 +6,8 @@ import com.aerolinea.repository.FlightRepository;
 import com.aerolinea.repository.PassengerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +61,12 @@ public class PassengerService {
 
         passenger.setPurchasedAt(LocalDateTime.now());
         passenger.setFlight(flight);
+
+        if (passenger.getSeatNumber() == null) {
+            passenger.setSeatNumber(getAvailableSeats(flight, flightClass).get(0));
+        }
+
+        
 
         flight.setSeatsAvailable(flight.getSeatsAvailable() - 1);
         flightRepository.save(flight);
@@ -118,7 +126,7 @@ public class PassengerService {
         }
 
         List<String> occupied = passengerRepository
-                .findByFlightIdAndFlightClass(flight.getId(), flightClass)
+                .findByFlight_IdAndFlightClass(flight.getId(), flightClass)
                 .stream()
                 .map(Passenger::getSeatNumber)
                 .filter(Objects::nonNull)
@@ -126,5 +134,9 @@ public class PassengerService {
 
         all.removeAll(occupied);
         return all;
+    }
+
+    public Page<Passenger> getPassengers(int page, int size) {
+        return passengerRepository.findAll(PageRequest.of(page, size));
     }
 }

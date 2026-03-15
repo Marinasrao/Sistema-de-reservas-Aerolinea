@@ -7,44 +7,70 @@ import com.aerolinea.entity.Recommendation;
 import com.aerolinea.repository.FlightRepository;
 import com.aerolinea.repository.RecommendationRepository;
 import com.aerolinea.repository.PassengerRepository;
-import com.aerolinea.repository.CategoryRepository; // <-- agregado
+import com.aerolinea.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 @Service
 public class FlightService {
 
-    @Autowired private FlightRepository flightRepository;
-    @Autowired private RecommendationRepository recommendationRepository;
-    @Autowired private PassengerRepository passengerRepository;
-    @Autowired private CategoryRepository categoryRepository; // <-- agregado
+    @Autowired
+    private FlightRepository flightRepository;
+    @Autowired
+    private RecommendationRepository recommendationRepository;
+    @Autowired
+    private PassengerRepository passengerRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+
 
     private static final DateTimeFormatter HHMM = DateTimeFormatter.ofPattern("HHmm");
 
-    public Flight saveFlight(Flight flight) throws IllegalArgumentException {
-        boolean exists = flightRepository.existsByFlightNumberAndDepartureDateAndOriginAndDestination(
-                flight.getFlightNumber(),
-                flight.getDepartureDate(),
-                flight.getOrigin(),
-                flight.getDestination()
-        );
+    public Flight saveFlight(Flight flight) {
+
+        validateFlightDuration(flight);
+
+        boolean exists = flightRepository
+                .existsByFlightNumberAndDepartureDateAndOriginAndDestination(
+                        flight.getFlightNumber(),
+                        flight.getDepartureDate(),
+                        flight.getOrigin(),
+                        flight.getDestination()
+                );
+
         if (exists) {
-            throw new IllegalArgumentException("Ya existe un vuelo con ese número, origen, destino y fecha");
+            throw new IllegalArgumentException(
+                    "Ya existe un vuelo con ese número, origen, destino y fecha"
+            );
         }
+
         return flightRepository.save(flight);
     }
+
+
+    public Page<Flight> getFlightsPaged(Pageable pageable) {
+        return flightRepository.findAll(pageable);
+    }
+
 
     public List<Flight> getAllFlights() {
         return flightRepository.findAll();
@@ -58,6 +84,35 @@ public class FlightService {
 
     public Optional<Flight> findById(Long id) {
         return flightRepository.findById(id);
+    }
+
+    private void validateFlightDuration(Flight flight) {
+        if (
+                flight.getDepartureDate() == null ||
+                        flight.getDepartureTime() == null ||
+                        flight.getArrivalDate() == null ||
+                        flight.getArrivalTime() == null
+        ) {
+            return;
+        }
+
+        LocalDateTime departure = LocalDateTime.of(
+                flight.getDepartureDate(),
+                flight.getDepartureTime()
+        );
+
+        LocalDateTime arrival = LocalDateTime.of(
+                flight.getArrivalDate(),
+                flight.getArrivalTime()
+        );
+
+        long hours = Duration.between(departure, arrival).toHours();
+
+        if (hours < 1 || hours > 24) {
+            throw new IllegalArgumentException(
+                    "La duración del vuelo debe ser entre 1 y 24 horas"
+            );
+        }
     }
 
     public Flight updateFlight(Long id, Flight flight) {
@@ -82,15 +137,15 @@ public class FlightService {
         if (flight.getAircraftType() != null) existing.setAircraftType(flight.getAircraftType());
         if (flight.getFlightStatus() != null) existing.setFlightStatus(flight.getFlightStatus());
         if (flight.getDescription() != null) existing.setDescription(flight.getDescription());
-        if (flight.getImageUrls() != null) existing.setImageUrls(flight.getImageUrls());
+
         if (flight.getRecommendation() != null) existing.setRecommendation(flight.getRecommendation());
 
 
         if (flight.getCategory() != null) existing.setCategory(flight.getCategory());
 
+        validateFlightDuration(existing);
         return flightRepository.save(existing);
     }
-
 
 
     public Map<String, Object> deleteGuard(Long flightId) {
@@ -135,10 +190,22 @@ public class FlightService {
         return flightRepository.findByDestinationIgnoreCaseAndDepartureDateBetween(
                 destination, start, end
         );
+
+
     }
 
+    public List<Flight> searchRoundtripExactDate(
+            String origin,
+            String destination,
+            LocalDate departureDate
+    ) {
+        return flightRepository.searchExactDate(origin, destination, departureDate);
+
+    }
+
+
     // ----------------------------------------------------------------
-    // BACKFILL AUTOMÁTICO — MODIFICADO PARA AEROLÍNEAS REALES
+    // BACKFILL AUTOMÁTICO —
     // ----------------------------------------------------------------
     public int backfillFlightsForAllRecommendations() {
 
@@ -149,8 +216,8 @@ public class FlightService {
                 "SkyPremium"
         );
 
-        LocalTime[] idaSlots = { LocalTime.of(8, 30), LocalTime.of(19, 15) };
-        LocalTime[] vueltaSlots = { LocalTime.of(10, 45), LocalTime.of(21, 0) };
+        LocalTime[] idaSlots = {LocalTime.of(8, 30), LocalTime.of(19, 15)};
+        LocalTime[] vueltaSlots = {LocalTime.of(10, 45), LocalTime.of(21, 0)};
 
         int created = 0;
 
@@ -208,7 +275,7 @@ public class FlightService {
     }
 
     // ------------------------------------------------------------
-// ASIGNAR CATEGORÍAS A TODOS LOS VUELOS (REESCRIBE SIEMPRE)
+// ASIGNAR CATEGORÍAS A TODOS LOS VUELOS
 // ------------------------------------------------------------
     public int assignCategoriesToExistingFlights() {
 
@@ -245,7 +312,7 @@ public class FlightService {
                 // REGLA GENERAL (ARG vs INT)
                 // -------------------------------
                 boolean originAR = containsKeyword(origin, argentinaKeywords);
-                boolean destAR   = containsKeyword(destination, argentinaKeywords);
+                boolean destAR = containsKeyword(destination, argentinaKeywords);
 
                 if (originAR && destAR) {
                     newCategory = getCategoryByTitle("Nacionales");
@@ -281,7 +348,7 @@ public class FlightService {
 
 
     // ------------------------------------------------------------
-// LÓGICA DE CATEGORIZACIÓN AUTOMÁTICA (REUTILIZADA)
+// LÓGICA DE CATEGORIZACIÓN AUTOMÁTICA
 // ------------------------------------------------------------
     private Category calcularCategoria(String airline, String destination) {
 
@@ -304,65 +371,52 @@ public class FlightService {
     }
 
 
-
     // ------------------------------------------------------------
     // CREACIÓN DE VUELO INDIVIDUAL CON CATEGORÍA AUTOMÁTICA
     // ------------------------------------------------------------
-    private int maybeCreateFlight(String flightNumber, String origin, String destination,
-                                  LocalDate depDate, LocalTime depTime,
-                                  LocalDate arrDate, LocalTime arrTime,
-                                  String airline, double price, String aircraft, String status,
-                                  Recommendation rec) {
+    private int maybeCreateFlight(
+            String flightNumber,
+            String origin,
+            String destination,
+            LocalDate departureDate,
+            LocalTime departureTime,
+            LocalDate arrivalDate,
+            LocalTime arrivalTime,
+            String airline,
+            int price,
+            String aircraft,
+            String status,
+            Recommendation rec
+    ) {
 
-        boolean exists = flightRepository.existsByFlightNumberAndDepartureDateAndOriginAndDestination(
-                flightNumber, depDate, origin, destination
-        );
-
-        if (exists) return 0;
+        if (flightRepository.existsByFlightNumberAndDepartureDateAndOriginAndDestination(
+                flightNumber,
+                departureDate,
+                origin,
+                destination
+        )) {
+            return 0;
+        }
 
         Flight f = new Flight();
         f.setFlightNumber(flightNumber);
         f.setOrigin(origin);
         f.setDestination(destination);
-        f.setDepartureDate(depDate);
-        f.setDepartureTime(depTime);
-        f.setArrivalDate(arrDate);
-        f.setArrivalTime(arrTime);
-        f.setPrice(price);
-        f.setSeatsAvailable(120);
+        f.setDepartureDate(departureDate);
+        f.setDepartureTime(departureTime);
+        f.setArrivalDate(arrivalDate);
+        f.setArrivalTime(arrivalTime);
         f.setAirline(airline);
+        f.setPrice(price);
         f.setAircraftType(aircraft);
         f.setFlightStatus(status);
-        f.setDescription("Vuelo generado automáticamente para backfill.");
         f.setRecommendation(rec);
 
-        f.setEconomySeats(120);
-        f.setBusinessSeats(20);
-        f.setFirstSeats(10);
-
-        // -------------------------------------------
-        // CATEGORIZACIÓN AUTOMÁTICA
-        // -------------------------------------------
-        Category category;
-
-        if (airline.equalsIgnoreCase("SkyPremium")) {
-            category = getCategoryByTitle("Premium");
-
-        } else if (airline.equalsIgnoreCase("SkiWings")) {
-            category = getCategoryByTitle("Low Cost");
-
-        } else if (isDestinoEnArgentina(destination)) {
-            category = getCategoryByTitle("Nacionales");
-
-        } else {
-            category = getCategoryByTitle("Internacionales");
-        }
-
-        f.setCategory(category);
-
         flightRepository.save(f);
+
         return 1;
     }
+
 
     private String buildFlightNumber(String airline, String ori, String des, LocalDate d, LocalTime t) {
         String a = airlineCode(airline);
@@ -443,6 +497,17 @@ public class FlightService {
         return flightRepository.searchFuzzy(term.trim());
     }
 
+    public List<String> getDistinctCities() {
+
+        List<String> origins = flightRepository.findDistinctOrigins();
+        List<String> destinations = flightRepository.findDistinctDestinations();
+
+        return Stream.concat(origins.stream(), destinations.stream())
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
     public List<String> getAvailableSeats(Long flightId, String flightClass) {
         Flight flight = flightRepository.findById(flightId)
                 .orElseThrow(() -> new NoSuchElementException("Vuelo no encontrado"));
@@ -463,9 +528,8 @@ public class FlightService {
         for (int i = 1; i <= totalSeats; i++) {
             all.add(prefix + i);
         }
-
         List<String> occupied = passengerRepository
-                .findByFlightIdAndFlightClass(flight.getId(), flightClass)
+                .findByFlight_IdAndFlightClass(flight.getId(), flightClass)
                 .stream()
                 .map(Passenger::getSeatNumber)
                 .filter(Objects::nonNull)
@@ -494,6 +558,12 @@ public class FlightService {
         return flightRepository.findByOriginAndDestinationAndDepartureDateGreaterThanEqualOrderByDepartureDateAsc(
                 origin, destination, fromDate
         );
+
+
+    }
+
+    public List<String> getDestinationsByOrigin (String origin){
+        return flightRepository.findDestinationsByOrigin(origin);
     }
 
     // --------------------------------------------
@@ -504,4 +574,24 @@ public class FlightService {
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada: " + title));
     }
 
+
+    public List<LocalDate> getAvailableDatesByRoute(
+            String origin,
+            String destination,
+            LocalDate fromDate
+    ) {
+        if (fromDate == null) {
+            fromDate = LocalDate.now();
+        }
+
+        return flightRepository.findAvailableDatesByRoute(
+                origin,
+                destination,
+                fromDate
+        );
+    }
+
+
+
 }
+

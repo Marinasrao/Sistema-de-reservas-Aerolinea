@@ -34,24 +34,41 @@ const RegisterPage = () => {
       newErrors.email = "Ingresá un correo electrónico válido";
     }
 
-    if (!/^(?=.*[A-Z])(?=.*\d).{6,}$/.test(userData.password)) {
+    if (
+      userData.password &&
+      !/^(?=.*[A-Z])(?=.*\d).{6,}$/.test(userData.password)
+    ) {
       newErrors.password = "Mínimo 6 caracteres, una mayúscula y un número";
     }
+
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+ const handleChange = (e) => {
+  const { name, value } = e.target;
 
-    setUserData({ ...userData, [name]: value });
+  setUserData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
 
-    setTouched((prev) => ({
-      ...prev,
-      [name]: true,
-    }));
-  };
+  setTouched((prev) => ({
+    ...prev,
+    [name]: true,
+  }));
+
+  
+  if (value === "") {
+    setErrors((prev) => {
+      const copy = { ...prev };
+      delete copy[name];
+      return copy;
+    });
+  }
+};
+
 
 
   const handleSubmit = async (e) => {
@@ -108,15 +125,10 @@ const RegisterPage = () => {
               onChange={handleChange}
             />
 
-            <span
-              className={
-                errors.firstName ? styles.error : styles.helper
-              }
-            >
-              {errors.firstName || "Debe comenzar con mayúscula y tener al menos 2 letras"}
-            </span>
+            {touched.firstName && errors.firstName && (
+              <span className={styles.error}>{errors.firstName}</span>
+            )}
           </div>
-
 
           <div className={styles.field}>
             <input
@@ -127,13 +139,12 @@ const RegisterPage = () => {
               onChange={handleChange}
               autoComplete="family-name"
             />
-            <span
-              className={errors.lastName ? styles.error : styles.helper}
-            >
-              {errors.lastName || "Debe comenzar con mayúscula y tener al menos 2 letras"}
-            </span>
 
+            {touched.lastName && errors.lastName && (
+              <span className={styles.error}>{errors.lastName}</span>
+            )}
           </div>
+
           <div className={styles.field}>
             <input
               type="email"
@@ -144,20 +155,10 @@ const RegisterPage = () => {
               onChange={handleChange}
             />
 
-            {touched.email && !errors.email && (
-              <span className={styles.helper}>
-                Usá un correo electrónico válido
-              </span>
-            )}
-
-            {errors.email && (
-              <span className={styles.error}>
-                {errors.email}
-              </span>
+            {touched.email && errors.email && (
+              <span className={styles.error}>{errors.email}</span>
             )}
           </div>
-
-
 
           <div className={styles.field}>
             <input
@@ -169,18 +170,20 @@ const RegisterPage = () => {
               onChange={handleChange}
             />
 
-            {touched.password && !errors.password && (
-              <span className={styles.helper}>
-                Mínimo 6 caracteres, una mayúscula y un número
-              </span>
-            )}
-
-            {errors.password && (
-              <span className={styles.error}>
-                {errors.password}
-              </span>
+            {touched.password && errors.password && (
+              <span className={styles.error}>{errors.password}</span>
             )}
           </div>
+
+          <div className={styles.registerHelp}>
+            <p>📌 Requisitos para el registro:</p>
+            <ul>
+              <li>Nombre y Apellido: mínimo 2 letras y comenzar con mayúscula</li>
+              <li>Correo electrónico válido</li>
+              <li>Contraseña: al menos 6 caracteres, una mayúscula y un número</li>
+            </ul>
+          </div>
+
 
           <button type="submit">Crear cuenta</button>
         </form>

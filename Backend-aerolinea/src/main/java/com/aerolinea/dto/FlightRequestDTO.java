@@ -54,4 +54,8 @@ public class FlightRequestDTO {
     private String flightStatus;
 
     private Long recommendationId;
+
+    @NotNull(message = "La categoría es obligatoria.")
+    private Long categoryId;
+
 }

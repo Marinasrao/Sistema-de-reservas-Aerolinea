@@ -58,6 +58,13 @@
   margin-top: 0.25rem;
 }
 
+.registerHelp {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+
 button {
   margin-top: 1rem;
   padding: 0.75rem;

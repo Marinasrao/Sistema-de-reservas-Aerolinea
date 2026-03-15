@@ -3,7 +3,9 @@ package com.aerolinea.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -31,6 +33,16 @@ public class Category {
             inverseJoinColumns = @JoinColumn(name = "characteristic_id")
     )
     private Set<Characteristic> characteristics = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CategoryPromo> promos = new ArrayList<>();
+
+
+
 }
+
+
+
 
 

@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,6 +18,23 @@ import java.util.Locale;
 @Data
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
+@Table(
+        name = "flights",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {
+                                "flight_number",
+                                "departure_date",
+                                "origin",
+                                "destination"
+
+                        }
+                )
+        }
+)
+
+
 public class Flight {
 
     @Id
@@ -59,9 +78,6 @@ public class Flight {
     private String aircraftType;
     private String flightStatus;
 
-    @ElementCollection
-    private List<String> imageUrls;
-
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -81,8 +97,12 @@ public class Flight {
         if (flightStatus != null) flightStatus = flightStatus.trim();
         if (description != null) description = description.trim();
     }
-    @ManyToOne
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Category category;
 
 }
+

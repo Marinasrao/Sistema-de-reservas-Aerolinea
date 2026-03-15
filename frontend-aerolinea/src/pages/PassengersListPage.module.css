@@ -3,38 +3,125 @@
 }
 
 .title {
-  margin-bottom: 1rem;
-  font-size: 24px;
+  margin-bottom: 1.5rem;
+  font-size: 26px;
+  font-weight: 600;
+  color: #003580;
 }
 
+/* TABLA */
 .table {
   width: 100%;
   border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.table th,
+.table th {
+  background-color: #003580;
+  color: white;
+  padding: 12px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
 .table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
+  padding: 12px;
+  font-size: 14px;
 }
 
+.table tr {
+  border-bottom: 1px solid #eee;
+}
+
+.table tr:hover {
+  background-color: #f5f8ff;
+}
+
+/* BADGES CLASE */
+.badge {
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.economy {
+  background-color: #eef2f7;
+  color: #003580;
+}
+
+.business {
+  background-color: #003580;
+  color: white;
+}
+
+.first {
+  background-color: gold;
+  color: black;
+}
+
+/* ASIENTO DESTACADO */
+.seat {
+  font-weight: bold;
+  color: #003580;
+  font-size: 15px;
+}
+
+/* BOTONES */
 .deleteBtn {
   background-color: #e74c3c;
   color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .deleteBtn:hover {
   background-color: #c0392b;
 }
 
+.detailsBtn {
+  background-color: #003580;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: 0.2s ease;
+}
+
+.detailsBtn:hover {
+  background-color: #00264d;
+}
+
+/* BLOQUE DETALLE VUELO */
+.flightDetails {
+  background: #f8faff;
+  border-left: 4px solid #003580;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 10px 0;
+  text-align: left;
+  font-size: 14px;
+}
+
+.flightNumber {
+  font-weight: 600;
+  color: #003580;
+  margin-bottom: 6px;
+}
+
+/* LOADER / ERROR */
 .loader,
 .error {
   text-align: center;
   margin-top: 2rem;
   font-weight: bold;
+  font-size: 16px;
 }

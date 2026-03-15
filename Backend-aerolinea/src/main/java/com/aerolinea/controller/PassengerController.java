@@ -4,8 +4,10 @@ import com.aerolinea.dto.PassengerDto;
 import com.aerolinea.entity.Passenger;
 import com.aerolinea.service.PassengerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.PageRequest;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -19,13 +21,7 @@ public class PassengerController {
     @Autowired
     private PassengerService passengerService;
 
-    //  Obtener todos los pasajeros (DTO)
-    @GetMapping
-    public List<PassengerDto> getAllPassengers() {
-        return passengerService.getAllPassengers().stream()
-                .map(PassengerDto::new)
-                .toList();
-    }
+
 
     //   Listar pasajeros por vuelo
     @GetMapping("/by-flight/{flightId}")
@@ -63,4 +59,13 @@ public class PassengerController {
         passengerService.deletePassenger(id);
         return ResponseEntity.ok().build();
     }
+    @GetMapping
+    public Page<PassengerDto> getAllPassengers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size
+    ) {
+        return passengerService.getPassengers(page, size)
+                .map(PassengerDto::new);
+    }
+
 }

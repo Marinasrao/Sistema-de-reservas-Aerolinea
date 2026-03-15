@@ -30,7 +30,7 @@ const HeroCarousel = () => {
             const preloadImg = new Image();
             preloadImg.src = `http://localhost:8080/uploads/hero/${encodeURIComponent(img.filename)}`;
             preloadImg.onload = () => {
-              console.log(`✅ Imagen precargada: ${preloadImg.src}`);
+              
               resolve();
             };
             preloadImg.onerror = () => {
@@ -44,7 +44,7 @@ const HeroCarousel = () => {
           clearTimeout(timeout);
           setImages(data);
           setIsReady(true);
-          console.log('🚀 Todas las imágenes están listas');
+          
         });
       })
       .catch((err) => {

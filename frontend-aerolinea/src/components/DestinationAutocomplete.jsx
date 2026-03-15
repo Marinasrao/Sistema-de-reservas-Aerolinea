@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 const API_BASE = "http://localhost:8080/api";
 
 export default function DestinationAutocomplete({
+    origin,
     value,
     onChange,
     onSelect,
@@ -33,7 +34,11 @@ export default function DestinationAutocomplete({
         const fetchCities = async () => {
             try {
                 setLoading(true);
-                const res = await fetch(`${API_BASE}/flights/search/cities`);
+                const url = origin
+                    ? `${API_BASE}/flights/destinations-by-origin?origin=${encodeURIComponent(origin)}`
+                    : `${API_BASE}/flights/search/cities`;
+
+                const res = await fetch(url);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const cities = await res.json();
                 setAllCities(cities || []);
@@ -45,7 +50,7 @@ export default function DestinationAutocomplete({
             }
         };
         fetchCities();
-    }, []);
+    }, [origin]);
 
     const [debouncedQ, setDebouncedQ] = useState(q);
     useEffect(() => {

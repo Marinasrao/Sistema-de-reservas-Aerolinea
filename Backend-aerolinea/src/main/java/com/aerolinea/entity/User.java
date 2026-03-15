@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Getter @Setter
@@ -23,12 +24,15 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @JsonIgnore
     private String password;
 
     private boolean enabled = false;
 
+    @JsonIgnore
     private String verificationToken;
 
+    @JsonIgnore
     private LocalDateTime tokenExpiration;
 
     @ManyToMany(fetch = FetchType.EAGER)

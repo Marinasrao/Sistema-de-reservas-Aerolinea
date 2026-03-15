@@ -1,12 +1,16 @@
 package com.aerolinea.controller;
 
+import com.aerolinea.dto.RecommendationHomeDTO;
+import com.aerolinea.entity.Flight;
 import com.aerolinea.entity.Recommendation;
 import com.aerolinea.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.print.Pageable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,38 +92,19 @@ public class RecommendationController {
             return ResponseEntity.notFound().build();
         }
     }
-    @GetMapping("/random")
-    public ResponseEntity<List<Recommendation>> getRandomRecommendations() {
-        try {
-            List<Recommendation> randomRecommendations = recommendationService.getRandomRecommendations(10);
-            return ResponseEntity.ok(randomRecommendations);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
-        }
-    }
-    @GetMapping("/auto-assign-categories")
-    public ResponseEntity<String> autoAssignCategories() {
-        try {
-            int updated = recommendationService.autoAssignCategoriesToRecommendations();
-            return ResponseEntity.ok("Recomendaciones categorizadas automáticamente: " + updated);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al asignar categorías automáticamente");
-        }
-    }
-    @GetMapping("/debug/db")
-    public Map<String, Object> debugDb(javax.sql.DataSource dataSource) throws Exception {
-        Map<String, Object> info = new HashMap<>();
-        try (var conn = dataSource.getConnection();
-             var st = conn.createStatement();
-             var rs = st.executeQuery("SELECT DATABASE()")) {
 
-            if (rs.next()) {
-                info.put("database", rs.getString(1));
-            }
-        }
-        return info;
+    @GetMapping("/random")
+    public ResponseEntity<List<RecommendationHomeDTO>> getRandomForHome() {
+        return ResponseEntity.ok(
+                recommendationService.getRandomForHome()
+        );
     }
+
+
+
+
+
+
 
 
 }

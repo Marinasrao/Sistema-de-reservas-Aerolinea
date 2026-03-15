@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,14 +53,24 @@ import java.util.*;
         /* ==================== CRUD ==================== */
 
         @GetMapping
-        public ResponseEntity<List<?>> getAllFlights() {
-            return ResponseEntity.ok(
-                    flightService.getAllFlights()
-                            .stream()
-                            .map(flightMapper::toDTO)
-                            .toList()
-            );
+        public ResponseEntity<?> getFlightsPaged(
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "5") int size
+        ) {
+            var pageable = PageRequest.of(page, size);
+            Page<Flight> flightsPage = flightService.getFlightsPaged(pageable);
+
+            var dtoPage = flightsPage.map(flightMapper::toDTO);
+
+            return ResponseEntity.ok(Map.of(
+                    "content", dtoPage.getContent(),
+                    "page", dtoPage.getNumber(),
+                    "size", dtoPage.getSize(),
+                    "totalPages", dtoPage.getTotalPages(),
+                    "totalElements", dtoPage.getTotalElements()
+            ));
         }
+
 
 
         @GetMapping("/{id}")
@@ -232,7 +244,6 @@ import java.util.*;
             return ResponseEntity.ok(flights);
         }
 
-
         @PostMapping("/admin/backfill")
     public ResponseEntity<?> backfillFlights() {
         int created = flightService.backfillFlightsForAllRecommendations();
@@ -268,6 +279,11 @@ import java.util.*;
     public ResponseEntity<List<String>> getDistinctDestinations() {
         return ResponseEntity.ok(flightService.getDistinctDestinations());
     }
+
+        @GetMapping("/destinations-by-origin")
+        public ResponseEntity<List<String>> getDestinationsByOrigin(@RequestParam String origin) {
+            return ResponseEntity.ok(flightService.getDestinationsByOrigin(origin));
+        }
 
         @GetMapping("/search/fuzzy")
         public ResponseEntity<List<FlightResponseDTO>> searchFuzzy(@RequestParam String term) {
@@ -312,24 +328,76 @@ import java.util.*;
             return ResponseEntity.ok(flights);
         }
 
+        @GetMapping("/search/range")
+        public ResponseEntity<List<FlightResponseDTO>> searchFlightsByRange(
+                @RequestParam String origin,
+                @RequestParam String destination,
+                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+        ) {
+
+            List<Flight> flights;
+
+
+            flights = flightService.searchRoundtripExactDate(
+                    origin,
+                    destination,
+                    fromDate
+            );
+
+            return ResponseEntity.ok(
+                    flights.stream()
+                            .map(flightMapper::toDTO)
+                            .toList()
+            );
+        }
+
+
 
         /* ==================== AUTOCOMPLETE DE CIUDADES ==================== */
 
-    @GetMapping("/search/cities")
-    public ResponseEntity<List<String>> getUniqueCities() {
-        try {
-            List<String> cities = flightRepository.findDistinctOriginsAndDestinations();
-            return ResponseEntity.ok(cities);
-        } catch (Exception e) {
-            log.error("Error obteniendo ciudades únicas", e);
-            return ResponseEntity.internalServerError().body(Collections.emptyList());
+        @GetMapping("/search/cities")
+        public ResponseEntity<List<String>> getUniqueCities() {
+            try {
+                List<String> cities = flightService.getDistinctCities();
+                return ResponseEntity.ok(cities);
+            } catch (Exception e) {
+                log.error("Error obteniendo ciudades únicas", e);
+                return ResponseEntity.internalServerError().body(Collections.emptyList());
+            }
         }
-    }
         @GetMapping("/assign-categories")
         public String assignCategories() {
             int n = flightService.assignCategoriesToExistingFlights();
             return "Vuelos actualizados: " + n;
         }
+
+
+        /* ==================== FILTRO POR CATEGORÍAS ==================== */
+
+        @GetMapping("/by-categories")
+        public ResponseEntity<?> getFlightsByCategories(
+                @RequestParam List<Long> categories,
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "5") int size
+        ) {
+            var pageable = PageRequest.of(page, size);
+            Page<Flight> flightsPage =
+                    flightRepository.findByCategory_IdIn(categories, pageable);
+
+            var dtoPage = flightsPage.map(flightMapper::toDTO);
+
+            return ResponseEntity.ok(Map.of(
+                    "content", dtoPage.getContent(),
+                    "page", dtoPage.getNumber(),
+                    "size", dtoPage.getSize(),
+                    "totalPages", dtoPage.getTotalPages(),
+                    "totalElements", dtoPage.getTotalElements()
+            ));
+        }
+
+
 
     }
 

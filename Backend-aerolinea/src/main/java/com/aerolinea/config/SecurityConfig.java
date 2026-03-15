@@ -10,10 +10,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.aerolinea.security.JwtAuthenticationFilter;
 
 
 @Configuration
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -28,15 +36,17 @@ public class SecurityConfig {
         http
                 .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/recommendations/**",
                                 "/api/hero/**",
-                                "/api/categories",
+                                "/api/categories/**",
                                 "/api/flights/**",
+                                "/api/passengers",
                                 "/uploads/**",
                                 "/images/**",
                                 "/api/public/**",
@@ -47,7 +57,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/categories/admin/**").hasAuthority("ROLE_ADMIN")
 
                         .anyRequest().authenticated()
-                );
+                )
+
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -66,13 +79,8 @@ public class SecurityConfig {
         return source;
     }
 
-
-
-
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
-

@@ -8,12 +8,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.data.domain.PageRequest;
+import com.aerolinea.dto.RecommendationHomeDTO;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -120,50 +122,7 @@ public class RecommendationService {
         return all.subList(0, limit);
     }
 
-    public int autoAssignCategoriesToRecommendations() {
 
-        List<Recommendation> recs = recommendationRepository.findAll();
-
-        List<String> argentinaKeywords = List.of(
-                "buenos aires", "cordoba", "bariloche", "mendoza",
-                "calafate", "iguazu", "ushuaia", "salta", "rosario",
-                "san juan", "neuquen", "trelew", "san luis", "comodoro"
-        );
-
-        Category nacionales = categoryRepository.findAll().stream()
-                .filter(c -> c.getTitle().equalsIgnoreCase("Nacionales"))
-                .findFirst().orElse(null);
-
-        Category internacionales = categoryRepository.findAll().stream()
-                .filter(c -> c.getTitle().equalsIgnoreCase("Internacionales"))
-                .findFirst().orElse(null);
-
-        int updated = 0;
-
-        for (Recommendation r : recs) {
-
-            if (r.getCategory() != null) continue;
-            if (r.getTitle() == null || !r.getTitle().contains("-")) continue;
-
-            String[] parts = r.getTitle().split("-");
-            String origin = normalize(parts[0]);
-            String destination = normalize(parts[1]);
-
-            boolean originAR = containsKeyword(origin, argentinaKeywords);
-            boolean destAR = containsKeyword(destination, argentinaKeywords);
-
-            if (originAR && destAR) {
-                r.setCategory(nacionales);
-            } else {
-                r.setCategory(internacionales);
-            }
-
-            updated++;
-        }
-
-        recommendationRepository.saveAll(recs);
-        return updated;
-    }
 
     private String normalize(String s) {
         if (s == null) return "";
@@ -187,4 +146,23 @@ public class RecommendationService {
         file.transferTo(filePath.toFile());
         return filename;
     }
+
+
+
+
+    public List<RecommendationHomeDTO> getRandomForHome() {
+        return recommendationRepository.findRandomForHome(
+                PageRequest.of(0, 10)
+        );
+    }
+
+    public List<RecommendationHomeDTO> getEditorialForCategory(Long categoryId) {
+        return recommendationRepository.findEditorialByCategory(
+                categoryId,
+                PageRequest.of(0, 4)
+        );
+    }
+
+
+
 }

@@ -22,8 +22,9 @@ public class PassengerDto {
     private String origin;
     private String destination;
     private Double price;
+    private String departureDate;
+    private String departureTime;
     private String seatNumber;
-
 
 
     public PassengerDto() {}
@@ -39,14 +40,22 @@ public class PassengerDto {
         this.flightClass = p.getFlightClass();
         this.purchasedAt = p.getPurchasedAt() != null ? p.getPurchasedAt().toString() : null;
         this.flightId = (p.getFlight() != null ? p.getFlight().getId() : null);
+        this.seatNumber = p.getSeatNumber();
 
         if (p.getFlight() != null) {
             this.flightNumber = p.getFlight().getFlightNumber();
             this.origin = p.getFlight().getOrigin();
             this.destination = p.getFlight().getDestination();
             this.price = p.getFlight().getPrice();
+
+            this.departureDate = p.getFlight().getDepartureDate() != null
+                    ? p.getFlight().getDepartureDate().toString()
+                    : null;
+
+            this.departureTime = p.getFlight().getDepartureTime() != null
+                    ? p.getFlight().getDepartureTime().toString()
+                    : null;
         }
-        this.seatNumber = p.getSeatNumber();
     }
 
     public Passenger toEntity() {

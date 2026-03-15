@@ -13,31 +13,67 @@
 
 }
 
-
 .header {
   position: fixed;
   top: 0;
-  left: 0%;
+  left: 0;
   width: 100%;
   height: var(--header-height);
   background-color: #003580;
   color: white;
   display: flex;
-  justify-content: center;
-  align-items:center;
+  align-items: center;
   padding: 0 2rem;
   z-index: 1000;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  
+  justify-content: space-between;   
+}
 
+
+.homeBtn {
+  background:#ffffff ;
+  border: 1px solid #ffffff;
+  color: #003580;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logoutBtn {
+  background:#ffffff ;
+  border: 1px solid #ffffff;
+  color: #003580;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 40px;
+}
+
+.homeBtn:hover {
+   background: white;
+  color: #003580;
+}
+
+.logoutBtn:hover {
+  background: white;
+  color: #003580;
 }
 
 .header h2 {
   margin: 0;
   font-size: 1.6rem;
   font-weight: 600;
-  color: #ffffff;
 }
+
+.headerActions {
+  margin-left: auto;   
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+
+
 
 
 .sidebarWrapper {
@@ -54,6 +90,7 @@
 
 .adminContent {
   margin-left: var(--sidebar-width);
+  padding-top: var(--header-height);   
   padding-bottom: var(--footer-height);
   padding-left: 2rem;
   padding-right: 2rem;

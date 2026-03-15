@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import styles from './AdminLayout.module.css';
 import AdminSidebar from './AdminSidebar';
 import Footer from '../components/Footer';
 
-const AdminLayout = ({ auth }) => {
+const AdminLayout = ({ auth, onLogout }) => {
+
+
+  const navigate = useNavigate();
 
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
 
@@ -16,6 +19,8 @@ const AdminLayout = ({ auth }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
 
   if (isSmallScreen) {
     return (
@@ -31,9 +36,28 @@ const AdminLayout = ({ auth }) => {
 
       <header className={styles.header}>
         <h2>FlightBooking</h2>
+
+        <div className={styles.headerActions}>
+          <button
+            className={styles.homeBtn}
+            onClick={() => navigate("/")}
+          >
+            Ir al Home
+          </button>
+
+          <button
+            className={styles.logoutBtn}
+            onClick={() => {
+              onLogout();
+              navigate("/");
+            }}
+          >
+            Cerrar sesión
+          </button>
+
+        </div>
       </header>
 
-      {/* SIDEBAR SOLO SI ES ADMIN */}
       {auth?.isAdmin && (
         <aside className={styles.sidebarWrapper}>
           <AdminSidebar />

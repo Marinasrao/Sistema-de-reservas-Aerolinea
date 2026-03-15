@@ -7,6 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.aerolinea.dto.LoginRequest;
+import org.springframework.security.core.Authentication;
+
+
+
 
 
 @RestController
@@ -32,5 +36,18 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        return ResponseEntity.ok(
+                authService.getCurrentUser(authentication.getName())
+        );
+    }
+
+
 
 }

@@ -4,9 +4,14 @@ import com.aerolinea.dto.FlightRequestDTO;
 import com.aerolinea.dto.FlightResponseDTO;
 import com.aerolinea.entity.Flight;
 import org.springframework.stereotype.Component;
+import com.aerolinea.repository.CategoryRepository;
+import com.aerolinea.entity.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class FlightMapper {
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     // --------------------- ENTITY → DTO ---------------------
     public FlightResponseDTO toDTO(Flight f) {
@@ -35,7 +40,7 @@ public class FlightMapper {
         dto.setAircraftType(f.getAircraftType());
         dto.setFlightStatus(f.getFlightStatus());
 
-        dto.setImageUrls(f.getImageUrls());
+
 
         // Recomendación (solo ID)
         if (f.getRecommendation() != null) {
@@ -79,7 +84,15 @@ public class FlightMapper {
         f.setAircraftType(dto.getAircraftType());
         f.setFlightStatus(dto.getFlightStatus());
 
+        // -------- CATEGORY --------
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+            f.setCategory(category);
+        }
+
         return f;
     }
+
 }
 

@@ -1,8 +1,17 @@
 const API_URL = "http://localhost:8080/api/admin/users";
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`
+  };
+};
+
 export const getAdmins = async () => {
   const res = await fetch(API_URL, {
-    credentials: "include"
+    headers: getAuthHeaders()
   });
 
   if (!res.ok) throw new Error("Error al obtener administradores");
@@ -12,10 +21,7 @@ export const getAdmins = async () => {
 export const createAdmin = async (admin) => {
   const res = await fetch(API_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    credentials: "include",
+    headers: getAuthHeaders(),
     body: JSON.stringify(admin)
   });
 
@@ -26,10 +32,7 @@ export const createAdmin = async (admin) => {
 export const updateAdmin = async (id, admin) => {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    credentials: "include",
+    headers: getAuthHeaders(),
     body: JSON.stringify(admin)
   });
 
@@ -40,7 +43,7 @@ export const updateAdmin = async (id, admin) => {
 export const deleteAdmin = async (id) => {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
-    credentials: "include"
+    headers: getAuthHeaders()
   });
 
   if (!res.ok) throw new Error("Error al eliminar administrador");

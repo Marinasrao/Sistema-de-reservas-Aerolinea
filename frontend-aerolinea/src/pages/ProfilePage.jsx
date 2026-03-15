@@ -2,9 +2,10 @@ import { Navigate, Link, useNavigate } from "react-router-dom";
 import styles from "./ProfilePage.module.css";
 import planeBg from "../assets/avion.png";
 
-const ProfilePage = () => {
-  const auth = JSON.parse(localStorage.getItem("auth"));
+
+  const ProfilePage = ({ auth, onLogout }) => {
   const user = auth?.user;
+
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -16,9 +17,10 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("auth");
-    navigate("/", { replace: true });
-  };
+  onLogout();
+  navigate("/", { replace: true });
+};
+
 
   return (
     <div className={styles.profileLayout}>

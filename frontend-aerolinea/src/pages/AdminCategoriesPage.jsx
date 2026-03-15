@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styles from './AdminCategoriesPage.module.css';
 import { getAllCategories, saveCategory, deleteCategory } from '../services/api';
+import CategoryPromosBlock from "./CategoryPromosBlock";
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState([]);
+  const [openPromos, setOpenPromos] = useState(null);
+
 
   useEffect(() => {
     const load = async () => {
@@ -72,7 +75,7 @@ const AdminCategoriesPage = () => {
   return (
     <div className={styles.container}>
       <h2>Gestión de Categorías</h2>
-      <p>Aquí vas a poder crear categorías visuales para clasificar los vuelos.</p>
+
 
       <div className={styles.grid}>
         {categories.map(cat => (
@@ -141,6 +144,25 @@ const AdminCategoriesPage = () => {
             >
               Eliminar
             </button>
+
+            <button
+              type="button"
+              className={styles.togglePromosBtn}
+              onClick={() =>
+                setOpenPromos(openPromos === cat.id ? null : cat.id)
+              }
+            >
+              {openPromos === cat.id ? "Ocultar ▲" : "Gestionar Filtrado Categorias ▼"}
+            </button>
+
+            {openPromos === cat.id && (
+              <div className={styles.promosWrapper}>
+                <CategoryPromosBlock categoryId={cat.id} />
+              </div>
+            )}
+
+
+
 
           </div>
         ))}

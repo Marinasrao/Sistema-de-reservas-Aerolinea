@@ -8,20 +8,29 @@ const API_BASE = 'http://localhost:8080/api';
 
 const ImageWithSkeleton = ({ src, alt }) => {
     const [loaded, setLoaded] = useState(false);
+    const [error, setError] = useState(false);
 
     return (
         <>
-            {!loaded && <div className={styles.skeletonImage}></div>}
+            {!loaded && !error && (
+                <div className={styles.skeletonImage}></div>
+            )}
+
             <img
-                src={src}
+                src={error ? "/placeholder.jpg" : src}
                 alt={alt}
                 onLoad={() => setLoaded(true)}
-                className={loaded ? styles.imageVisible : styles.imageHidden}
+                onError={() => {
+                    setError(true);
+                    setLoaded(true);
+                }}
+                className={styles.imageVisible}
                 loading="lazy"
             />
         </>
     );
 };
+
 
 const HomePage = () => {
 
@@ -41,18 +50,25 @@ const HomePage = () => {
     const [loadingRecommendations, setLoadingRecommendations] = useState(true);
     const [categories, setCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [appliedCategories, setAppliedCategories] = useState([]);
-
+    const filteredCategories = categories;
 
 
 
     const handleSearch = (e) => {
         e.preventDefault();
-        const term = (searchParams.destination || searchParams.origin || '').trim();
-        if (!term) return;
 
-        navigate(`/search-results?origin=${encodeURIComponent(searchParams.origin)}&destination=${encodeURIComponent(searchParams.destination)}&fromDate=${searchParams.date}`);
+        if (!searchParams.origin || !searchParams.destination || !searchParams.date) return;
+
+        let url = `/search-results?origin=${encodeURIComponent(searchParams.origin)}&destination=${encodeURIComponent(searchParams.destination)}&fromDate=${searchParams.date}`;
+
+        if (searchParams.tripType === "roundtrip" && searchParams.returnDate) {
+            url += `&toDate=${searchParams.returnDate}&tripType=roundtrip`;
+        }
+
+        navigate(url);
     };
+
+
 
     useEffect(() => {
         (async () => {
@@ -93,6 +109,8 @@ const HomePage = () => {
         fetchCategories();
     }, []);
 
+    
+
     const getIconForCharacteristic = (name = "") => {
         const key = name.toLowerCase();
 
@@ -109,21 +127,15 @@ const HomePage = () => {
     };
 
     const toggleCategory = (categoryId) => {
+        const id = Number(categoryId);
+
         setSelectedCategories((prev) =>
-            prev.includes(categoryId)
-                ? prev.filter((id) => id !== categoryId)
-                : [...prev, categoryId]
+            prev.includes(id)
+                ? prev.filter((x) => x !== id)
+                : [...prev, id]
         );
     };
 
-    const handleCategorySearch = () => {
-        setAppliedCategories(selectedCategories);
-    };
-
-    const filteredCategories =
-        appliedCategories.length === 0
-            ? categories
-            : categories.filter(cat => appliedCategories.includes(cat.id));
 
     const categoryIcons = {
         Nacionales: "🇦🇷",
@@ -299,13 +311,11 @@ const HomePage = () => {
                 {/* CATEGORÍAS */}
                 <section className={styles.categoriesSection}>
                     <h3>Categorías destacadas</h3>
-
                     {Array.isArray(categories) && categories.length > 0 ? (
                         <div className={styles.categoriesGrid}>
                             {categories.map((cat) => (
-                                <Link
+                                <div
                                     key={cat.id}
-                                    to={`/category-results?categories=${cat.id}`}
                                     className={styles.categoryCard}
                                 >
                                     {cat.image ? (
@@ -327,18 +337,18 @@ const HomePage = () => {
                                     {cat.promoText && (
                                         <p className={styles.categoryPromo}>{cat.promoText}</p>
                                     )}
-                                </Link>
+                                </div>
                             ))}
-
                         </div>
                     ) : (
                         <p style={{ opacity: 0.6 }}>No hay categorías disponibles</p>
                     )}
+
                 </section>
 
                 {/* FILTRO POR CATEGORÍAS – */}
                 <section className={styles.filterSection}>
-                    <h4 className={styles.filterTitle}>🎛️ Filtrar por categorías</h4>
+                    <h4 className={styles.filterTitle}>🎛️ Promociones por categorías</h4>
 
 
                     <div className={styles.filterRow}>
@@ -386,7 +396,6 @@ const HomePage = () => {
 
                 </section>
 
-
                 <section className={styles.featuresSection}>
                     <h3 className={styles.featuresTitle}>Características del vuelo</h3>
 
@@ -419,106 +428,68 @@ const HomePage = () => {
 
 
                 {/* RECOMENDACIONES */}
-                < section className={styles.recommendationsSection} >
+                <section className={styles.recommendationsSection}>
                     <h3>Recomendaciones para ti</h3>
 
-                    {
-                        loadingRecommendations ? (
-                            <p style={{ opacity: 0.6 }}>Cargando recomendaciones...</p>
-                        ) : (
-                            <div className={styles.recsGrid}>
-                                {recommendations.slice(0, 10).map((rec) => {
-                                    const focalPos =
-                                        rec.focal === "top"
-                                            ? "top"
-                                            : rec.focal === "bottom"
-                                                ? "bottom"
-                                                : "center";
+                    {loadingRecommendations ? (
+                        <p style={{ opacity: 0.6 }}>Cargando recomendaciones...</p>
+                    ) : (
+                        <div className={styles.recsGrid}>
+                            {recommendations.slice(0, 10).map((rec) => {
+                                const imageName = rec.mainImage || null;
 
-                                    const focalClass = styles[`focal-${focalPos}`];
+                                const imageSrc = imageName
+                                    ? `http://localhost:8080/uploads/recommendations/${imageName}`
+                                    : null;
 
-                                    const imageName = rec.imageUrl
-                                        ? rec.imageUrl.replace(/^.*[\\/]/, "")
-                                        : null;
+                                return (
+                                    <Link
+                                        to={`/recommendations/${rec.id}`}
+                                        key={rec.id}
+                                        className={styles.recCard}
+                                    >
+                                        {imageSrc ? (
+                                            <img
+                                                src={imageSrc}
+                                                alt={rec.title}
+                                                className={styles.recImage}
+                                                loading="lazy"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = "/placeholder.jpg";
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className={styles.noImage}>Sin imagen</div>
+                                        )}
 
-                                    const imageSrc = imageName
-                                        ? `http://localhost:8080/uploads/recommendations/${imageName}`
-                                        : null;
+                                        <div className={styles.recContent}>
+                                            <h4 className={styles.recTitle}>{rec.title}</h4>
 
-                                    return (
-                                        <Link
-                                            to={`/recommendations/${rec.id}`}
-                                            key={rec.id}
-                                            className={styles.recCard}
-                                        >
-                                            {imageSrc ? (
-                                                <img
-                                                    src={imageSrc}
-                                                    alt={rec.title}
-                                                    className={`${styles.recImage} ${focalClass}`}
-                                                    loading="lazy"
-                                                    onError={(e) => {
-                                                        e.currentTarget.src = "/placeholder.jpg";
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className={styles.noImage}>Sin imagen</div>
+                                            {rec.departureDate && (
+                                                <p className={styles.recDates}>
+                                                    Ida:{" "}
+                                                    {new Date(rec.departureDate).toLocaleDateString("es-AR")}
+                                                </p>
                                             )}
 
-                                            <div className={styles.recContent}>
-                                                <div className={styles.recHeader}>
-                                                    {rec.origin && (
-                                                        <span className={styles.recLabel}>
-                                                            Desde {rec.origin}
-                                                        </span>
-                                                    )}
-                                                    {rec.flightType && (
-                                                        <span className={styles.recBadge}>
-                                                            {rec.flightType}
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <h4 className={styles.recTitle}>{rec.title}</h4>
-
-                                                {rec.airport && (
-                                                    <p className={styles.recAirport}>{rec.airport}</p>
-                                                )}
-
-                                                {rec.departureDate && (
-                                                    <p className={styles.recDates}>
-                                                        Ida:{" "}
-                                                        {new Date(rec.departureDate).toLocaleDateString(
-                                                            "es-AR"
-                                                        )}
-                                                    </p>
-                                                )}
-
-                                                <div className={styles.recBottomRow}>
-                                                    <span className={styles.recPrice}>
-                                                        {rec.price != null
-                                                            ? `AR$ ${Number(rec.price).toLocaleString("es-AR")}`
-                                                            : "Precio no disponible"}
-                                                    </span>
-
-                                                    {rec.discountPercent != null &&
-                                                        Number(rec.discountPercent) > 0 && (
-                                                            <span className={styles.recDiscount}>
-                                                                -{rec.discountPercent}%
-                                                            </span>
-                                                        )}
-                                                </div>
-
-                                                <p className={styles.recTaxes}>Tasas incluidas</p>
+                                            <div className={styles.recBottomRow}>
+                                                <span className={styles.recPrice}>
+                                                    {rec.price != null
+                                                        ? `AR$ ${Number(rec.price).toLocaleString("es-AR")}`
+                                                        : "Precio no disponible"}
+                                                </span>
                                             </div>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        )
-                    }
-                </section >
-            </div >
+
+                                            <p className={styles.recTaxes}>Tasas incluidas</p>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    )}
+                </section>
+
+            </div>
         </>
     );
 };

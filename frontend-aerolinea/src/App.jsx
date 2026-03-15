@@ -49,11 +49,14 @@ function App() {
       : { isAdmin: false, user: null };
   });
 
+
+
   const onLogin = async ({ email, password }) => {
+
+    //  Login → obtener token
     const res = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({ email, password })
     });
 
@@ -63,11 +66,29 @@ function App() {
       throw new Error(data.message || "Error de login");
     }
 
+    // Guardar token
+    localStorage.setItem("token", data.token);
+
+    // Obtener usuario actual
+    const meRes = await fetch("http://localhost:8080/api/auth/me", {
+      headers: {
+        "Authorization": `Bearer ${data.token}`
+      }
+    });
+
+    const meData = await meRes.json();
+
+    if (!meRes.ok) {
+      throw new Error("No se pudo obtener el usuario");
+    }
+
     return {
-      isAdmin: data.roles?.some(r => r.name === "ROLE_ADMIN"),
-      user: data
+      isAdmin: meData.roles.includes("ROLE_ADMIN"),
+      user: meData
     };
   };
+
+
 
 
   const handleLogin = async (credentials) => {
@@ -84,15 +105,20 @@ function App() {
     return result;
   };
 
+const handleLogout = () => {
+  
+  localStorage.removeItem("auth");
+  localStorage.removeItem("token");
+  setAuth({ isAdmin: false, user: null });
+};
 
-  const handleLogout = () => {
-    localStorage.removeItem('auth');
-    setAuth({ isAdmin: false, user: null });
-  };
 
   useEffect(() => {
     localStorage.setItem('auth', JSON.stringify(auth));
   }, [auth]);
+
+  
+
 
   return (
     <BrowserRouter>
@@ -149,10 +175,11 @@ function App() {
             path="profile"
             element={
               <RequireUser auth={auth}>
-                <ProfilePage />
+                <ProfilePage auth={auth} onLogout={handleLogout} />
               </RequireUser>
             }
           />
+
 
 
         </Route>

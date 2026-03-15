@@ -56,127 +56,175 @@ const AddFlightPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState([]);
 
-  
+
 
   useEffect(() => {
-    fetch ("http://localhost:8080/api/categories")
+    fetch("http://localhost:8080/api/categories")
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error("Error al cargar categorías:", err));
   }, []);
 
-useEffect(() => {
-  if (id) {
-    getFlightById(id)
-      .then((data) => {
-        setFlightData({
-          ...data,
-          flightNumber: normalizeDashes(data.flightNumber),
-          departureTime: toTimeHHmm(data.departureTime),
-          arrivalTime: toTimeHHmm(data.arrivalTime),
-          departureDate: data.departureDate || '',
-          arrivalDate: data.arrivalDate || '',
-          categoryId: data.category ? data.category.id : '',
-          userEditedNumber: true
-        });
-      })
-      .catch((err) => {
-        console.error('Error al obtener vuelo:', err);
-        alert('No se pudo cargar el vuelo para edición');
+  useEffect(() => {
+  if (!id) return;
+
+  const loadFlight = async () => {
+    try {
+      const data = await getFlightById(id);
+
+      setFlightData({
+        flightNumber: data.flightNumber || '',
+        origin: data.origin || '',
+        destination: data.destination || '',
+        departureDate: data.departureDate || '',
+        departureTime: data.departureTime || '',
+        arrivalDate: data.arrivalDate || '',
+        arrivalTime: data.arrivalTime || '',
+        price: data.price || '',
+        seatsAvailable: data.seatsAvailable || '',
+        airline: data.airline || 'AeroLinea',
+        aircraftType: data.aircraftType || '',
+        flightStatus: data.flightStatus || 'programado',
+        categoryId: data.category ? data.category.id : '',
       });
-  }
+
+    } catch (error) {
+      setErrors({ global: 'No se pudo cargar el vuelo para edición' });
+    }
+  };
+
+  loadFlight();
 }, [id]);
 
 
-useEffect(() => {
-  const { origin, destination, departureTime, airline } = flightData;
 
-  const autoNumber = generateFlightNumber(origin, destination, departureTime, airline);
+  useEffect(() => {
+    const { origin, destination, departureTime, airline } = flightData;
 
-  if (!flightData.userEditedNumber) {
-    setFlightData(prev => ({
-      ...prev,
-      flightNumber: autoNumber
-    }));
-  }
-}, [
-  flightData.origin,
-  flightData.destination,
-  flightData.departureTime,
-  flightData.airline
-]);
+    const autoNumber = generateFlightNumber(origin, destination, departureTime, airline);
+
+    if (!flightData.userEditedNumber) {
+      setFlightData(prev => ({
+        ...prev,
+        flightNumber: autoNumber
+      }));
+    }
+  }, [
+    flightData.origin,
+    flightData.destination,
+    flightData.departureTime,
+    flightData.airline
+  ]);
 
 
   const handleInputChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  if (name === 'flightNumber') {
-    const v = normalizeDashes(value);
-    setFlightData((prev) => ({
-      ...prev,
-      flightNumber: v,
-      userEditedNumber: true
-    }));
-  } else if (name === 'departureTime' || name === 'arrivalTime') {
-    const v = toTimeHHmm(value);
-    setFlightData((prev) => ({ ...prev, [name]: v }));
-  } else {
-    setFlightData((prev) => ({ ...prev, [name]: value }));
-  }
+    if (name === 'flightNumber') {
+      const v = normalizeDashes(value);
+      setFlightData((prev) => ({
+        ...prev,
+        flightNumber: v,
+        userEditedNumber: true
+      }));
+    } else if (name === 'departureTime' || name === 'arrivalTime') {
+      const v = toTimeHHmm(value);
+      setFlightData((prev) => ({ ...prev, [name]: v }));
+    } else {
+      setFlightData((prev) => ({ ...prev, [name]: value }));
+    }
 
-  if (errors[name]) {
-    setErrors((prev) => ({ ...prev, [name]: null }));
-  }
-};
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
+  };
 
 
   const validateForm = () => {
     const newErrors = {};
 
+    // Número de vuelo
     if (!flightNumberRegex.test((flightData.flightNumber || '').trim())) {
-      newErrors.flightNumber = 'Formatos válidos: 655500, AR1234 o AR-BUE-COR-0830';
+      newErrors.flightNumber = 'Formato inválido de número de vuelo';
     }
 
-    if (!flightData.origin || flightData.origin.trim() === '') {
-      newErrors.origin = 'El origen es obligatorio.';
+    // Origen
+    if (!flightData.origin || flightData.origin.trim().length < 3) {
+      newErrors.origin = 'El origen debe tener al menos 3 caracteres';
     }
 
-    if (!flightData.destination || flightData.destination.trim() === '') {
-      newErrors.destination = 'El destino es obligatorio.';
+    // Destino
+    if (!flightData.destination || flightData.destination.trim().length < 3) {
+      newErrors.destination = 'El destino debe tener al menos 3 caracteres';
     }
 
+    // Categoría
+    if (!flightData.categoryId) {
+      newErrors.categoryId = 'Seleccione una categoría';
+    }
+
+    // Fecha y hora de salida
+    if (!flightData.departureDate) {
+      newErrors.departureDate = 'Seleccione una fecha de salida';
+    }
+
+    if (!flightData.departureTime) {
+      newErrors.departureTime = 'Seleccione una hora de salida';
+    }
+
+    // Fecha y hora de llegada
+    if (!flightData.arrivalDate) {
+      newErrors.arrivalDate = 'Seleccione una fecha de llegada';
+    }
+
+    if (!flightData.arrivalTime) {
+      newErrors.arrivalTime = 'Seleccione una hora de llegada';
+    }
+
+    // Comparación fechas
     if (
       flightData.departureDate &&
       flightData.departureTime &&
       flightData.arrivalDate &&
       flightData.arrivalTime
     ) {
-      const dep = new Date(
-        `${flightData.departureDate}T${toTimeHHmm(flightData.departureTime)}`
-      );
-      const arr = new Date(
-        `${flightData.arrivalDate}T${toTimeHHmm(flightData.arrivalTime)}`
-      );
-      if (!(arr > dep)) {
-        newErrors.arrivalDate = 'La llegada debe ser después de la salida';
+      const dep = new Date(`${flightData.departureDate}T${flightData.departureTime}`);
+      const arr = new Date(`${flightData.arrivalDate}T${flightData.arrivalTime}`);
+
+      if (arr <= dep) {
+        newErrors.arrivalDate = 'La llegada debe ser posterior a la salida';
       }
     }
 
-    if (Number(flightData.price) <= 0) {
-      newErrors.price = 'El precio debe ser mayor a 0';
+    // Precio
+    if (!flightData.price || isNaN(Number(flightData.price)) || Number(flightData.price) <= 0) {
+      newErrors.price = 'Ingrese un precio válido mayor a 0';
     }
 
-    if (Number(flightData.seatsAvailable) <= 0) {
-      newErrors.seatsAvailable = 'Debe haber al menos 1 asiento';
+    // Asientos
+    if (
+      !flightData.seatsAvailable ||
+      isNaN(Number(flightData.seatsAvailable)) ||
+      Number(flightData.seatsAvailable) <= 0
+    ) {
+      newErrors.seatsAvailable = 'Ingrese una cantidad válida de asientos';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setErrors(prev => ({
+        ...prev,
+        global: 'Faltan datos obligatorios para guardar el vuelo.'
+      }));
+      return;
+    }
+
 
     setIsSubmitting(true);
     setErrors({});
@@ -201,16 +249,13 @@ useEffect(() => {
 
       navigate('/admin/listar-vuelos');
     } catch (error) {
-      console.error('Error:', error);
-
-      if (error.message && error.message.includes('Ya existe un vuelo')) {
-        setErrors({ global: 'Este vuelo ya se encuentra agendado en tu lista.' });
-      } else {
-        setErrors({ global: 'Ocurrió un error inesperado al guardar el vuelo.' });
-      }
+      setErrors({
+        global: error.message || 'Ocurrió un error al guardar el vuelo.'
+      });
     } finally {
       setIsSubmitting(false);
     }
+
   };
 
   const today = new Date().toISOString().split('T')[0];
@@ -238,6 +283,9 @@ useEffect(() => {
       )}
 
       <form onSubmit={handleSubmit} className={styles.form} noValidate>
+
+       
+
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label htmlFor="flightNumber">Número de Vuelo</label>
@@ -247,9 +295,6 @@ useEffect(() => {
               name="flightNumber"
               value={flightData.flightNumber}
               onChange={handleInputChange}
-              required
-              pattern="(?:\d{3,10}|[A-Za-z]{2,3}\d{3,5}|[A-Za-z]{2,3}-[A-Za-z]{3}-[A-Za-z]{3}-\d{4})"
-              title="Formatos válidos: 655500, AR1234 o AR-BUE-COR-0830"
               className={errors.flightNumber ? styles.errorInput : ''}
             />
             {errors.flightNumber && (
@@ -264,7 +309,6 @@ useEffect(() => {
               name="airline"
               value={flightData.airline}
               onChange={handleInputChange}
-              required
             >
               <option value="AeroLinea">AeroLinea</option>
               <option value="SkyWings">SkyWings</option>
@@ -279,7 +323,7 @@ useEffect(() => {
               name="categoryId"
               value={flightData.categoryId}
               onChange={handleInputChange}
-              required
+              className={errors.categoryId ? styles.errorInput : ''}
             >
               <option value="">Seleccione una categoría</option>
               {categories.map(cat => (
@@ -288,11 +332,11 @@ useEffect(() => {
                 </option>
               ))}
             </select>
+            {errors.categoryId && (
+              <span className={styles.errorText}>{errors.categoryId}</span>
+            )}
           </div>
-
         </div>
-
-
 
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
@@ -303,7 +347,7 @@ useEffect(() => {
               name="origin"
               value={flightData.origin}
               onChange={handleInputChange}
-              required
+              className={errors.origin ? styles.errorInput : ''}
             />
             {errors.origin && (
               <span className={styles.errorText}>{errors.origin}</span>
@@ -318,7 +362,7 @@ useEffect(() => {
               name="destination"
               value={flightData.destination}
               onChange={handleInputChange}
-              required
+              className={errors.destination ? styles.errorInput : ''}
             />
             {errors.destination && (
               <span className={styles.errorText}>{errors.destination}</span>
@@ -336,8 +380,11 @@ useEffect(() => {
               value={flightData.departureDate}
               onChange={handleInputChange}
               min={today}
-              required
+              className={errors.departureDate ? styles.errorInput : ''}
             />
+            {errors.departureDate && (
+              <span className={styles.errorText}>{errors.departureDate}</span>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -348,9 +395,11 @@ useEffect(() => {
               name="departureTime"
               value={flightData.departureTime}
               onChange={handleInputChange}
-              step="60"
-              required
+              className={errors.departureTime ? styles.errorInput : ''}
             />
+            {errors.departureTime && (
+              <span className={styles.errorText}>{errors.departureTime}</span>
+            )}
           </div>
         </div>
 
@@ -364,7 +413,6 @@ useEffect(() => {
               value={flightData.arrivalDate}
               onChange={handleInputChange}
               min={flightData.departureDate || today}
-              required
               className={errors.arrivalDate ? styles.errorInput : ''}
             />
             {errors.arrivalDate && (
@@ -380,9 +428,11 @@ useEffect(() => {
               name="arrivalTime"
               value={flightData.arrivalTime}
               onChange={handleInputChange}
-              step="60"
-              required
+              className={errors.arrivalTime ? styles.errorInput : ''}
             />
+            {errors.arrivalTime && (
+              <span className={styles.errorText}>{errors.arrivalTime}</span>
+            )}
           </div>
         </div>
 
@@ -395,9 +445,6 @@ useEffect(() => {
               name="price"
               value={flightData.price}
               onChange={handleInputChange}
-              min="1"
-              step="0.01"
-              required
               className={errors.price ? styles.errorInput : ''}
             />
             {errors.price && (
@@ -413,14 +460,10 @@ useEffect(() => {
               name="seatsAvailable"
               value={flightData.seatsAvailable}
               onChange={handleInputChange}
-              min="1"
-              required
               className={errors.seatsAvailable ? styles.errorInput : ''}
             />
             {errors.seatsAvailable && (
-              <span className={styles.errorText}>
-                {errors.seatsAvailable}
-              </span>
+              <span className={styles.errorText}>{errors.seatsAvailable}</span>
             )}
           </div>
         </div>
@@ -462,6 +505,7 @@ useEffect(() => {
           >
             Cancelar
           </button>
+
           <button
             type="submit"
             className={styles.submitButton}
@@ -470,7 +514,9 @@ useEffect(() => {
             {isSubmitting ? 'Guardando...' : 'Guardar Vuelo'}
           </button>
         </div>
+
       </form>
+
     </div>
   );
 };

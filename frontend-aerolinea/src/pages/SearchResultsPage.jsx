@@ -8,8 +8,9 @@ const PALETTE = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6
 const dateFromLocalDate = (s) => {
     if (!s) return new Date(NaN);
     const [y, m, d] = s.split('-').map(Number);
-    return new Date(Date.UTC(y, m - 1, d));
+    return new Date(y, m - 1, d);
 };
+
 
 const formatDayTitle = (s) =>
     new Intl.DateTimeFormat('es-AR', {
@@ -40,6 +41,9 @@ export default function SearchResultsPage() {
     const fromDate = params.get('fromDate') || '';
     const ymParam = params.get('ym') || new Date().toISOString().slice(0, 7);
 
+    const toDate = params.get('toDate') || '';
+    const tripType = params.get('tripType') || 'oneway';
+
     const groups = useMemo(() => groupByDate(flights), [flights]);
 
     const allFlights = useMemo(() => groups.flatMap(([_, fs]) => fs), [groups]);
@@ -61,7 +65,9 @@ export default function SearchResultsPage() {
             setLoading(true);
             try {
                 let url = '';
-                if (origin && destination && fromDate) {
+                if (origin && destination && fromDate && toDate && tripType === 'roundtrip') {
+                    url = `${API_BASE}/flights/search/range?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&fromDate=${fromDate}&toDate=${toDate}&tripType=roundtrip`;
+                } else if (origin && destination && fromDate) {
                     url = `${API_BASE}/flights/search?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&fromDate=${fromDate}`;
                 } else if (destination && ymParam) {
                     url = `${API_BASE}/flights/search/by-destination-and-month?destination=${encodeURIComponent(destination)}&ym=${ymParam}`;
@@ -69,6 +75,7 @@ export default function SearchResultsPage() {
                     setFlights([]);
                     return;
                 }
+
 
                 const res = await fetch(url);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -85,7 +92,7 @@ export default function SearchResultsPage() {
         };
 
         fetchFlights();
-    }, [origin, destination, fromDate, ymParam]);
+    }, [origin, destination, fromDate, toDate, tripType, ymParam]);
 
     return (
         <>
@@ -121,14 +128,18 @@ export default function SearchResultsPage() {
                                             <div className={styles.time}>
                                                 <span>Sale</span>
                                                 <strong>{f.departureTime}</strong>
+                                                <small>{f.departureDate}</small>
                                                 <small>{f.origin}</small>
                                             </div>
+
                                             <div className={styles.time}>
                                                 <span>Llega</span>
                                                 <strong>{f.arrivalTime}</strong>
+                                                <small>{f.arrivalDate}</small>
                                                 <small>{f.destination}</small>
                                             </div>
                                         </div>
+
                                         <div className={styles.meta}>
                                             <div className={styles.airline}>{f.airline || '—'}</div>
                                             <div className={styles.number}>{f.flightNumber}</div>

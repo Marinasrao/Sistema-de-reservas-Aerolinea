@@ -1,4 +1,8 @@
+
 const API_BASE_URL = '/api';
+
+
+
 
 const makeRequest = async (endpoint, method, body = null, isFormData = false) => {
     const url = `${API_BASE_URL}${endpoint}`;
@@ -59,9 +63,16 @@ const makeRequest = async (endpoint, method, body = null, isFormData = false) =>
 
 //============ VUELOS =====================
 
-export const getAllFlights = async () => {
-    return makeRequest('/flights', 'GET');
+export const getAllFlights = async (page = 0, size = 5) => {
+  const res = await fetch(
+    `http://localhost:8080/api/flights?page=${page}&size=${size}`,
+    { credentials: 'include' }
+  );
+
+  if (!res.ok) throw new Error('Error al obtener vuelos');
+  return res.json();
 };
+
 
 export const getRandomFlights = async () => {
     return makeRequest('/flights/random', 'GET');
@@ -71,10 +82,22 @@ export const getFlightById = async (id) => {
     return makeRequest(`/flights/${id}`, 'GET');
 };
 
-export const createFlight = async (flightData) => {
-    const isFormData = flightData instanceof FormData;
-    return makeRequest('/flights', 'POST', flightData, isFormData);
+export const createFlight = async (payload) => {
+    const res = await fetch("http://localhost:8080/api/flights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(errorData || "Error al crear el vuelo");
+    }
+
+    return res.json();
 };
+
 
 export const updateFlight = async (id, flightData) => {
     const isFormData = flightData instanceof FormData;
@@ -88,6 +111,16 @@ export const deleteFlight = async (id) => {
 export const searchFlights = async (params) => {
     const query = new URLSearchParams(params).toString();
     return makeRequest(`/flights/search?${query}`, 'GET');
+};
+export const getDestinationsByOrigin = async (origin) => {
+const res = await fetch(
+`http://localhost:8080/api/flights/destinations-by-origin?origin=${encodeURIComponent(origin)}`,
+{ credentials: "include" }
+);
+
+if (!res.ok) throw new Error("Error al obtener destinos por origen");
+
+return res.json();
 };
 
 
@@ -148,8 +181,16 @@ export const deleteRecommendation = async (id) => {
 
 // ===================== PASAJEROS =====================
 
-export const getAllPassengers = async () => {
-    return makeRequest('/passengers', 'GET');
+export const getAllPassengers = async (page = 0, size = 15) => {
+  const res = await fetch(
+    `http://localhost:8080/api/passengers?page=${page}&size=${size}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Error al obtener pasajeros");
+  }
+
+  return res.json();
 };
 
 export const createPassenger = async (passengerData) => {
@@ -165,7 +206,7 @@ export const getAvailableSeats = async (flightId, flightClass) => {
     return makeRequest(`/flights/${flightId}/available-seats?flightClass=${flightClass}`, 'GET');
 };
 
-// ===================== CATEGORÍAS =====================
+
 
 // ===================== CATEGORÍAS =====================
 

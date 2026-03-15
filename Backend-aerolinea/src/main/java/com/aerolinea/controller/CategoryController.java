@@ -1,6 +1,8 @@
 package com.aerolinea.controller;
 
+import com.aerolinea.dto.CategoryEditorialDTO;
 import com.aerolinea.entity.Category;
+import com.aerolinea.entity.CategoryPromo;
 import com.aerolinea.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,4 +73,43 @@ public class CategoryController {
             return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/editorial")
+    public ResponseEntity<List<CategoryEditorialDTO>> getEditorialByCategories(
+            @RequestParam List<Long> ids
+    ) {
+        return ResponseEntity.ok(
+                service.getEditorialByCategories(ids)
+        );
+
+    }
+
+    @PostMapping(
+            value = "/admin/{id}/promos"
+
+    )
+    public ResponseEntity<?> saveCategoryPromos(
+            @PathVariable Long id,
+            @RequestParam("promoTexts") String[] promoTexts,
+            @RequestParam("images") MultipartFile[] images
+    ) {
+        try {
+            service.saveCategoryPromos(id, promoTexts, images);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Error al guardar promociones: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/promos")
+    public ResponseEntity<List<CategoryPromo>> getCategoryPromos(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(service.getCategoryPromos(id));
+    }
+
+
+
+
 }

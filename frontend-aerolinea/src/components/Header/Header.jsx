@@ -1,18 +1,23 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import styles from './Header.module.css';
+import { useLocation } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({ auth }) => {
+
     const [menuOpen, setMenuOpen] = useState(false);
+    const location = useLocation();
+    const isHome = location.pathname === "/";
 
     return (
         <header className={styles.header}>
-            {/* Bloque izquierdo: Logo + Lema */}
+
+            {/* Logo */}
             <div className={styles.logoContainer}>
                 <Link to="/" className={styles.logoLink}>
-                    <img 
-                        src="/logo-fb.svg" 
-                        alt="FlightBooking" 
+                    <img
+                        src="/logo-fb.svg"
+                        alt="FlightBooking"
                         className={styles.logo}
                     />
                     <div className={styles.brandWrapper}>
@@ -22,32 +27,37 @@ const Header = () => {
                 </Link>
             </div>
 
-            {/* Menú Hamburguesa (solo en móvil) */}
-            <button 
+            {/* Menú hamburguesa */}
+            <button
                 className={styles.mobileMenuButton}
                 onClick={() => setMenuOpen(!menuOpen)}
-                aria-label="Menú de navegación"
             >
                 ☰
             </button>
 
-            {/* Bloque derecho: Botones */}
+            {/* Botones SOLO si NO está logueado */}
             <div className={`${styles.authButtons} ${menuOpen ? styles.showMenu : ''}`}>
-                <Link 
-                    to="/register" 
-                    className={styles.authButton}
-                    onClick={() => setMenuOpen(false)}
-                >
-                    Crear cuenta
-                </Link>
-                <Link 
-                    to="/login" 
-                    className={styles.authButton}
-                    onClick={() => setMenuOpen(false)}
-                >
-                    Iniciar sesión
-                </Link>
+            {isHome && (
+                    <>
+                        <Link
+                            to="/register"
+                            className={styles.authButton}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Crear cuenta
+                        </Link>
+
+                        <Link
+                            to="/login"
+                            className={styles.authButton}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Iniciar sesión
+                        </Link>
+                    </>
+                )}
             </div>
+
         </header>
     );
 };

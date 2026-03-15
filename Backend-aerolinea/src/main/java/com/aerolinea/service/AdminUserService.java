@@ -25,12 +25,17 @@ public class AdminUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createAdmin(User user) {
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseThrow();
+    public User createAdmin(User data) {
 
-        user.setRoles(Set.of(adminRole));
-        user.setEnabled(true);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = userRepository.findByEmail(data.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+                .orElseThrow();
+
+        if (!user.getRoles().contains(adminRole)) {
+            user.getRoles().add(adminRole);
+        }
 
         return userRepository.save(user);
     }

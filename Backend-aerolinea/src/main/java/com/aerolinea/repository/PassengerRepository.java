@@ -17,7 +17,7 @@ public interface PassengerRepository extends JpaRepository<Passenger, Long> {
     long countByFlight_Id(Long flightId);
     void deleteByFlight_Id(Long flightId);
 
-    List<Passenger> findByFlightIdAndFlightClass(Long flightId, String flightClass);
+    List<Passenger> findByFlight_IdAndFlightClass(Long flightId, String flightClass);
 
 }
 

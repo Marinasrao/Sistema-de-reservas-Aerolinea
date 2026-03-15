@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import styles from "./CategoryResultsPage.module.css";
 
@@ -6,112 +6,107 @@ const API_BASE = "http://localhost:8080/api";
 
 const CategoryResultsPage = () => {
     const [searchParams] = useSearchParams();
-    const categoryIdsParam = searchParams.get("categories");
 
-    const [categories, setCategories] = useState([]);
-    const [flights, setFlights] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const categoryIds = useMemo(() => {
+        return searchParams
+            .get("categories")
+            ?.split(",")
+            .map(Number)
+            .filter(Boolean) || [];
+    }, [searchParams]);
 
-    const categoryIds = categoryIdsParam
-        ? categoryIdsParam.split(",").map(Number)
-        : [];
+    const [groups, setGroups] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
+        if (categoryIds.length === 0) {
+            setGroups([]);
+            return;
+        }
+
+        const fetchEditorialGroups = async () => {
+            setLoading(true);
             try {
-                const [catRes, flightRes] = await Promise.all([
-                    fetch(`${API_BASE}/categories`),
-                    fetch(`${API_BASE}/flights`)
-                ]);
+                const params = categoryIds.join(",");
 
-                const cats = await catRes.json();
-                const fls = await flightRes.json();
+                const res = await fetch(
+                    `${API_BASE}/categories/editorial?ids=${params}`
+                );
 
-                setCategories(Array.isArray(cats) ? cats : []);
-                setFlights(Array.isArray(fls) ? fls : []);
+                if (!res.ok) {
+                    throw new Error("Error cargando resultados");
+                }
+
+                const data = await res.json();
+                setGroups(data);
             } catch (e) {
-                console.error("Error cargando resultados por categoría", e);
+                console.error(e);
+                setGroups([]);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
-    }, []);
-
-    // Categorías seleccionadas según la URL
-    const selectedCategories = categories.filter(cat =>
-        categoryIds.includes(cat.id)
-    );
-
-
-    const selectedCategoryTitles = selectedCategories.map(cat => cat.title);
-
-    // Filtro base por categoría (REAL)
-    let filteredFlights = flights.filter(flight =>
-        flight.categoryTitle &&
-        selectedCategoryTitles.includes(flight.categoryTitle)
-    );
-
-    //Filtro Low-Cost
-    const hasLowCost = selectedCategoryTitles.some(title =>
-        title.toLowerCase().includes("low")
-    );
-
-    if (hasLowCost) {
-        filteredFlights = filteredFlights.filter(flight =>
-            (flight.origin === "Buenos Aires" && flight.destination === "Córdoba") ||
-            (flight.origin === "Córdoba" && flight.destination === "Buenos Aires")
-        );
-    }
-
-    const hasPremium = selectedCategoryTitles.some(title =>
-        title.toLowerCase().includes("premium")
-    );
-
-    if (hasPremium) {
-        filteredFlights = filteredFlights.filter(flight =>
-            ["París", "Dubai", "Dubái"].includes(flight.destination)
-        );
-    }
-
-
-
-
-    // Título dinámico
-
-    const categoryTitles = selectedCategories.length
-        ? selectedCategories.map(cat => cat.title)
-        : ["Categoría seleccionada"];
-
-    const titleText =
-        categoryTitles.length === 1
-            ? `Vuelos ${categoryTitles[0]}`
-            : `Vuelos ${categoryTitles.join(" y ")}`;
-
+        fetchEditorialGroups();
+    }, [categoryIds]);
 
     return (
         <div className={styles.container}>
-            <h2 className={styles.title}>{titleText}</h2>
+            <h2 className={styles.title}>Resultados por categoría</h2>
 
-            <p className={styles.counter}>
-                Mostrando {filteredFlights.length} vuelos de {flights.length}
-            </p>
+            {loading && <p>Cargando resultados…</p>}
 
-
-            {!loading && filteredFlights.length === 0 && (
-                <p>No se encontraron vuelos para estas categorías.</p>
+            {!loading && groups.length === 0 && (
+                <p>No hay resultados para las categorías seleccionadas.</p>
             )}
 
-            <div className={styles.list}>
-                {filteredFlights.map(flight => (
-                    <div key={flight.id} className={styles.card}>
-                        <h4>{flight.flightNumber}</h4>
-                        <p>{flight.origin} → {flight.destination}</p>
-                    </div>
+            {!loading &&
+                groups.map(group => (
+                    <section
+                        key={group.categoryId}
+                        className={styles.categorySection}
+                    >
+                        <h3 className={styles.categoryTitle}>
+                            {group.categoryTitle}
+                        </h3>
+
+                        <div className={styles.grid}>
+                            {group.recommendations.map(rec => (
+                                <div
+                                    key={rec.id}
+                                    className={styles.card}
+                                >
+                                    <img
+                                        src={
+                                            rec.mainImage
+                                                ? `http://localhost:8080/uploads/categories/${rec.mainImage}`
+                                                : "/placeholder.jpg"
+                                        }
+                                        alt={rec.title}
+                                        className={styles.image}
+                                    />
+
+                                    <div className={styles.body}>
+                                        <h4 className={styles.route}>
+                                            {rec.title}
+                                        </h4>
+
+                                        {rec.price && (
+                                            <p className={styles.price}>
+                                                Desde{" "}
+                                                <strong>
+                                                    ${rec.price.toLocaleString()}
+                                                </strong>
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
                 ))}
-            </div>
         </div>
-    )
+    );
 };
+
 export default CategoryResultsPage;

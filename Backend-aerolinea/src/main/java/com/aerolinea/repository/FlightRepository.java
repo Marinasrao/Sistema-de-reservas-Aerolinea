@@ -4,12 +4,16 @@ import com.aerolinea.entity.Flight;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDate;
 import java.util.*;
+import java.util.List;
+
+
+
 
 @Repository
 public interface FlightRepository extends JpaRepository<Flight, Long> {
@@ -64,11 +68,59 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             String origin, String destination, LocalDate fromDate
     );
 
-    @Query("SELECT DISTINCT f.origin FROM Flight f " +
-            "UNION " +
-            "SELECT DISTINCT f.destination FROM Flight f")
-    List<String> findDistinctOriginsAndDestinations();
-};
+    @Query("SELECT DISTINCT f.origin FROM Flight f ORDER BY f.origin")
+    List<String> findDistinctOrigins();
+
+
+    @Query("""
+                select f from Flight f
+                where lower(f.origin) like lower(concat('%', :origin, '%'))
+                  and lower(f.destination) like lower(concat('%', :destination, '%'))
+                  and f.departureDate = :departureDate
+            """)
+    List<Flight> searchExactDate(
+            @Param("origin") String origin,
+            @Param("destination") String destination,
+            @Param("departureDate") LocalDate departureDate
+    );
+
+    @Query("""
+                select distinct f.departureDate
+                from Flight f
+                where f.origin = :origin
+                  and f.destination = :destination
+                  and f.departureDate >= :fromDate
+                order by f.departureDate
+            """)
+    List<LocalDate> findAvailableDatesByRoute(
+            @Param("origin") String origin,
+            @Param("destination") String destination,
+            @Param("fromDate") LocalDate fromDate
+    );
+
+    Page<Flight> findByCategory_IdIn(List<Long> categoryIds, Pageable pageable);
+
+
+    @Query("""
+                select f from Flight f
+                where f.category.id in :categoryIds
+            """)
+    List<Flight> findAllByCategoryIds(
+            @Param("categoryIds") List<Long> categoryIds
+    );
+
+
+    @Query("SELECT DISTINCT f.destination FROM Flight f WHERE f.origin = :origin")
+    List<String> findDestinationsByOrigin(@Param("origin") String origin);
+}
+
+
+
+
+
+
+
+
 
 
 
