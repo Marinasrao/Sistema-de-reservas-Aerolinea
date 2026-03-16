@@ -72,9 +72,15 @@ Esto permite explorar visualmente el destino antes de realizar una reserva.
  
 <img width="1354" height="578" alt="Seccion Recomendaciones" src="https://github.com/user-attachments/assets/1d0e51d4-42e5-4cd5-951d-d0bec3e65dcf" />
 
-### 🖼 ** Seccion Categoria y Footer**
+###Galeria**
 
-<img width="1347" height="583" alt="Categorias y footer" src="https://github.com/user-attachments/assets/cb479fda-1667-4057-bc88-3e0276087b47" />
+
+###Descripcion del destino**
+
+
+### 🖼 ** Seccion Categoria **
+
+
 
 ## 🔐 Acceso al Panel de Administración
 
