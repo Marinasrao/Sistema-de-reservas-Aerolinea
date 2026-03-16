@@ -66,21 +66,23 @@ Esto permite explorar visualmente el destino antes de realizar una reserva.
 
 ### 🖼 ** Seccion Buscador y Hero**
     
- <img width="1336" height="650" alt="Buscador y Hero" src="https://github.com/user-attachments/assets/15c5360a-d590-433b-9baa-65067fb3ddf2" />
+ Buscador-Hero.png
 
  ### 🖼 ** Seccion Recomendaciones**
- 
-<img width="1354" height="578" alt="Seccion Recomendaciones" src="https://github.com/user-attachments/assets/1d0e51d4-42e5-4cd5-951d-d0bec3e65dcf" />
+
+Recomendaciones.png
 
 ###Galeria**
-
+Galeria.png
 
 ###Descripcion del destino**
+
+Descripcion del destino.png
 
 
 ### 🖼 ** Seccion Categoria **
 
-
+Categorias.png
 
 ## 🔐 Acceso al Panel de Administración
 
