@@ -409,7 +409,7 @@ El sistema cuenta con autenticación y manejo de roles.
 <img width="1356" height="633" alt="resultado de buscador" src="https://github.com/user-attachments/assets/2081d32e-419e-41f7-babe-bf3e22faf374" />
 
 ## Recomendaciones
-<img width="1346" height="532" alt="recomendaciones" src="https://github.com/user-attachments/assets/f19e639e-6acd-4d38-a184-52337592e5ea" 
+<img width="1346" height="532" alt="recomendaciones" src="https://github.com/user-attachments/assets/f19e639e-6acd-4d38-a184-52337592e5ea"  />
 
   ## Compartir en redes
   <img width="664" height="617" alt="compartir en redes" src="https://github.com/user-attachments/assets/7e201621-d679-45fd-94e6-4f282b079b58" />
