@@ -1,0 +1,125 @@
+.calendar {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px;
+  margin-top: 3rem;
+  width: 100%;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e0ecff;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.header span {
+  font-size: 14px;
+  font-weight: 700;
+  color: #003580;
+  text-transform: capitalize;
+  min-width: 160px;
+  text-align: center;
+}
+
+.header button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #3b6ea5;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.header button:hover {
+  background: #2f5b8a;
+  transform: translateY(-1px);
+}
+
+.weekDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day {
+  height: 42px;
+  border-radius: 8px;
+  text-align: center;
+  padding: 8px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  transition: background-color 0.2s ease, transform 0.2s ease, outline 0.2s ease;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+.available {
+  background: #22c55e;
+  color: #ffffff;
+  border-color: #22c55e;
+  cursor: pointer;
+}
+
+.available:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+.unavailable {
+  background: #e5e7eb;
+  color: #9ca3af;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.unavailable:hover {
+  background: #e5e7eb;
+  color: #9ca3af;
+  border-color: #d1d5db;
+  transform: none;
+}
+
+.selected {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  font-weight: 800;
+}
+
+.available.selected {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+}
+
+.unavailable.selected {
+  background: #e5e7eb;
+  color: #9ca3af;
+  border-color: #d1d5db;
+}
+
+.empty {
+  height: 42px;
+}

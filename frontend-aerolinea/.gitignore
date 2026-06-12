@@ -9,6 +9,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 hs_err_pid*
+replay_pid*.log
+hs_err_pid*.log
 *.pid
 
 ###################################
@@ -61,3 +63,11 @@ application.yml
 aerolinea.code-workspace
 
 out/
+# Build outputs específicos del proyecto
+/Backend-aerolinea/target/
+/frontend-aerolinea/dist/
+/out/
+
+# Logs de JVM en raíz
+/hs_err_pid*.log
+/replay_pid*.log

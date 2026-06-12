@@ -1,0 +1,192 @@
+.page {
+  min-height: calc(100vh - 100px);
+  padding: 130px 1rem 3rem;
+  background: linear-gradient(to bottom, #f0f7ff, #ffffff);
+  display: flex;
+  justify-content: center;
+}
+
+.summaryCard,
+.loginCard {
+  width: min(100%, 900px);
+  background: #ffffff;
+  border-radius: 26px;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.12);
+  padding: 2rem;
+}
+
+.loginCard {
+  max-width: 620px;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  color: #0f766e;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.45rem;
+}
+
+.header h2,
+.loginCard h2 {
+  margin: 0;
+  color: #003580;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  font-weight: 900;
+}
+
+.header p,
+.loginCard p {
+  margin: 0.8rem 0 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.userBox {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eefcff, #ffffff);
+  border: 1px solid #c7edf2;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #65c0c0, #3f80a5);
+  color: #ffffff;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userBox strong,
+.userBox span {
+  display: block;
+}
+
+.userBox strong {
+  color: #0f172a;
+}
+
+.userBox span {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 0.15rem;
+}
+
+.detailsGrid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.detailItem {
+  padding: 1rem;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.detailItem span {
+  display: block;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.detailItem strong {
+  display: block;
+  color: #003580;
+  font-size: 1rem;
+}
+
+.notice {
+  margin-top: 1.4rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: #eef6ff;
+  color: #003580;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton,
+.backButton {
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 1.35rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primaryButton {
+  background: linear-gradient(to right, #65c0c0, #3f80a5);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
+}
+
+.secondaryButton {
+  background: #eef2ff;
+  color: #003580;
+}
+
+.backButton {
+  background: transparent;
+  color: #64748b;
+  margin-top: 1rem;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.backButton:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 760px) {
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryCard,
+  .loginCard {
+    padding: 1.2rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .backButton {
+    width: 100%;
+  }
+}

@@ -1,7 +1,7 @@
 
 .header {
-  height: 70px;
-  background: linear-gradient(135deg, #003580, #0066cc);
+  height: 100px;
+  background:  #6b48bb;
   padding: 0 2rem;
   position: fixed;
   top: 0;
@@ -18,6 +18,7 @@
 .logoContainer {
   display: flex;
   align-items: center;
+  font-family: monospace;
   gap: 1rem;
   min-width: 150px;
 }
@@ -58,28 +59,72 @@
   font-weight: 500;
 }
 
+.adminPanelButton {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.adminPanelButton:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
 /* BOTONES DE AUTENTICACIÓN */
 .authButtons {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.9rem;
 }
 
 .authButton {
+  height: 40px;
+  min-width: 128px;
   background: transparent;
   color: white;
   border: 1px solid white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
+  padding: 0 1.1rem;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 0.9rem;
   font-weight: 600;
+  font-family: inherit;
   text-decoration: none;
-  transition: all 0.3s;
+  transition: background-color 0.2s ease, color 0.2s ease;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .authButton:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
 }
 
+.userGreeting {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0 0.4rem;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.userGreeting:hover {
+  color: #e8f4ff;
+}
 /* BOTÓN MENÚ HAMBURGUESA */
 .mobileMenuButton {
   display: none;

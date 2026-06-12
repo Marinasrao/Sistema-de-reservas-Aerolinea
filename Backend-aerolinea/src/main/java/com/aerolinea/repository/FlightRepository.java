@@ -58,6 +58,7 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     List<Flight> findByDestinationIgnoreCaseAndDepartureDateGreaterThanEqual(String destination, LocalDate today);
 
 
+
     //  limpieza de vuelos vencidos
     List<Flight> findByDepartureDateBefore(LocalDate date);
 
@@ -67,6 +68,13 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     List<Flight> findByOriginAndDestinationAndDepartureDateGreaterThanEqualOrderByDepartureDateAsc(
             String origin, String destination, LocalDate fromDate
     );
+
+    List<Flight> findByOriginAndDestinationAndDepartureDate(
+            String origin,
+            String destination,
+            LocalDate departureDate
+    );
+
 
     @Query("SELECT DISTINCT f.origin FROM Flight f ORDER BY f.origin")
     List<String> findDistinctOrigins();

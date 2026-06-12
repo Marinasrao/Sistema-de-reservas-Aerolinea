@@ -7,7 +7,7 @@ export default function DestinationAutocomplete({
     value,
     onChange,
     onSelect,
-    placeholder = "Ciudad de destino",
+    placeholder = "Ciudad",
     className = "",
     inputProps = {}
 }) {
@@ -17,10 +17,13 @@ export default function DestinationAutocomplete({
     const [sugs, setSugs] = useState([]);
     const [hi, setHi] = useState(-1);
     const wrapRef = useRef(null);
+    const inputRef = useRef(null);
 
     const [allCities, setAllCities] = useState([]);
 
-    useEffect(() => { setQ(value || ""); }, [value]);
+    useEffect(() => {
+        setQ(value || "");
+    }, [value]);
 
     useEffect(() => {
         const onDocClick = (e) => {
@@ -43,7 +46,7 @@ export default function DestinationAutocomplete({
                 const cities = await res.json();
                 setAllCities(cities || []);
             } catch (err) {
-                console.error("Error al obtener ciudades únicas", err);
+                console.error("Error al obtener ciudades", err);
                 setAllCities([]);
             } finally {
                 setLoading(false);
@@ -53,6 +56,7 @@ export default function DestinationAutocomplete({
     }, [origin]);
 
     const [debouncedQ, setDebouncedQ] = useState(q);
+
     useEffect(() => {
         const id = setTimeout(() => setDebouncedQ(q), 200);
         return () => clearTimeout(id);
@@ -83,6 +87,7 @@ export default function DestinationAutocomplete({
         setOpen(false);
         setHi(-1);
         onSelect?.(text);
+        inputRef.current?.blur();
     };
 
     const onKeyDown = (e) => {
@@ -91,6 +96,7 @@ export default function DestinationAutocomplete({
             return;
         }
         if (!open) return;
+
         if (e.key === "ArrowDown") {
             e.preventDefault();
             setHi((prev) => Math.min(prev + 1, sugs.length - 1));
@@ -107,23 +113,57 @@ export default function DestinationAutocomplete({
         }
     };
 
+    const highlight = (text, term) => {
+        const i = text.toLowerCase().indexOf(term.toLowerCase());
+        if (i === -1) return text;
+
+        return (
+            <>
+                {text.substring(0, i)}
+                <strong>{text.substring(i, i + term.length)}</strong>
+                {text.substring(i + term.length)}
+            </>
+        );
+    };
+
     return (
         <div ref={wrapRef} style={{ position: "relative", width: "100%" }}>
-            <input
-                type="text"
-                value={q}
-                placeholder={placeholder}
-                onChange={(e) => {
-                    setQ(e.target.value);
-                    onChange?.(e.target.value);
-                    setOpen(true);
-                }}
-                onFocus={() => setOpen(true)}
-                onKeyDown={onKeyDown}
-                className={className}
-                {...inputProps}
-            />
-            {open && (loading || sugs.length > 0) && (
+
+            {/* Input con icono */}
+            <div style={{ position: "relative" }}>
+                <span
+                    style={{
+                        position: "absolute",
+                        left: 10,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        opacity: 0.5,
+                        fontSize: 14
+                    }}
+                >
+                    ✈️
+                </span>
+
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={q}
+                    placeholder={placeholder}
+                    onChange={(e) => {
+                        setQ(e.target.value);
+                        onChange?.(e.target.value);
+                        setOpen(true);
+                    }}
+                    onFocus={() => setOpen(true)}
+                    onKeyDown={onKeyDown}
+                    className={className}
+                    style={{ paddingLeft: 32 }}
+                    {...inputProps}
+                />
+            </div>
+
+            {/* Dropdown */}
+            {open && (
                 <div
                     style={{
                         position: "absolute",
@@ -144,6 +184,19 @@ export default function DestinationAutocomplete({
                             Buscando destinos…
                         </div>
                     )}
+
+                    {!loading && !q && (
+                        <div style={{ padding: 10, fontSize: 13, color: "#aaa" }}>
+                            Escribí al menos 2 letras...
+                        </div>
+                    )}
+
+                    {!loading && sugs.length === 0 && q.length >= 2 && (
+                        <div style={{ padding: 10, fontSize: 14, color: "#888" }}>
+                            No se encontraron destinos
+                        </div>
+                    )}
+
                     {!loading && sugs.map((s, idx) => (
                         <div
                             key={s}
@@ -152,11 +205,12 @@ export default function DestinationAutocomplete({
                             style={{
                                 padding: "10px 12px",
                                 cursor: "pointer",
-                                background: hi === idx ? "#f6f6f6" : "white",
-                                borderTop: "1px solid #eee"
+                                background: hi === idx ? "#eaf4ff" : "white",
+                                borderTop: "1px solid #eee",
+                                transition: "background 0.15s ease"
                             }}
                         >
-                            {s}
+                            {highlight(s, q)}
                         </div>
                     ))}
                 </div>

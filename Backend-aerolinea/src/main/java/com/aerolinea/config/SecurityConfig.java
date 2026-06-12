@@ -45,16 +45,21 @@ public class SecurityConfig {
                                 "/api/recommendations/**",
                                 "/api/hero/**",
                                 "/api/categories/**",
+                                "/api/availability/**",
                                 "/api/flights/**",
                                 "/api/passengers",
                                 "/uploads/**",
                                 "/images/**",
                                 "/api/public/**",
-                                "/test-email"
+                                "/test-email",
+                                "/api/policies/**"
                         ).permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/categories/admin/**").hasAuthority("ROLE_ADMIN")
+
 
                         .anyRequest().authenticated()
                 )

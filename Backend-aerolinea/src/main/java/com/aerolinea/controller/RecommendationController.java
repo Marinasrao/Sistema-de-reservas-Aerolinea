@@ -1,19 +1,14 @@
 package com.aerolinea.controller;
 
 import com.aerolinea.dto.RecommendationHomeDTO;
-import com.aerolinea.entity.Flight;
 import com.aerolinea.entity.Recommendation;
 import com.aerolinea.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.print.Pageable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/recommendations")
@@ -23,7 +18,6 @@ public class RecommendationController {
     @Autowired
     private RecommendationService recommendationService;
 
-
     @GetMapping
     public List<Recommendation> getAllRecommendations() {
         return recommendationService.getAllRecommendations();
@@ -32,35 +26,54 @@ public class RecommendationController {
     @GetMapping("/{id}")
     public ResponseEntity<Recommendation> getRecommendationById(@PathVariable Long id) {
         Recommendation recommendation = recommendationService.getRecommendationById(id);
+
         if (recommendation == null) {
             return ResponseEntity.notFound().build();
         }
+
         return ResponseEntity.ok(recommendation);
     }
 
-    @PostMapping
+    @PostMapping({"", "/add"})
     public ResponseEntity<Recommendation> createRecommendation(
             @RequestPart("recommendation") String recommendationJson,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         try {
-            Recommendation created = recommendationService.saveRecommendation(recommendationJson, image, null);
+            Recommendation created =
+                    recommendationService.saveRecommendation(
+                            recommendationJson,
+                            image,
+                            null
+                    );
+
             return ResponseEntity.ok(created);
+
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping({"/{id}", "/edit/{id}"})
     public ResponseEntity<Recommendation> updateRecommendation(
             @PathVariable Long id,
             @RequestPart("recommendation") String recommendationJson,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         try {
-            Recommendation updated = recommendationService.updateRecommendation(id, recommendationJson, image, null);
+            Recommendation updated =
+                    recommendationService.updateRecommendation(
+                            id,
+                            recommendationJson,
+                            image,
+                            null
+                    );
+
             return ResponseEntity.ok(updated);
+
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
@@ -76,35 +89,45 @@ public class RecommendationController {
             @RequestParam(value = "image4", required = false) MultipartFile image4
     ) {
         try {
-            recommendationService.saveRecommendationDetails(id, longDescription, mainImage, image1, image2, image3, image4);
+
+            recommendationService.saveRecommendationDetails(
+                    id,
+                    longDescription,
+                    mainImage,
+                    image1,
+                    image2,
+                    image3,
+                    image4
+            );
+
             return ResponseEntity.ok("Detalles guardados");
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al guardar detalles");
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body("Error al guardar detalles");
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecommendation(@PathVariable Long id) {
         try {
+
             recommendationService.deleteRecommendation(id);
+
             return ResponseEntity.noContent().build();
+
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/random")
     public ResponseEntity<List<RecommendationHomeDTO>> getRandomForHome() {
+
         return ResponseEntity.ok(
                 recommendationService.getRandomForHome()
         );
     }
-
-
-
-
-
-
-
-
 }

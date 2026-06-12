@@ -137,3 +137,74 @@
   padding-top: 0.75rem;
   border-top: 1px dashed #e0e0e0;
 }
+.cardActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.cardActions .button,
+.cardActions .editButton,
+.cardActions .deleteButton {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: none;
+  cursor: pointer;
+  margin: 0;
+}
+
+.editButton {
+  background: linear-gradient(to right, #65c0c0, #3f80a5);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
+}
+
+.editButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
+}
+
+.input:disabled {
+  background: #f8fafc;
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.viewBadge,
+.editBadge {
+  display: inline-block;
+  width: fit-content;
+  margin-bottom: 0.7rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.viewBadge {
+  background: #eef2ff;
+  color: #334155;
+}
+
+.editBadge {
+  background: #e0f7f7;
+  color: #0f766e;
+}
+
+@media (max-width: 760px) {
+  .cardActions {
+    grid-template-columns: 1fr;
+  }
+}

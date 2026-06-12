@@ -478,6 +478,20 @@ public class FlightService {
         return s;
     }
 
+    private String normalizeCityForSearch(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .replaceAll("[^a-zA-Z\\s]", "")
+                .replaceAll("\\s+", " ")
+                .toLowerCase()
+                .trim();
+    }
+
+
     private String tryInferFromTitle(String title, int idx) {
         if (isBlank(title)) return null;
         var pattern = Pattern.compile(
@@ -555,12 +569,31 @@ public class FlightService {
     }
 
     public List<Flight> searchFlights(String origin, String destination, LocalDate fromDate) {
-        return flightRepository.findByOriginAndDestinationAndDepartureDateGreaterThanEqualOrderByDepartureDateAsc(
-                origin, destination, fromDate
-        );
+        if (origin == null || destination == null || fromDate == null) {
+            return Collections.emptyList();
+        }
 
+        String normalizedOrigin = normalizeCityForSearch(origin);
+        String normalizedDestination = normalizeCityForSearch(destination);
 
+        return flightRepository.findAll()
+                .stream()
+                .filter(flight -> flight.getDepartureDate() != null)
+                .filter(flight -> flight.getOrigin() != null)
+                .filter(flight -> flight.getDestination() != null)
+                .filter(flight -> flight.getDepartureDate().equals(fromDate))
+                .filter(flight -> normalizeCityForSearch(flight.getOrigin()).equals(normalizedOrigin))
+                .filter(flight -> normalizeCityForSearch(flight.getDestination()).equals(normalizedDestination))
+                .sorted(
+                        Comparator.comparing(
+                                Flight::getDepartureTime,
+                                Comparator.nullsLast(Comparator.naturalOrder())
+                        )
+                )
+                .toList();
     }
+
+
 
     public List<String> getDestinationsByOrigin (String origin){
         return flightRepository.findDestinationsByOrigin(origin);

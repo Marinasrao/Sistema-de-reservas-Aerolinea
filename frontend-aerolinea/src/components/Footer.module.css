@@ -2,7 +2,7 @@
 .footer {
   box-sizing: border-box;
   height: var(--footer-height);
-  background-color: #003580;
+  background-color: #767677;
   color: white;
   display: flex;
   justify-content: space-between;

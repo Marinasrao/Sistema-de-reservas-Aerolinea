@@ -10,16 +10,19 @@
   margin-bottom: 1.5rem;
 }
 
+
 .title {
   font-size: 1.8rem;
-  color: #003580;
+  color: #4e476e;
+  margin-top:3.5rem;
+ 
 }
 
 .backBtn {
   display: inline-flex;         
   align-items: center;
   justify-content: center;
-  margin-top: 50px;
+  margin-top: 3.5rem;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
   color: #0f172a;

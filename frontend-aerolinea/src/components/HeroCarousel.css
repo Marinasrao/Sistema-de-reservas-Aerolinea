@@ -1,11 +1,15 @@
 .carousel-container {
   position: relative;
-  top: 120px;
-  width: 100%;
+  top: 100px;
+  width: 99%;
   height: auto;
   min-height: calc(100vh - 70px);
   overflow: visible;
   z-index: 1;
+  border-radius: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  
 }
 
 .slide {
@@ -27,11 +31,12 @@
   bottom: 30px;
   left: 40px;
   background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  color: #e3f192;
   padding: 12px 20px;
   border-radius: 10px;
-  font-size: 1.2rem;
-  max-width: 80%;
+  font-size: 1.7rem;
+  font-weight: bold;
+  max-width: 100%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   z-index: 2;

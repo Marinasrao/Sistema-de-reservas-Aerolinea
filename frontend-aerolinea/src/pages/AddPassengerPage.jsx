@@ -151,6 +151,7 @@ const AddPassengerPage = () => {
 
       setFilteredFlights([]);
       setAvailableSeats([]);
+     
 
     } catch (err) {
       console.error('Error al crear pasajero', err);

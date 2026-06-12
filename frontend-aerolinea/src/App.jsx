@@ -24,6 +24,8 @@ import AdminUsersPage from './pages/AdminUsersPage';
 import AdminUserFormPage from "./pages/AdminUserFormPage";
 import AdminCharacteristicsPage from "./pages/AdminCharacteristicsPage";
 import CategoryResultsPage from "./pages/CategoryResultsPage";
+import AdminPoliciesPage from "./pages/AdminPoliciesPage";
+import ReservationPage from './pages/ReservationPage';
 
 
 const RequireAdmin = ({ children, auth }) => {
@@ -149,7 +151,7 @@ const handleLogout = () => {
           <Route path="admin-user" element={<AdminUserFormPage />} />
           <Route path="admin-user/:id" element={<AdminUserFormPage />} />
           <Route path="characteristics" element={<AdminCharacteristicsPage />} />
-
+          <Route path="policies" element={<AdminPoliciesPage />} />
         </Route>
 
         {/* RUTAS PÚBLICAS */}
@@ -157,18 +159,18 @@ const handleLogout = () => {
           path="/"
           element={<PublicLayout auth={auth} onLogout={handleLogout} />}
         >
-          <Route index element={<HomePage />} />
+          <Route index element={<HomePage auth={auth} />} />
           <Route path="login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="flights" element={<FlightsListPage />} />
           <Route path="booking" element={<BookingFormPage />} />
+          <Route path="reservation" element={<ReservationPage auth={auth} />} />
           <Route path="recommendations/:id" element={<RecommendationDetailPage />} />
           <Route path="reco/:id" element={<RecommendationDetailPage />} />
           <Route path="search" element={<SearchResultsPage />} />
           <Route path="search-results" element={<SearchResultsPage />} />
           <Route path="/recommendations/:id/gallery" element={<RecommendationGalleryPage />} />
           <Route path="category-results" element={<CategoryResultsPage />} />
-
 
           {/* PROFILE — SOLO USUARIO LOGUEADO */}
           <Route

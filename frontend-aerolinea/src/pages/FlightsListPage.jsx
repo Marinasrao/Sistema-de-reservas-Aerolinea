@@ -46,6 +46,13 @@ const FlightsListPage = () => {
         };
     }, [page]);
 
+    useEffect(() => {
+    window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+    });
+}, [page]);
+
     /* ==================== ACCIONES ==================== */
     const handleDelete = async (id) => {
         if (!window.confirm('¿Eliminar este vuelo?')) return;
@@ -97,7 +104,7 @@ const FlightsListPage = () => {
             )}
 
             {/* TABLA */}
-            {!loading && (
+            
                 <>
                     <table className={styles.table}>
                         <thead>
@@ -192,7 +199,7 @@ const FlightsListPage = () => {
                         </button>
                     </div>
                 </>
-            )}
+            
         </div>
     );
 };
