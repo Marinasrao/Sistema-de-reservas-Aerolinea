@@ -565,6 +565,66 @@ Backend-aerolinea/src/main/resources/application.properties
 ```
 
 ---
+## 🧪 Script de vuelos de prueba y evaluación funcional
+
+Para facilitar la evaluación funcional del sistema, el proyecto incluye un script SQL con vuelos futuros de prueba.
+
+Ubicación:
+
+```txt
+database/vuelos_prueba.sql
+```
+
+### Cómo cargar los vuelos de prueba
+
+1. Abrir MySQL Workbench.
+2. Seleccionar la base de datos `aerolinea_db`.
+3. Abrir el archivo `database/vuelos_prueba.sql`.
+4. Ejecutar el script completo.
+5. Verificar la consulta final, que muestra los vuelos insertados.
+
+El script utiliza fechas dinámicas a partir de la fecha de ejecución, evitando que los vuelos queden vencidos durante la evaluación.
+
+### Gestión de pasajeros y asignación de asientos
+
+El panel administrativo permite registrar pasajeros vinculados a un vuelo real de la tabla `flights`.
+
+Cada pasajero queda asociado a:
+
+* Un vuelo específico.
+* Una clase de vuelo.
+* Un asiento único dentro de ese vuelo.
+* Un canal de compra: `COUNTER` u `ONLINE`.
+
+| Clase    | Asientos disponibles por vuelo |
+| -------- | ------------------------------ |
+| ECONOMY  | A1 a A120                      |
+| BUSINESS | B1 a B24                       |
+| FIRST    | F1 a F8                        |
+
+El sistema consulta los asientos disponibles por vuelo y clase antes de guardar el pasajero. Además, valida desde backend que un asiento no pueda asignarse dos veces dentro del mismo vuelo.
+
+### Flujo de prueba
+
+1. Ejecutar `database/vuelos_prueba.sql`.
+2. Iniciar sesión como administrador.
+3. Ingresar al módulo “Pasajeros”.
+4. Completar los datos personales.
+5. Seleccionar origen, destino y una fecha generada por el script.
+6. Presionar “Buscar vuelos”.
+7. Elegir un vuelo disponible.
+8. Seleccionar la clase ECONOMY, BUSINESS o FIRST.
+9. Elegir un asiento manualmente o utilizar “Asignar automáticamente”.
+10. Guardar el pasajero.
+11. Verificar el registro en “Listado de pasajeros”, donde se muestra vuelo, ruta, fecha, horario, clase y asiento.
+
+### Importante sobre los destinos
+
+Los selectores de origen y destino muestran las ciudades cargadas en las recomendaciones del sitio, para mantener visible el catálogo completo de destinos.
+
+Sin embargo, para crear un pasajero debe existir un vuelo real para la ruta y fecha seleccionadas. Por ese motivo, luego de elegir origen, destino y fecha se debe presionar “Buscar vuelos”.
+
+El archivo `database/vuelos_prueba.sql` garantiza rutas futuras para realizar esta prueba durante la evaluación.
 
 ## 🧪 Pruebas sugeridas
 

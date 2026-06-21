@@ -1,4 +1,4 @@
-// src/main/java/com/aerolinea/entity/Booking.java
+
 package com.aerolinea.entity;
 
 import jakarta.persistence.*;

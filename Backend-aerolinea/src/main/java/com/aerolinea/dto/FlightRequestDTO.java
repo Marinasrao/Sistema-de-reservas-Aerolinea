@@ -1,10 +1,10 @@
 package com.aerolinea.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Min;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -40,13 +40,13 @@ public class FlightRequestDTO {
     @Min(value = 1, message = "El precio debe ser mayor a cero.")
     private double price;
 
-
-    @Min(value = 0, message = "Los asientos disponibles no pueden ser negativos.")
-    private int seatsAvailable;
-
-
+    @Min(value = 0, message = "La capacidad económica no puede ser negativa.")
     private int economySeats = 120;
+
+    @Min(value = 0, message = "La capacidad ejecutiva no puede ser negativa.")
     private int businessSeats = 20;
+
+    @Min(value = 0, message = "La capacidad de primera clase no puede ser negativa.")
     private int firstSeats = 10;
 
     private String airline;
@@ -57,5 +57,4 @@ public class FlightRequestDTO {
 
     @NotNull(message = "La categoría es obligatoria.")
     private Long categoryId;
-
 }

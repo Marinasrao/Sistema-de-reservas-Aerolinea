@@ -82,16 +82,46 @@ const ProfilePage = ({ auth }) => {
     );
 
     if (pendingReservation) {
+      const passengerCount = Number(pendingReservation.passengers) || 1;
+
+      const departurePrice = Number(
+        pendingReservation.selectedDepartureFlight?.price
+      );
+
+      const returnPrice = Number(
+        pendingReservation.selectedReturnFlight?.price
+      );
+
+      const safeDeparturePrice = Number.isFinite(departurePrice)
+        ? departurePrice
+        : 0;
+
+      const safeReturnPrice = Number.isFinite(returnPrice) ? returnPrice : 0;
+
       const newReservation = {
         id: Date.now(),
+        reservationCode: `FB-${Date.now().toString().slice(-6)}`,
         userEmail: user.email,
+        holderName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        contactEmail: user.email,
+
         origin: pendingReservation.origin || "No especificado",
         destination: pendingReservation.destination || "No especificado",
+
         departureDate: pendingReservation.departureDate || "",
         returnDate: pendingReservation.returnDate || "",
-        passengers: pendingReservation.passengers || 1,
+
+        passengers: passengerCount,
         flightClass: pendingReservation.flightClass || "economy",
-        status: "Pre-reserva",
+
+        departureFlight: pendingReservation.selectedDepartureFlight || null,
+        returnFlight: pendingReservation.selectedReturnFlight || null,
+
+        departurePrice: safeDeparturePrice,
+        returnPrice: safeReturnPrice,
+        totalPrice: (safeDeparturePrice + safeReturnPrice) * passengerCount,
+
+        status: "Reserva pendiente de confirmación",
         createdAt: new Date().toISOString(),
       };
 
@@ -102,7 +132,7 @@ const ProfilePage = ({ auth }) => {
 
       setReservations(updatedReservations);
       setActiveSection("reservas");
-      setReservationMessage("Tu pre-reserva fue guardada correctamente.");
+      setReservationMessage("Tu reserva fue guardada correctamente.");
 
       setTimeout(() => {
         setReservationMessage("");
@@ -115,7 +145,7 @@ const ProfilePage = ({ auth }) => {
 
     if (location.state?.reservationCreated) {
       setActiveSection("reservas");
-      setReservationMessage("Tu pre-reserva fue guardada correctamente.");
+      setReservationMessage("Tu reserva fue guardada correctamente.");
 
       setTimeout(() => {
         setReservationMessage("");
@@ -202,6 +232,34 @@ const ProfilePage = ({ auth }) => {
     if (!date) return "Sin fecha";
 
     return new Date(`${date}T00:00:00`).toLocaleDateString("es-AR");
+  };
+
+  const formatPrice = (price) => {
+    const numericPrice = Number(price);
+
+    if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+      return "A confirmar";
+    }
+
+    return `AR$ ${numericPrice.toLocaleString("es-AR")}`;
+  };
+
+  const getFlightName = (flight) => {
+    if (!flight) return "Vuelo no registrado";
+
+    const airline = flight.airline || "Aerolínea";
+    const flightNumber = flight.flightNumber ? ` · ${flight.flightNumber}` : "";
+
+    return `${airline}${flightNumber}`;
+  };
+
+  const getFlightSchedule = (flight) => {
+    if (!flight) return "Horario no registrado";
+
+    const departureTime = flight.departureTime || "--:--";
+    const arrivalTime = flight.arrivalTime || "--:--";
+
+    return `${departureTime} → ${arrivalTime}`;
   };
 
   const handleRemoveFavorite = async (recommendationId) => {
@@ -493,7 +551,7 @@ const ProfilePage = ({ auth }) => {
                     <h4>Todavía no tenés reservas</h4>
                     <p>
                       Elegí un destino, seleccioná fechas disponibles y confirmá
-                      tu pre-reserva para verla reflejada acá.
+                      tu reserva para verla reflejada acá.
                     </p>
 
                     <Link to="/" className={styles.emptyAction}>
@@ -503,11 +561,15 @@ const ProfilePage = ({ auth }) => {
                 ) : (
                   <div className={styles.favoritesGrid}>
                     {reservations.map((reservation) => (
-                      <div key={reservation.id} className={styles.reservationCard}>
-                        <div className={styles.favoriteInfo}>
+                      <article
+                        key={reservation.id}
+                        className={styles.reservationCard}
+                      >
+                        <div className={styles.reservationTopRow}>
                           <div>
                             <span className={styles.favoriteBadge}>
-                              {reservation.status || "Pre-reserva"}
+                              {reservation.status ||
+                                "Reserva pendiente de confirmación"}
                             </span>
 
                             <h4>
@@ -515,36 +577,96 @@ const ProfilePage = ({ auth }) => {
                             </h4>
                           </div>
 
-                          <p>Ida: {formatDate(reservation.departureDate)}</p>
+                          {reservation.reservationCode && (
+                            <span className={styles.reservationCode}>
+                              {reservation.reservationCode}
+                            </span>
+                          )}
+                        </div>
 
-                          <p>Vuelta: {formatDate(reservation.returnDate)}</p>
+                        <div className={styles.reservationHolder}>
+                          <strong>
+                            {reservation.holderName ||
+                              `${user.firstName} ${user.lastName}`}
+                          </strong>
+                          <span>
+                            {reservation.contactEmail || reservation.userEmail}
+                          </span>
+                        </div>
 
-                          <p>Pasajeros: {reservation.passengers || 1}</p>
+                        <div className={styles.reservationFlights}>
+                          <div className={styles.reservationFlightItem}>
+                            <span className={styles.reservationFlightLabel}>
+                              Ida · {formatDate(reservation.departureDate)}
+                            </span>
+
+                            <strong>
+                              {getFlightName(reservation.departureFlight)}
+                            </strong>
+
+                            <p>
+                              {getFlightSchedule(reservation.departureFlight)}
+                            </p>
+                          </div>
+
+                          {reservation.returnDate && (
+                            <div className={styles.reservationFlightItem}>
+                              <span className={styles.reservationFlightLabel}>
+                                Vuelta · {formatDate(reservation.returnDate)}
+                              </span>
+
+                              <strong>
+                                {getFlightName(reservation.returnFlight)}
+                              </strong>
+
+                              <p>
+                                {getFlightSchedule(reservation.returnFlight)}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className={styles.reservationFooter}>
+                          <div>
+                            <span>
+                              {reservation.passengers || 1}{" "}
+                              {Number(reservation.passengers || 1) === 1
+                                ? "pasajero"
+                                : "pasajeros"}
+                            </span>
+
+                            <span>
+                              Clase:{" "}
+                              {classLabels[reservation.flightClass] ||
+                                "Económica"}
+                            </span>
+                          </div>
 
                           <strong>
-                            Clase:{" "}
-                            {classLabels[reservation.flightClass] || "Económica"}
+                            Total: {formatPrice(reservation.totalPrice)}
                           </strong>
-
-                          <div className={styles.reservationActions}>
-                            <button
-                              type="button"
-                              className={styles.rateReservationButton}
-                              onClick={() => openReviewModal(reservation)}
-                            >
-                              Puntuar vuelo
-                            </button>
-
-                            <button
-                              type="button"
-                              className={styles.removeFavoriteButton}
-                              onClick={() => handleRemoveReservation(reservation.id)}
-                            >
-                              Quitar reserva
-                            </button>
-                          </div>
                         </div>
-                      </div>
+
+                        <div className={styles.reservationActions}>
+                          <button
+                            type="button"
+                            className={styles.rateReservationButton}
+                            onClick={() => openReviewModal(reservation)}
+                          >
+                            Puntuar vuelo
+                          </button>
+
+                          <button
+                            type="button"
+                            className={styles.removeFavoriteButton}
+                            onClick={() =>
+                              handleRemoveReservation(reservation.id)
+                            }
+                          >
+                            Quitar reserva
+                          </button>
+                        </div>
+                      </article>
                     ))}
                   </div>
                 )}
@@ -685,8 +807,9 @@ const ProfilePage = ({ auth }) => {
                 {selectedReservation.origin} → {selectedReservation.destination}
               </strong>
               <p>
-                Ida: {formatDate(selectedReservation.departureDate)} · Vuelta:{" "}
-                {formatDate(selectedReservation.returnDate)}
+                Ida: {formatDate(selectedReservation.departureDate)}
+                {selectedReservation.returnDate &&
+                  ` · Vuelta: ${formatDate(selectedReservation.returnDate)}`}
               </p>
             </div>
 

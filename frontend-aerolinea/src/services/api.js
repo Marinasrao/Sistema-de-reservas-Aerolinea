@@ -182,15 +182,7 @@ export const deleteRecommendation = async (id) => {
 // ===================== PASAJEROS =====================
 
 export const getAllPassengers = async (page = 0, size = 15) => {
-  const res = await fetch(
-    `http://localhost:8080/api/passengers?page=${page}&size=${size}`
-  );
-
-  if (!res.ok) {
-    throw new Error("Error al obtener pasajeros");
-  }
-
-  return res.json();
+  return makeRequest(`/passengers?page=${page}&size=${size}`, 'GET');
 };
 
 export const createPassenger = async (passengerData) => {
@@ -203,7 +195,12 @@ export const deletePassenger = async (id) => {
 // ===================== ASIENTOS DISPONIBLES =====================
 
 export const getAvailableSeats = async (flightId, flightClass) => {
-    return makeRequest(`/flights/${flightId}/available-seats?flightClass=${flightClass}`, 'GET');
+  return makeRequest(
+    `/passengers/available-seats?flightId=${encodeURIComponent(
+      flightId
+    )}&flightClass=${encodeURIComponent(flightClass)}`,
+    "GET"
+  );
 };
 
 

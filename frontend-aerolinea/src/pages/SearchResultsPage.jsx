@@ -4,7 +4,6 @@ import styles from "./SearchResultsPage.module.css";
 import FlightCalendar from "./FlightCalendar";
 import { recoUrl } from "../config/mediaPaths";
 
-
 const API = "http://localhost:8080/api";
 
 const safeRecoUrl = (name) => {
@@ -44,7 +43,11 @@ export default function SearchResultsPage() {
   const fromDate = rawFromDate ? rawFromDate.substring(0, 10) : "";
   const toDate = rawToDate ? rawToDate.substring(0, 10) : "";
 
-  const [selectedDepartureDate, setSelectedDepartureDate] = useState(fromDate || "");
+  const requiresReturnFlight = Boolean(toDate);
+
+  const [selectedDepartureDate, setSelectedDepartureDate] = useState(
+    fromDate || ""
+  );
   const [selectedReturnDate, setSelectedReturnDate] = useState(toDate || "");
 
   const [departureAvailability, setDepartureAvailability] = useState([]);
@@ -53,10 +56,14 @@ export default function SearchResultsPage() {
   const [departureSlots, setDepartureSlots] = useState([]);
   const [returnSlots, setReturnSlots] = useState([]);
 
+  const [selectedDepartureFlight, setSelectedDepartureFlight] = useState(null);
+  const [selectedReturnFlight, setSelectedReturnFlight] = useState(null);
+
   const [policies, setPolicies] = useState([]);
   const [loadingPolicies, setLoadingPolicies] = useState(true);
 
-  const [destinationRecommendation, setDestinationRecommendation] = useState(null);
+  const [destinationRecommendation, setDestinationRecommendation] =
+    useState(null);
   const [loadingRecommendation, setLoadingRecommendation] = useState(true);
 
   const [recommendations, setRecommendations] = useState([]);
@@ -68,6 +75,7 @@ export default function SearchResultsPage() {
 
   const [availabilityError, setAvailabilityError] = useState("");
   const [retryAvailability, setRetryAvailability] = useState(0);
+  const [reservationError, setReservationError] = useState("");
 
   const classLabels = {
     economy: "Económica",
@@ -107,6 +115,7 @@ export default function SearchResultsPage() {
 
     return list.some((item) => {
       const itemDate = item?.date ? String(item.date).substring(0, 10) : "";
+
       return itemDate === normalizedDate && item.available === true;
     });
   };
@@ -120,6 +129,14 @@ export default function SearchResultsPage() {
     () => isDateAvailable(selectedReturnDate, returnAvailability),
     [selectedReturnDate, returnAvailability]
   );
+
+  const canReserve =
+    departureDateAvailable &&
+    selectedDepartureFlight &&
+    (!requiresReturnFlight ||
+      (returnDateAvailable &&
+        selectedReturnDate &&
+        selectedReturnFlight));
 
   const destinationImage = safeRecoUrl(
     destinationRecommendation?.mainImage ||
@@ -145,11 +162,65 @@ export default function SearchResultsPage() {
 
   const handleModifySearch = () => {
     navigate(
-      `/?origin=${encodeURIComponent(origin || "")}&destination=${encodeURIComponent(destination || "")}`
+      `/?origin=${encodeURIComponent(
+        origin || ""
+      )}&destination=${encodeURIComponent(destination || "")}`
     );
   };
 
+  const handleSelectDepartureDate = (date) => {
+    setSelectedDepartureDate(date);
+    setSelectedDepartureFlight(null);
+    setReservationError("");
+  };
+
+  const handleSelectReturnDate = (date) => {
+    setSelectedReturnDate(date);
+    setSelectedReturnFlight(null);
+    setReservationError("");
+  };
+
+  const handleSelectDepartureFlight = (slot) => {
+    setSelectedDepartureFlight(slot);
+    setReservationError("");
+  };
+
+  const handleSelectReturnFlight = (slot) => {
+    setSelectedReturnFlight(slot);
+    setReservationError("");
+  };
+
   const handleReserve = () => {
+    if (!departureDateAvailable) {
+      setReservationError(
+        "No hay vuelos disponibles para la fecha de ida seleccionada. Elegí una fecha marcada en verde."
+      );
+      return;
+    }
+
+    if (!selectedDepartureFlight) {
+      setReservationError(
+        "Seleccioná un horario de ida disponible antes de continuar con la reserva."
+      );
+      return;
+    }
+
+    if (requiresReturnFlight && !returnDateAvailable) {
+      setReservationError(
+        "No hay vuelos disponibles para la fecha de vuelta seleccionada. Elegí una fecha marcada en verde."
+      );
+      return;
+    }
+
+    if (requiresReturnFlight && !selectedReturnFlight) {
+      setReservationError(
+        "Seleccioná un horario de vuelta disponible antes de continuar con la reserva."
+      );
+      return;
+    }
+
+    setReservationError("");
+
     navigate("/reservation", {
       state: {
         origin,
@@ -158,6 +229,10 @@ export default function SearchResultsPage() {
         returnDate: selectedReturnDate,
         passengers,
         flightClass,
+        selectedDepartureFlight,
+        selectedReturnFlight: requiresReturnFlight
+          ? selectedReturnFlight
+          : null,
       },
     });
   };
@@ -167,6 +242,9 @@ export default function SearchResultsPage() {
     setSelectedReturnDate(toDate || "");
     setDepartureSlots([]);
     setReturnSlots([]);
+    setSelectedDepartureFlight(null);
+    setSelectedReturnFlight(null);
+    setReservationError("");
   }, [fromDate, toDate]);
 
   useEffect(() => {
@@ -175,6 +253,8 @@ export default function SearchResultsPage() {
       setReturnAvailability([]);
       setDepartureSlots([]);
       setReturnSlots([]);
+      setSelectedDepartureFlight(null);
+      setSelectedReturnFlight(null);
       setAvailabilityError("");
       return;
     }
@@ -190,7 +270,11 @@ export default function SearchResultsPage() {
     setAvailabilityError("");
 
     fetch(
-      `${API}/availability?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&fromDate=${start}&toDate=${toDateRange}`,
+      `${API}/availability?origin=${encodeURIComponent(
+        origin
+      )}&destination=${encodeURIComponent(
+        destination
+      )}&fromDate=${start}&toDate=${toDateRange}`,
       { signal: controller.signal }
     )
       .then((res) => {
@@ -207,12 +291,17 @@ export default function SearchResultsPage() {
         if (error.name !== "AbortError") {
           setDepartureAvailability([]);
           setDepartureSlots([]);
+          setSelectedDepartureFlight(null);
           setAvailabilityError("Intentá nuevamente más tarde.");
         }
       });
 
     fetch(
-      `${API}/availability?origin=${encodeURIComponent(destination)}&destination=${encodeURIComponent(origin)}&fromDate=${start}&toDate=${toDateRange}`,
+      `${API}/availability?origin=${encodeURIComponent(
+        destination
+      )}&destination=${encodeURIComponent(
+        origin
+      )}&fromDate=${start}&toDate=${toDateRange}`,
       { signal: controller.signal }
     )
       .then((res) => {
@@ -229,6 +318,7 @@ export default function SearchResultsPage() {
         if (error.name !== "AbortError") {
           setReturnAvailability([]);
           setReturnSlots([]);
+          setSelectedReturnFlight(null);
           setAvailabilityError("Intentá nuevamente más tarde.");
         }
       });
@@ -240,6 +330,7 @@ export default function SearchResultsPage() {
 
   useEffect(() => {
     setDepartureSlots([]);
+    setSelectedDepartureFlight(null);
 
     if (!origin || !destination || !selectedDepartureDate) {
       return;
@@ -252,7 +343,11 @@ export default function SearchResultsPage() {
     const controller = new AbortController();
 
     fetch(
-      `${API}/availability/slots?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&date=${selectedDepartureDate}`,
+      `${API}/availability/slots?origin=${encodeURIComponent(
+        origin
+      )}&destination=${encodeURIComponent(
+        destination
+      )}&date=${selectedDepartureDate}`,
       { signal: controller.signal }
     )
       .then((res) => {
@@ -278,6 +373,7 @@ export default function SearchResultsPage() {
 
   useEffect(() => {
     setReturnSlots([]);
+    setSelectedReturnFlight(null);
 
     if (!origin || !destination || !selectedReturnDate) {
       return;
@@ -290,7 +386,11 @@ export default function SearchResultsPage() {
     const controller = new AbortController();
 
     fetch(
-      `${API}/availability/slots?origin=${encodeURIComponent(destination)}&destination=${encodeURIComponent(origin)}&date=${selectedReturnDate}`,
+      `${API}/availability/slots?origin=${encodeURIComponent(
+        destination
+      )}&destination=${encodeURIComponent(
+        origin
+      )}&date=${selectedReturnDate}`,
       { signal: controller.signal }
     )
       .then((res) => {
@@ -361,7 +461,10 @@ export default function SearchResultsPage() {
         return res.json();
       })
       .then((data) => {
-        const recommendationsData = Array.isArray(data) ? data : [];
+        const recommendationsData = Array.isArray(data)
+          ? data
+          : [];
+
         setRecommendations(recommendationsData);
 
         const normalizedDestination = normalizeText(destination);
@@ -424,7 +527,9 @@ export default function SearchResultsPage() {
 
     if (!text) return;
 
-    setShareMessage(`Mirá este destino recomendado en FlightBooking: ${text}.`);
+    setShareMessage(
+      `Mirá este destino recomendado en FlightBooking: ${text}.`
+    );
   }, [destinationRecommendation, destination]);
 
   const copyShareText = async () => {
@@ -453,8 +558,14 @@ export default function SearchResultsPage() {
 
     if (network === "instagram") {
       await copyShareText();
-      window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
-      setShareNotice("Copiamos el contenido para que lo pegues en Instagram.");
+      window.open(
+        "https://www.instagram.com/",
+        "_blank",
+        "noopener,noreferrer"
+      );
+      setShareNotice(
+        "Copiamos el contenido para que lo pegues en Instagram."
+      );
       return;
     }
 
@@ -468,12 +579,18 @@ export default function SearchResultsPage() {
           <span className={styles.searchEyebrow}>Búsqueda realizada</span>
           <h2>Resultados para tu viaje</h2>
           <p>
-            Revisá las fechas disponibles, elegí horarios y avanzá con tu reserva.
+            Revisá las fechas disponibles, elegí horarios y avanzá con tu
+            reserva.
           </p>
 
           <div className={styles.searchMetaPills}>
-            <span>{origin} → {destination}</span>
-            <span>{passengers} {Number(passengers) === 1 ? "pasajero" : "pasajeros"}</span>
+            <span>
+              {origin} → {destination}
+            </span>
+            <span>
+              {passengers}{" "}
+              {Number(passengers) === 1 ? "pasajero" : "pasajeros"}
+            </span>
             <span>{classLabels[flightClass] || "Económica"}</span>
           </div>
         </div>
@@ -491,14 +608,14 @@ export default function SearchResultsPage() {
         <FlightCalendar
           title="Ida"
           selectedDate={selectedDepartureDate}
-          onSelectDate={setSelectedDepartureDate}
+          onSelectDate={handleSelectDepartureDate}
           availableDates={departureAvailability}
         />
 
         <FlightCalendar
           title="Vuelta"
           selectedDate={selectedReturnDate}
-          onSelectDate={setSelectedReturnDate}
+          onSelectDate={handleSelectReturnDate}
           availableDates={returnAvailability}
         />
       </div>
@@ -535,7 +652,9 @@ export default function SearchResultsPage() {
         <div className={styles.summaryCard}>
           <div>
             <strong>IDA</strong>
-            <p>{origin} → {destination}</p>
+            <p>
+              {origin} → {destination}
+            </p>
             <span>{selectedDepartureDate || "Sin fecha"}</span>
           </div>
 
@@ -553,18 +672,28 @@ export default function SearchResultsPage() {
         <div className={styles.summaryCard}>
           <div>
             <strong>VUELTA</strong>
-            <p>{destination} → {origin}</p>
-            <span>{selectedReturnDate || "Sin fecha"}</span>
+            <p>
+              {destination} → {origin}
+            </p>
+            <span>
+              {requiresReturnFlight
+                ? selectedReturnDate || "Sin fecha"
+                : "No requerida"}
+            </span>
           </div>
 
           <span
             className={
-              returnDateAvailable
+              !requiresReturnFlight || returnDateAvailable
                 ? styles.statusAvailable
                 : styles.statusUnavailable
             }
           >
-            {returnDateAvailable ? "Disponible" : "No disponible"}
+            {!requiresReturnFlight
+              ? "Solo ida"
+              : returnDateAvailable
+              ? "Disponible"
+              : "No disponible"}
           </span>
         </div>
       </div>
@@ -574,54 +703,111 @@ export default function SearchResultsPage() {
 
         {!departureDateAvailable ? (
           <div className={styles.emptyState}>
-            No hay vuelos disponibles para la fecha seleccionada. Elegí una fecha marcada en verde.
+            No hay vuelos disponibles para la fecha seleccionada. Elegí una
+            fecha marcada en verde.
           </div>
         ) : departureSlots.length === 0 ? (
           <div className={styles.emptyState}>
-            Fecha disponible para reserva.
+            No encontramos vuelos disponibles para esta fecha.
           </div>
         ) : (
-          <div className={styles.slotsGrid}>
-            {departureSlots.map((slot, index) => (
-              <div key={index} className={styles.flightCard}>
-                <div>
-                  <strong>{slot.departureTime}</strong>
-                  <span>Salida</span>
-                </div>
+          <>
+            <p className={styles.selectionHint}>
+              Elegí el horario de ida que preferís.
+            </p>
 
-                <p>{slot.airline}</p>
-              </div>
-            ))}
-          </div>
+            <div className={styles.slotsGrid}>
+              {departureSlots.map((slot, index) => {
+                const isSelected =
+                  selectedDepartureFlight?.id === slot.id;
+
+                return (
+                  <button
+                    key={slot.id ?? `${slot.flightNumber}-${index}`}
+                    type="button"
+                    className={`${styles.flightCard} ${
+                      isSelected ? styles.flightCardSelected : ""
+                    }`}
+                    onClick={() => handleSelectDepartureFlight(slot)}
+                    aria-pressed={isSelected}
+                  >
+                    <div>
+                      <strong>{slot.departureTime}</strong>
+                      <span>Salida</span>
+                    </div>
+
+                    <div className={styles.flightDetails}>
+                      <p>{slot.airline}</p>
+                      {slot.flightNumber && (
+                        <small>{slot.flightNumber}</small>
+                      )}
+                      {slot.arrivalTime && (
+                        <small>Llega {slot.arrivalTime}</small>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
         )}
       </section>
 
-      <section className={styles.flightsSection}>
-        <h3>Horarios de vuelta</h3>
+      {requiresReturnFlight && (
+        <section className={styles.flightsSection}>
+          <h3>Horarios de vuelta</h3>
 
-        {!returnDateAvailable ? (
-          <div className={styles.emptyState}>
-            No hay vuelos disponibles para la fecha seleccionada. Elegí una fecha marcada en verde.
-          </div>
-        ) : returnSlots.length === 0 ? (
-          <div className={styles.emptyState}>
-            Fecha disponible para reserva.
-          </div>
-        ) : (
-          <div className={styles.slotsGrid}>
-            {returnSlots.map((slot, index) => (
-              <div key={index} className={styles.flightCard}>
-                <div>
-                  <strong>{slot.departureTime}</strong>
-                  <span>Salida</span>
-                </div>
+          {!returnDateAvailable ? (
+            <div className={styles.emptyState}>
+              No hay vuelos disponibles para la fecha seleccionada. Elegí una
+              fecha marcada en verde.
+            </div>
+          ) : returnSlots.length === 0 ? (
+            <div className={styles.emptyState}>
+              No encontramos vuelos disponibles para esta fecha.
+            </div>
+          ) : (
+            <>
+              <p className={styles.selectionHint}>
+                Elegí el horario de vuelta que preferís.
+              </p>
 
-                <p>{slot.airline}</p>
+              <div className={styles.slotsGrid}>
+                {returnSlots.map((slot, index) => {
+                  const isSelected = selectedReturnFlight?.id === slot.id;
+
+                  return (
+                    <button
+                      key={slot.id ?? `${slot.flightNumber}-${index}`}
+                      type="button"
+                      className={`${styles.flightCard} ${
+                        isSelected ? styles.flightCardSelected : ""
+                      }`}
+                      onClick={() => handleSelectReturnFlight(slot)}
+                      aria-pressed={isSelected}
+                    >
+                      <div>
+                        <strong>{slot.departureTime}</strong>
+                        <span>Salida</span>
+                      </div>
+
+                      <div className={styles.flightDetails}>
+                        <p>{slot.airline}</p>
+                        {slot.flightNumber && (
+                          <small>{slot.flightNumber}</small>
+                        )}
+                        {slot.arrivalTime && (
+                          <small>Llega {slot.arrivalTime}</small>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+            </>
+          )}
+        </section>
+      )}
 
       <section className={styles.destinationShowcase}>
         {destinationImage ? (
@@ -636,7 +822,9 @@ export default function SearchResultsPage() {
 
         <div className={styles.destinationInfo}>
           <span className={styles.destinationEyebrow}>
-            {loadingRecommendation ? "Buscando destino" : "Destino recomendado"}
+            {loadingRecommendation
+              ? "Buscando destino"
+              : "Destino recomendado"}
           </span>
 
           <h3>{destinationTitle}</h3>
@@ -650,7 +838,10 @@ export default function SearchResultsPage() {
 
             {destinationRecommendation?.price != null && (
               <span>
-                Desde AR$ {Number(destinationRecommendation.price).toLocaleString("es-AR")}
+                Desde AR${" "}
+                {Number(destinationRecommendation.price).toLocaleString(
+                  "es-AR"
+                )}
               </span>
             )}
 
@@ -658,7 +849,7 @@ export default function SearchResultsPage() {
               <span>Ida {selectedDepartureDate}</span>
             )}
 
-            {selectedReturnDate && (
+            {requiresReturnFlight && selectedReturnDate && (
               <span>Vuelta {selectedReturnDate}</span>
             )}
           </div>
@@ -707,13 +898,31 @@ export default function SearchResultsPage() {
       </section>
 
       <div className={styles.resultsReserveWrapper}>
-        <button
-          type="button"
-          className={styles.resultsReserveBtn}
-          onClick={handleReserve}
-        >
-          Reservar
-        </button>
+        <div className={styles.reserveArea}>
+          {reservationError && (
+            <p className={styles.reservationValidationMessage}>
+              {reservationError}
+            </p>
+          )}
+
+          {!reservationError && !canReserve && (
+            <p className={styles.reservationHelperMessage}>
+              Seleccioná fechas disponibles y los horarios reales de tu vuelo
+              para continuar.
+            </p>
+          )}
+
+          <button
+            type="button"
+            className={`${styles.resultsReserveBtn} ${
+              !canReserve ? styles.resultsReserveBtnPending : ""
+            }`}
+            onClick={handleReserve}
+            aria-disabled={!canReserve}
+          >
+            Reservar
+          </button>
+        </div>
       </div>
 
       <section className={styles.compactSuggestionsSection}>
@@ -724,10 +933,16 @@ export default function SearchResultsPage() {
 
         <div className={styles.compactCarousel}>
           {recommendations
-            .filter((rec) => normalizeText(rec.destination || rec.title) !== normalizeText(destination))
+            .filter(
+              (rec) =>
+                normalizeText(rec.destination || rec.title) !==
+                normalizeText(destination)
+            )
             .slice(0, 8)
             .map((rec) => {
-              const imageSrc = safeRecoUrl(rec.mainImage || rec.imageUrl || rec.image1 || "");
+              const imageSrc = safeRecoUrl(
+                rec.mainImage || rec.imageUrl || rec.image1 || ""
+              );
 
               return (
                 <button
@@ -746,7 +961,9 @@ export default function SearchResultsPage() {
                     <strong>{rec.title}</strong>
                     <span>
                       {rec.price != null
-                        ? `Desde AR$ ${Number(rec.price).toLocaleString("es-AR")}`
+                        ? `Desde AR$ ${Number(rec.price).toLocaleString(
+                            "es-AR"
+                          )}`
                         : "Ver destino"}
                     </span>
                   </div>
@@ -773,7 +990,9 @@ export default function SearchResultsPage() {
                 key={category.id}
                 type="button"
                 className={styles.compactCategoryCard}
-                onClick={() => navigate(`/category-results?categories=${category.id}`)}
+                onClick={() =>
+                  navigate(`/category-results?categories=${category.id}`)
+                }
               >
                 {imageSrc ? (
                   <img src={imageSrc} alt={category.title} />
@@ -793,7 +1012,9 @@ export default function SearchResultsPage() {
           <div className={styles.shareModal}>
             <div className={styles.modalHeader}>
               <div>
-                <span className={styles.shareEyebrow}>Compartir producto</span>
+                <span className={styles.shareEyebrow}>
+                  Compartir producto
+                </span>
                 <h3>Compartir este destino</h3>
               </div>
 
@@ -818,7 +1039,9 @@ export default function SearchResultsPage() {
 
               <div className={styles.sharePreviewInfo}>
                 <h4>{destinationTitle}</h4>
-                <p>{origin} → {destination}</p>
+                <p>
+                  {origin} → {destination}
+                </p>
                 <span>{destinationText}</span>
               </div>
             </div>

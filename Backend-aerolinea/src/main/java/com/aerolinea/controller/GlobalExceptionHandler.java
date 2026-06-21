@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -58,24 +59,24 @@ public class GlobalExceptionHandler {
     }
 
     // 400 - JSON mal formado / tipos incorrectos (ej.: fechas/horas)
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleNotReadable(HttpMessageNotReadableException e) {
-        String msg = e.getMostSpecificCause() != null ? e.getMostSpecificCause().getMessage() : e.getMessage();
-        return ResponseEntity.badRequest().body(Map.of(
-                "status", 400,
-                "error", "Malformed JSON or wrong data type",
-                "message", msg,
-                "hint", "Fechas: yyyy-MM-dd, Horas: HH:mm (LocalDate/LocalTime)"
-        ));
-    }
+
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<?> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+    public ResponseEntity<?> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException e
+    ) {
+        var allowedMethods = e.getSupportedHttpMethods() == null
+                ? java.util.List.of()
+                : e.getSupportedHttpMethods()
+                  .stream()
+                  .map(HttpMethod::name)
+                  .toList();
+
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(Map.of(
                 "status", 405,
                 "error", "Method Not Allowed",
                 "message", e.getMessage(),
-                "allowed", e.getSupportedHttpMethods()
+                "allowed", allowedMethods
         ));
     }
 

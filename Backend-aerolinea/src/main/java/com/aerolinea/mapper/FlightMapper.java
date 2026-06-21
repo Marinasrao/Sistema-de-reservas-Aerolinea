@@ -2,97 +2,100 @@ package com.aerolinea.mapper;
 
 import com.aerolinea.dto.FlightRequestDTO;
 import com.aerolinea.dto.FlightResponseDTO;
-import com.aerolinea.entity.Flight;
-import org.springframework.stereotype.Component;
-import com.aerolinea.repository.CategoryRepository;
 import com.aerolinea.entity.Category;
+import com.aerolinea.entity.Flight;
+import com.aerolinea.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class FlightMapper {
+
     @Autowired
     private CategoryRepository categoryRepository;
 
-    // --------------------- ENTITY → DTO ---------------------
-    public FlightResponseDTO toDTO(Flight f) {
-        if (f == null) return null;
+    public FlightResponseDTO toDTO(Flight flight) {
+        if (flight == null) {
+            return null;
+        }
 
         FlightResponseDTO dto = new FlightResponseDTO();
 
-        dto.setId(f.getId());
-        dto.setFlightNumber(f.getFlightNumber());
-        dto.setOrigin(f.getOrigin());
-        dto.setDestination(f.getDestination());
+        dto.setId(flight.getId());
+        dto.setFlightNumber(flight.getFlightNumber());
+        dto.setOrigin(flight.getOrigin());
+        dto.setDestination(flight.getDestination());
 
-        dto.setDepartureDate(f.getDepartureDate());
-        dto.setDepartureTime(f.getDepartureTime());
-        dto.setArrivalDate(f.getArrivalDate());
-        dto.setArrivalTime(f.getArrivalTime());
+        dto.setDepartureDate(flight.getDepartureDate());
+        dto.setDepartureTime(flight.getDepartureTime());
+        dto.setArrivalDate(flight.getArrivalDate());
+        dto.setArrivalTime(flight.getArrivalTime());
 
-        dto.setPrice(f.getPrice());
+        dto.setPrice(flight.getPrice());
 
-        dto.setSeatsAvailable(f.getSeatsAvailable());
-        dto.setEconomySeats(f.getEconomySeats());
-        dto.setBusinessSeats(f.getBusinessSeats());
-        dto.setFirstSeats(f.getFirstSeats());
+        dto.setSeatsAvailable(flight.getSeatsAvailable());
+        dto.setEconomySeats(flight.getEconomySeats());
+        dto.setBusinessSeats(flight.getBusinessSeats());
+        dto.setFirstSeats(flight.getFirstSeats());
 
-        dto.setAirline(f.getAirline());
-        dto.setAircraftType(f.getAircraftType());
-        dto.setFlightStatus(f.getFlightStatus());
+        dto.setAirline(flight.getAirline());
+        dto.setAircraftType(flight.getAircraftType());
+        dto.setFlightStatus(flight.getFlightStatus());
 
-
-
-        // Recomendación (solo ID)
-        if (f.getRecommendation() != null) {
-            dto.setRecommendationId(f.getRecommendation().getId());
+        if (flight.getRecommendation() != null) {
+            dto.setRecommendationId(flight.getRecommendation().getId());
         }
 
-        // ---------------- CATEGORY ----------------
-        if (f.getCategory() != null) {
-            dto.setCategoryId(f.getCategory().getId());
-            dto.setCategoryTitle(f.getCategory().getTitle());
-            dto.setCategoryImage(f.getCategory().getImage());
-            dto.setCategoryPromoText(f.getCategory().getPromoText());
+        if (flight.getCategory() != null) {
+            dto.setCategoryId(flight.getCategory().getId());
+            dto.setCategoryTitle(flight.getCategory().getTitle());
+            dto.setCategoryImage(flight.getCategory().getImage());
+            dto.setCategoryPromoText(flight.getCategory().getPromoText());
         }
 
         return dto;
     }
 
-    // --------------------- DTO → ENTITY ---------------------
     public Flight toEntity(FlightRequestDTO dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
 
-        Flight f = new Flight();
+        Flight flight = new Flight();
 
-        f.setFlightNumber(dto.getFlightNumber());
-        f.setOrigin(dto.getOrigin());
-        f.setDestination(dto.getDestination());
+        flight.setFlightNumber(dto.getFlightNumber());
+        flight.setOrigin(dto.getOrigin());
+        flight.setDestination(dto.getDestination());
 
-        f.setDepartureDate(dto.getDepartureDate());
-        f.setDepartureTime(dto.getDepartureTime());
-        f.setArrivalDate(dto.getArrivalDate());
-        f.setArrivalTime(dto.getArrivalTime());
+        flight.setDepartureDate(dto.getDepartureDate());
+        flight.setDepartureTime(dto.getDepartureTime());
+        flight.setArrivalDate(dto.getArrivalDate());
+        flight.setArrivalTime(dto.getArrivalTime());
 
-        f.setPrice(dto.getPrice());
+        flight.setPrice(dto.getPrice());
 
-        f.setSeatsAvailable(dto.getSeatsAvailable());
-        f.setEconomySeats(dto.getEconomySeats());
-        f.setBusinessSeats(dto.getBusinessSeats());
-        f.setFirstSeats(dto.getFirstSeats());
+        flight.setEconomySeats(dto.getEconomySeats());
+        flight.setBusinessSeats(dto.getBusinessSeats());
+        flight.setFirstSeats(dto.getFirstSeats());
 
-        f.setAirline(dto.getAirline());
-        f.setAircraftType(dto.getAircraftType());
-        f.setFlightStatus(dto.getFlightStatus());
+        int totalCapacity =
+                dto.getEconomySeats()
+                        + dto.getBusinessSeats()
+                        + dto.getFirstSeats();
 
-        // -------- CATEGORY --------
+        flight.setSeatsAvailable(totalCapacity);
+
+        flight.setAirline(dto.getAirline());
+        flight.setAircraftType(dto.getAircraftType());
+        flight.setFlightStatus(dto.getFlightStatus());
+
         if (dto.getCategoryId() != null) {
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
-            f.setCategory(category);
+
+            flight.setCategory(category);
         }
 
-        return f;
+        return flight;
     }
-
 }
-

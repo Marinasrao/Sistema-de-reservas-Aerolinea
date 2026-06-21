@@ -12,10 +12,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class PassengerService {
+
+    private static final Set<String> VALID_CLASSES =
+            Set.of("ECONOMY", "BUSINESS", "FIRST");
 
     @Autowired
     private PassengerRepository passengerRepository;
@@ -26,47 +34,66 @@ public class PassengerService {
     @Transactional
     public Passenger savePassenger(Passenger passenger, Long flightId) {
         Flight flight = flightRepository.findForUpdate(flightId)
-                .orElseThrow(() -> new NoSuchElementException("Vuelo no encontrado: " + flightId));
+                .orElseThrow(() ->
+                        new NoSuchElementException("Vuelo no encontrado: " + flightId)
+                );
 
         if (flight.getSeatsAvailable() <= 0) {
-            throw new DataIntegrityViolationException("No hay asientos disponibles en este vuelo.");
+            throw new DataIntegrityViolationException(
+                    "No hay asientos disponibles en este vuelo."
+            );
         }
 
-        if (passenger.getChannel() == null || passenger.getChannel().isBlank()) {
-            passenger.setChannel("COUNTER");
+        String channel = normalizeChannel(passenger.getChannel());
+        String flightClass = normalizeFlightClass(passenger.getFlightClass());
+
+        passenger.setChannel(channel);
+        passenger.setFlightClass(flightClass);
+
+        if (passengerRepository.existsByFlight_IdAndDocumentNumber(
+                flightId,
+                passenger.getDocumentNumber()
+        )) {
+            throw new DataIntegrityViolationException(
+                    "Ya existe un pasajero con ese documento para este vuelo."
+            );
         }
 
-        String flightClass = passenger.getFlightClass();
-        if (flightClass == null || flightClass.isBlank()) {
-            throw new IllegalArgumentException("Falta la clase de vuelo (ECONOMY, BUSINESS, FIRST)");
+        List<String> availableSeats = getAvailableSeats(flight, flightClass);
+
+        if (availableSeats.isEmpty()) {
+            throw new DataIntegrityViolationException(
+                    "No hay asientos disponibles en la clase " + flightClass + "."
+            );
         }
 
-        Set<String> validClasses = Set.of("ECONOMY", "BUSINESS", "FIRST");
-        if (!validClasses.contains(flightClass.toUpperCase())) {
-            throw new IllegalArgumentException("Clase de vuelo inválida: " + flightClass);
-        }
+        String selectedSeat = passenger.getSeatNumber() == null
+                ? ""
+                : passenger.getSeatNumber().trim().toUpperCase(Locale.ROOT);
 
-        List<String> available = getAvailableSeats(flight, flightClass);
-
-        if (passenger.getSeatNumber() == null || passenger.getSeatNumber().isBlank()) {
-            if (available.isEmpty()) {
-                throw new DataIntegrityViolationException("No hay asientos disponibles en clase " + flightClass);
-            }
-            passenger.setSeatNumber(available.get(0));
+        if (selectedSeat.isBlank()) {
+            passenger.setSeatNumber(availableSeats.get(0));
         } else {
-            if (!available.contains(passenger.getSeatNumber())) {
-                throw new DataIntegrityViolationException("Asiento ya ocupado o inválido: " + passenger.getSeatNumber());
+            if (!availableSeats.contains(selectedSeat)) {
+                throw new DataIntegrityViolationException(
+                        "El asiento seleccionado ya está ocupado o no corresponde a esta clase."
+                );
             }
+
+            passenger.setSeatNumber(selectedSeat);
+        }
+
+        if (passengerRepository.existsByFlight_IdAndSeatNumberIgnoreCase(
+                flightId,
+                passenger.getSeatNumber()
+        )) {
+            throw new DataIntegrityViolationException(
+                    "El asiento seleccionado acaba de ocuparse. Elegí otro disponible."
+            );
         }
 
         passenger.setPurchasedAt(LocalDateTime.now());
         passenger.setFlight(flight);
-
-        if (passenger.getSeatNumber() == null) {
-            passenger.setSeatNumber(getAvailableSeats(flight, flightClass).get(0));
-        }
-
-        
 
         flight.setSeatsAvailable(flight.getSeatsAvailable() - 1);
         flightRepository.save(flight);
@@ -74,20 +101,38 @@ public class PassengerService {
         return passengerRepository.save(passenger);
     }
 
+    public List<String> getAvailableSeatsForFlight(
+            Long flightId,
+            String flightClass
+    ) {
+        Flight flight = flightRepository.findById(flightId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("Vuelo no encontrado: " + flightId)
+                );
+
+        return getAvailableSeats(flight, normalizeFlightClass(flightClass));
+    }
 
     @Transactional
     public int cancel(Long passengerId, boolean refundSeat) {
-        Passenger p = passengerRepository.findById(passengerId)
-                .orElseThrow(() -> new NoSuchElementException("Pasajero no encontrado: " + passengerId));
+        Passenger passenger = passengerRepository.findById(passengerId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("Pasajero no encontrado: " + passengerId)
+                );
 
-        Long flightId = (p.getFlight() != null) ? p.getFlight().getId() : null;
+        Long flightId = passenger.getFlight() != null
+                ? passenger.getFlight().getId()
+                : null;
+
         if (flightId == null) {
             passengerRepository.deleteById(passengerId);
             return -1;
         }
 
         Flight flight = flightRepository.findForUpdate(flightId)
-                .orElseThrow(() -> new NoSuchElementException("Vuelo no encontrado: " + flightId));
+                .orElseThrow(() ->
+                        new NoSuchElementException("Vuelo no encontrado: " + flightId)
+                );
 
         if (refundSeat) {
             flight.setSeatsAvailable(flight.getSeatsAvailable() + 1);
@@ -95,48 +140,90 @@ public class PassengerService {
         }
 
         passengerRepository.deleteById(passengerId);
+
         return flight.getSeatsAvailable();
     }
 
     @Transactional
-    public void deletePassenger(Long id) {
-        cancel(id, true);
+    public void deletePassenger(Long passengerId) {
+        cancel(passengerId, true);
     }
 
     public List<Passenger> getAllPassengers() {
         return passengerRepository.findAll();
     }
 
-    private List<String> getAvailableSeats(Flight flight, String flightClass) {
-        int totalSeats = switch (flightClass.toUpperCase()) {
+    public Page<Passenger> getPassengers(int page, int size) {
+        return passengerRepository.findAll(PageRequest.of(page, size));
+    }
+
+    private String normalizeChannel(String channel) {
+        if (channel == null || channel.isBlank()) {
+            return "COUNTER";
+        }
+
+        String normalizedChannel = channel.trim().toUpperCase(Locale.ROOT);
+
+        if (!Set.of("COUNTER", "ONLINE").contains(normalizedChannel)) {
+            throw new IllegalArgumentException(
+                    "Canal inválido. Debe ser COUNTER u ONLINE."
+            );
+        }
+
+        return normalizedChannel;
+    }
+
+    private String normalizeFlightClass(String flightClass) {
+        if (flightClass == null || flightClass.isBlank()) {
+            return "ECONOMY";
+        }
+
+        String normalizedClass = flightClass.trim().toUpperCase(Locale.ROOT);
+
+        if (!VALID_CLASSES.contains(normalizedClass)) {
+            throw new IllegalArgumentException(
+                    "Clase inválida. Debe ser ECONOMY, BUSINESS o FIRST."
+            );
+        }
+
+        return normalizedClass;
+    }
+
+    private List<String> getAvailableSeats(
+            Flight flight,
+            String flightClass
+    ) {
+        int totalSeats = switch (flightClass) {
             case "BUSINESS" -> flight.getBusinessSeats();
             case "FIRST" -> flight.getFirstSeats();
             default -> flight.getEconomySeats();
         };
 
-        String prefix = switch (flightClass.toUpperCase()) {
+        String prefix = switch (flightClass) {
             case "BUSINESS" -> "B";
             case "FIRST" -> "F";
             default -> "A";
         };
 
-        List<String> all = new ArrayList<>();
-        for (int i = 1; i <= totalSeats; i++) {
-            all.add(prefix + i);
+        List<String> allSeats = new ArrayList<>();
+
+        for (int seat = 1; seat <= totalSeats; seat++) {
+            allSeats.add(prefix + seat);
         }
 
-        List<String> occupied = passengerRepository
-                .findByFlight_IdAndFlightClass(flight.getId(), flightClass)
+        List<String> occupiedSeats = passengerRepository
+                .findByFlight_IdAndFlightClassIgnoreCase(
+                        flight.getId(),
+                        flightClass
+                )
                 .stream()
                 .map(Passenger::getSeatNumber)
                 .filter(Objects::nonNull)
+                .map(seat -> seat.trim().toUpperCase(Locale.ROOT))
                 .toList();
 
-        all.removeAll(occupied);
-        return all;
-    }
+        allSeats.removeAll(occupiedSeats);
 
-    public Page<Passenger> getPassengers(int page, int size) {
-        return passengerRepository.findAll(PageRequest.of(page, size));
+        return allSeats;
     }
 }

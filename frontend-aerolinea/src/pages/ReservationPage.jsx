@@ -15,6 +15,8 @@ const ReservationPage = ({ auth }) => {
     returnDate,
     passengers,
     flightClass,
+    selectedDepartureFlight,
+    selectedReturnFlight,
   } = reservation;
 
   const classLabels = {
@@ -23,28 +25,101 @@ const ReservationPage = ({ auth }) => {
     first: "Primera",
   };
 
+  const passengerCount = Number(passengers) || 1;
+  const hasReturnFlight = Boolean(returnDate);
+
+  const getFlightPrice = (flight) => {
+    const price = Number(flight?.price);
+    return Number.isFinite(price) ? price : 0;
+  };
+
+  const departurePrice = getFlightPrice(selectedDepartureFlight);
+  const returnPrice = hasReturnFlight
+    ? getFlightPrice(selectedReturnFlight)
+    : 0;
+
+  const totalPrice = (departurePrice + returnPrice) * passengerCount;
+
+  const formatDate = (date) => {
+    if (!date) return "Sin fecha";
+
+    return new Date(`${date}T00:00:00`).toLocaleDateString("es-AR");
+  };
+
+  const formatPrice = (price) => {
+    if (!price) return "A confirmar";
+
+    return `AR$ ${Number(price).toLocaleString("es-AR")}`;
+  };
+
+  const getFlightDescription = (flight) => {
+    if (!flight) return "Vuelo no seleccionado";
+
+    const airline = flight.airline || "Aerolínea";
+    const number = flight.flightNumber ? ` · ${flight.flightNumber}` : "";
+
+    return `${airline}${number}`;
+  };
+
+  const getFlightSchedule = (flight) => {
+    if (!flight) return "Horario no seleccionado";
+
+    const departure = flight.departureTime || "--:--";
+    const arrival = flight.arrivalTime || "--:--";
+
+    return `${departure} → ${arrival}`;
+  };
+
+  const reservationIsValid =
+    Boolean(origin) &&
+    Boolean(destination) &&
+    Boolean(departureDate) &&
+    Boolean(selectedDepartureFlight) &&
+    (!hasReturnFlight || Boolean(selectedReturnFlight));
+
   const savePendingReservation = () => {
     localStorage.setItem("pendingReservation", JSON.stringify(reservation));
   };
 
   const handleConfirmReservation = () => {
-    if (!user) return;
+    if (!user || !reservationIsValid) return;
+
+    const reservationCode = `FB-${Date.now()
+      .toString()
+      .slice(-6)
+      .toUpperCase()}`;
 
     const newReservation = {
       id: Date.now(),
+      reservationCode,
       userEmail: user.email,
+      holderName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+      contactEmail: user.email,
+
       origin: origin || "No especificado",
       destination: destination || "No especificado",
+
       departureDate: departureDate || "",
       returnDate: returnDate || "",
-      passengers: passengers || 1,
+
+      passengers: passengerCount,
       flightClass: flightClass || "economy",
-      status: "Pre-reserva",
+
+      departureFlight: selectedDepartureFlight,
+      returnFlight: hasReturnFlight ? selectedReturnFlight : null,
+
+      departurePrice,
+      returnPrice,
+      totalPrice,
+
+      status: "Reserva pendiente de confirmación",
       createdAt: new Date().toISOString(),
     };
 
     const storageKey = `reservations_${user.email}`;
-    const savedReservations = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    const savedReservations = JSON.parse(
+      localStorage.getItem(storageKey) || "[]"
+    );
 
     localStorage.setItem(
       storageKey,
@@ -68,7 +143,8 @@ const ReservationPage = ({ auth }) => {
 
           <p>
             Para guardar tu viaje, acceder a tus reservas y vivir una experiencia
-            más completa en FlightBooking, necesitás iniciar sesión o crear una cuenta.
+            más completa en FlightBooking, necesitás iniciar sesión o crear una
+            cuenta.
           </p>
 
           <div className={styles.actions}>
@@ -101,6 +177,39 @@ const ReservationPage = ({ auth }) => {
     );
   }
 
+  if (!reservationIsValid) {
+    return (
+      <div className={styles.page}>
+        <section className={styles.summaryCard}>
+          <div className={styles.header}>
+            <span className={styles.eyebrow}>Selección incompleta</span>
+            <h2>No pudimos preparar la reserva</h2>
+
+            <p>
+              Para continuar necesitás elegir una fecha disponible y un horario
+              real de vuelo.
+            </p>
+          </div>
+
+          <div className={styles.notice}>
+            Volvé a los resultados, elegí los vuelos disponibles para tu viaje
+            y luego intentá nuevamente.
+          </div>
+
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={() => navigate(-1)}
+            >
+              Volver a resultados
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <section className={styles.summaryCard}>
@@ -108,7 +217,7 @@ const ReservationPage = ({ auth }) => {
           <span className={styles.eyebrow}>Resumen de reserva</span>
           <h2>Tu viaje está casi listo</h2>
           <p>
-            Revisá los datos seleccionados antes de continuar con la confirmación.
+            Revisá tus vuelos seleccionados antes de guardar la reserva.
           </p>
         </div>
 
@@ -128,27 +237,17 @@ const ReservationPage = ({ auth }) => {
         <div className={styles.detailsGrid}>
           <div className={styles.detailItem}>
             <span>Origen</span>
-            <strong>{origin || "No especificado"}</strong>
+            <strong>{origin}</strong>
           </div>
 
           <div className={styles.detailItem}>
             <span>Destino</span>
-            <strong>{destination || "No especificado"}</strong>
-          </div>
-
-          <div className={styles.detailItem}>
-            <span>Fecha de ida</span>
-            <strong>{departureDate || "Sin fecha"}</strong>
-          </div>
-
-          <div className={styles.detailItem}>
-            <span>Fecha de vuelta</span>
-            <strong>{returnDate || "Sin fecha"}</strong>
+            <strong>{destination}</strong>
           </div>
 
           <div className={styles.detailItem}>
             <span>Pasajeros</span>
-            <strong>{passengers || 1}</strong>
+            <strong>{passengerCount}</strong>
           </div>
 
           <div className={styles.detailItem}>
@@ -157,9 +256,56 @@ const ReservationPage = ({ auth }) => {
           </div>
         </div>
 
+        <div className={styles.detailsGrid}>
+          <div className={styles.detailItem}>
+            <span>Vuelo de ida</span>
+            <strong>{getFlightDescription(selectedDepartureFlight)}</strong>
+          </div>
+
+          <div className={styles.detailItem}>
+            <span>Fecha y horario de ida</span>
+            <strong>
+              {formatDate(departureDate)} ·{" "}
+              {getFlightSchedule(selectedDepartureFlight)}
+            </strong>
+          </div>
+
+          {hasReturnFlight && (
+            <>
+              <div className={styles.detailItem}>
+                <span>Vuelo de vuelta</span>
+                <strong>{getFlightDescription(selectedReturnFlight)}</strong>
+              </div>
+
+              <div className={styles.detailItem}>
+                <span>Fecha y horario de vuelta</span>
+                <strong>
+                  {formatDate(returnDate)} ·{" "}
+                  {getFlightSchedule(selectedReturnFlight)}
+                </strong>
+              </div>
+            </>
+          )}
+
+          <div className={styles.detailItem}>
+            <span>Valor por pasajero</span>
+            <strong>
+              {hasReturnFlight
+                ? formatPrice(departurePrice + returnPrice)
+                : formatPrice(departurePrice)}
+            </strong>
+          </div>
+
+          <div className={styles.detailItem}>
+            <span>Total estimado</span>
+            <strong>{formatPrice(totalPrice)}</strong>
+          </div>
+        </div>
+
         <div className={styles.notice}>
-          Esta sección prepara la reserva con los datos seleccionados. La confirmación
-          final se completará en el flujo de reservas.
+          Estado inicial: <strong>Reserva pendiente de confirmación</strong>.
+          <br />
+          Tus vuelos seleccionados quedarán guardados en tu perfil.
         </div>
 
         <div className={styles.actions}>
@@ -168,7 +314,7 @@ const ReservationPage = ({ auth }) => {
             className={styles.primaryButton}
             onClick={handleConfirmReservation}
           >
-            Confirmar reserva
+            Guardar reserva
           </button>
 
           <button

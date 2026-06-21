@@ -4,6 +4,7 @@ import com.aerolinea.entity.Passenger;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class PassengerDto {
@@ -17,6 +18,7 @@ public class PassengerDto {
     private String channel;
     private String flightClass;
     private String purchasedAt;
+
     private Long flightId;
     private String flightNumber;
     private String origin;
@@ -24,55 +26,74 @@ public class PassengerDto {
     private Double price;
     private String departureDate;
     private String departureTime;
+
     private String seatNumber;
 
+    public PassengerDto() {
+    }
 
-    public PassengerDto() {}
+    public PassengerDto(Passenger passenger) {
+        this.id = passenger.getId();
+        this.firstName = passenger.getFirstName();
+        this.lastName = passenger.getLastName();
+        this.email = passenger.getEmail();
+        this.phone = passenger.getPhone();
+        this.documentNumber = passenger.getDocumentNumber();
+        this.channel = passenger.getChannel();
+        this.flightClass = passenger.getFlightClass();
+        this.seatNumber = passenger.getSeatNumber();
 
-    public PassengerDto(Passenger p) {
-        this.id = p.getId();
-        this.firstName = p.getFirstName();
-        this.lastName = p.getLastName();
-        this.email = p.getEmail();
-        this.phone = p.getPhone();
-        this.documentNumber = p.getDocumentNumber();
-        this.channel = p.getChannel();
-        this.flightClass = p.getFlightClass();
-        this.purchasedAt = p.getPurchasedAt() != null ? p.getPurchasedAt().toString() : null;
-        this.flightId = (p.getFlight() != null ? p.getFlight().getId() : null);
-        this.seatNumber = p.getSeatNumber();
+        this.purchasedAt = passenger.getPurchasedAt() != null
+                ? passenger.getPurchasedAt().toString()
+                : null;
 
-        if (p.getFlight() != null) {
-            this.flightNumber = p.getFlight().getFlightNumber();
-            this.origin = p.getFlight().getOrigin();
-            this.destination = p.getFlight().getDestination();
-            this.price = p.getFlight().getPrice();
+        this.flightId = passenger.getFlight() != null
+                ? passenger.getFlight().getId()
+                : null;
 
-            this.departureDate = p.getFlight().getDepartureDate() != null
-                    ? p.getFlight().getDepartureDate().toString()
+        if (passenger.getFlight() != null) {
+            this.flightNumber = passenger.getFlight().getFlightNumber();
+            this.origin = passenger.getFlight().getOrigin();
+            this.destination = passenger.getFlight().getDestination();
+            this.price = passenger.getFlight().getPrice();
+
+            this.departureDate = passenger.getFlight().getDepartureDate() != null
+                    ? passenger.getFlight().getDepartureDate().toString()
                     : null;
 
-            this.departureTime = p.getFlight().getDepartureTime() != null
-                    ? p.getFlight().getDepartureTime().toString()
+            this.departureTime = passenger.getFlight().getDepartureTime() != null
+                    ? passenger.getFlight().getDepartureTime().toString()
                     : null;
         }
     }
 
     public Passenger toEntity() {
-        Passenger p = new Passenger();
-        p.setId(this.id);
-        p.setFirstName(this.firstName);
-        p.setLastName(this.lastName);
-        p.setEmail(this.email);
-        p.setPhone(this.phone);
-        p.setDocumentNumber(this.documentNumber);
-        p.setChannel(this.channel);
-        p.setFlightClass(this.flightClass != null ? this.flightClass : "ECONOMY");
+        Passenger passenger = new Passenger();
 
-        if (this.purchasedAt != null) {
-            p.setPurchasedAt(LocalDate.parse(this.purchasedAt).atStartOfDay());
+        passenger.setId(this.id);
+        passenger.setFirstName(this.firstName);
+        passenger.setLastName(this.lastName);
+        passenger.setEmail(this.email);
+        passenger.setPhone(this.phone);
+        passenger.setDocumentNumber(this.documentNumber);
+        passenger.setChannel(this.channel);
+        passenger.setFlightClass(
+                this.flightClass != null ? this.flightClass : "ECONOMY"
+        );
+        passenger.setSeatNumber(this.seatNumber);
+
+        if (this.purchasedAt != null && !this.purchasedAt.isBlank()) {
+            try {
+                passenger.setPurchasedAt(
+                        LocalDateTime.parse(this.purchasedAt)
+                );
+            } catch (Exception exception) {
+                passenger.setPurchasedAt(
+                        LocalDate.parse(this.purchasedAt).atStartOfDay()
+                );
+            }
         }
 
-        return p;
+        return passenger;
     }
 }

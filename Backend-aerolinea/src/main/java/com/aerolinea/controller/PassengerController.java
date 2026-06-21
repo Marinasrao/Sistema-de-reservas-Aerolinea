@@ -21,7 +21,18 @@ public class PassengerController {
     @Autowired
     private PassengerService passengerService;
 
-
+    @GetMapping("/available-seats")
+    public ResponseEntity<List<String>> getAvailableSeats(
+            @RequestParam Long flightId,
+            @RequestParam String flightClass
+    ) {
+        return ResponseEntity.ok(
+                passengerService.getAvailableSeatsForFlight(
+                        flightId,
+                        flightClass
+                )
+        );
+    }
 
     //   Listar pasajeros por vuelo
     @GetMapping("/by-flight/{flightId}")
