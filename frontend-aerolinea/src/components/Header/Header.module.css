@@ -18,7 +18,7 @@
 .logoContainer {
   display: flex;
   align-items: center;
-  font-family: monospace;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
   gap: 1rem;
   min-width: 150px;
 }
@@ -43,22 +43,25 @@
 .brandWrapper {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
 }
 
 .brandName {
-  color: white;
-  font-size: 1.4rem;
+  color: #ffffff;
+  font-size: 1.35rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1;
+  letter-spacing: -0.025em;
   white-space: nowrap;
 }
 
 .brandSlogan {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.8rem;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
 }
-
 .adminPanelButton {
   padding: 0.75rem 1rem;
   border-radius: 10px;

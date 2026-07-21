@@ -5,7 +5,8 @@ export default function FlightCalendar({
   title,
   selectedDate,
   onSelectDate,
-  availableDates = []
+  availableDates = [],
+  minDate = "",
 }) {
   const getInitialMonth = () => {
     if (!selectedDate) {
@@ -27,12 +28,10 @@ export default function FlightCalendar({
           return (
             item &&
             item.date &&
-            (
-              item.available === true ||
+            (item.available === true ||
               item.available === "true" ||
               item.hasFlights === true ||
-              item.hasFlights === "true"
-            )
+              item.hasFlights === "true")
           );
         })
         .map((item) => String(item.date).substring(0, 10))
@@ -64,11 +63,14 @@ export default function FlightCalendar({
   }
 
   for (let day = 1; day <= totalDays; day++) {
-    const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const date = `${year}-${String(month + 1).padStart(
+      2,
+      "0"
+    )}-${String(day).padStart(2, "0")}`;
 
     days.push({
       number: day,
-      date
+      date,
     });
   }
 
@@ -91,7 +93,7 @@ export default function FlightCalendar({
           {title} —{" "}
           {currentMonth.toLocaleString("es-AR", {
             month: "long",
-            year: "numeric"
+            year: "numeric",
           })}
         </span>
 
@@ -113,18 +115,25 @@ export default function FlightCalendar({
       <div className={styles.grid}>
         {days.map((day, index) => {
           if (!day) {
-            return <div key={index} className={styles.empty}></div>;
+            return <div key={index} className={styles.empty} />;
           }
 
           const available = availableSet.has(day.date);
+          const beforeMinimumDate = Boolean(
+            minDate && day.date < minDate
+          );
+
+          const selectable = available && !beforeMinimumDate;
           const selected = selectedDate === day.date;
 
           return (
             <div
               key={day.date}
-              className={`${styles.day} ${available ? styles.available : styles.unavailable} ${selected ? styles.selected : ""}`}
+              className={`${styles.day} ${
+                selectable ? styles.available : styles.unavailable
+              } ${selected ? styles.selected : ""}`}
               onClick={() => {
-                if (available) {
+                if (selectable) {
                   onSelectDate(day.date);
                 }
               }}

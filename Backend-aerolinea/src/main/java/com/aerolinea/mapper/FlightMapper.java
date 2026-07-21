@@ -7,12 +7,20 @@ import com.aerolinea.entity.Flight;
 import com.aerolinea.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.aerolinea.entity.Recommendation;
+import com.aerolinea.repository.RecommendationRepository;
+import org.springframework.data.domain.PageRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class FlightMapper {
 
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private RecommendationRepository recommendationRepository;
 
     public FlightResponseDTO toDTO(Flight flight) {
         if (flight == null) {
@@ -42,8 +50,23 @@ public class FlightMapper {
         dto.setAircraftType(flight.getAircraftType());
         dto.setFlightStatus(flight.getFlightStatus());
 
-        if (flight.getRecommendation() != null) {
-            dto.setRecommendationId(flight.getRecommendation().getId());
+        Recommendation recommendation = flight.getRecommendation();
+
+        if (recommendation == null && flight.getDestination() != null) {
+            List<Recommendation> matches =
+                    recommendationRepository.findCandidatesForFlightDestination(
+                            flight.getDestination(),
+                            PageRequest.of(0, 1)
+                    );
+
+            if (!matches.isEmpty()) {
+                recommendation = matches.get(0);
+            }
+        }
+
+        if (recommendation != null) {
+            dto.setRecommendationId(recommendation.getId());
+            dto.setImageUrls(buildRecommendationImages(recommendation));
         }
 
         if (flight.getCategory() != null) {
@@ -97,5 +120,34 @@ public class FlightMapper {
         }
 
         return flight;
+    }
+    private List<String> buildRecommendationImages(Recommendation recommendation) {
+        List<String> images = new ArrayList<>();
+
+        if (recommendation.getMainImage() != null && !recommendation.getMainImage().isBlank()) {
+            images.add(recommendation.getMainImage());
+        }
+
+        if (recommendation.getImageUrl() != null && !recommendation.getImageUrl().isBlank()) {
+            images.add(recommendation.getImageUrl());
+        }
+
+        if (recommendation.getImage1() != null && !recommendation.getImage1().isBlank()) {
+            images.add(recommendation.getImage1());
+        }
+
+        if (recommendation.getImage2() != null && !recommendation.getImage2().isBlank()) {
+            images.add(recommendation.getImage2());
+        }
+
+        if (recommendation.getImage3() != null && !recommendation.getImage3().isBlank()) {
+            images.add(recommendation.getImage3());
+        }
+
+        if (recommendation.getImage4() != null && !recommendation.getImage4().isBlank()) {
+            images.add(recommendation.getImage4());
+        }
+
+        return images;
     }
 }

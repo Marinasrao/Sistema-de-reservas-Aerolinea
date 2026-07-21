@@ -54,6 +54,18 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
             Pageable pageable
     );
 
-
+    @Query("""
+    SELECT r
+    FROM Recommendation r
+    WHERE
+        LOWER(TRIM(r.destination)) = LOWER(TRIM(:destination))
+        OR LOWER(TRIM(r.title)) = LOWER(TRIM(:destination))
+        OR LOWER(r.title) LIKE LOWER(CONCAT('%', :destination, '%'))
+    ORDER BY r.id DESC
+""")
+    List<Recommendation> findCandidatesForFlightDestination(
+            @Param("destination") String destination,
+            Pageable pageable
+    );
 
 }

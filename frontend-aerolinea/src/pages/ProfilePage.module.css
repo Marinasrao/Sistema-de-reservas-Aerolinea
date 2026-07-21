@@ -16,12 +16,12 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgb(56, 224, 92), #1e40af);
+  background: linear-gradient(135deg, #65c0c0, #3f80a5);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
   margin: 2rem 0 2rem;
 }
@@ -32,6 +32,11 @@
   gap: 0.2rem;
   font-size: 0.9rem;
   margin-bottom: 1.8rem;
+}
+
+.userInfo strong {
+  color: #0f172a;
+  font-weight: 650;
 }
 
 .userInfo span {
@@ -47,19 +52,25 @@
 }
 
 .menuItem {
+  width: 100%;
   padding: 1rem 1.1rem;
+  border: none;
   border-radius: 14px;
+  font-family: inherit;
   font-size: 0.95rem;
   color: #003580;
   font-weight: 600;
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
   position: relative;
   background-color: #f8fafc;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .menuItem:hover {
   background-color: #f1f5ff;
+  transform: translateX(2px);
 }
 
 .menuItemActive {
@@ -99,11 +110,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  background: linear-gradient(
-    to top,
-    rgba(0, 53, 128, 0.45),
-    transparent
-  );
+  background: linear-gradient(to top, rgba(0, 53, 128, 0.45), transparent);
 }
 
 .profileContent {
@@ -114,11 +121,21 @@
   gap: 1.2rem;
 }
 
+.favoriteMessage {
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 0.9rem;
+  font-weight: 650;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+}
+
 .favoritesSection {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 24px;
   padding: 1.5rem;
-  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.22);
+  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.2);
   backdrop-filter: blur(8px);
 }
 
@@ -134,7 +151,7 @@
   display: inline-block;
   color: #0f766e;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.25rem;
@@ -144,6 +161,7 @@
   margin: 0;
   color: #003580;
   font-size: 1.45rem;
+  font-weight: 700;
 }
 
 .favoritesActions {
@@ -164,28 +182,40 @@
   background: #ecfeff;
   color: #0f766e;
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: 650;
   white-space: nowrap;
 }
 
-.continueButton {
+.continueButton,
+.emptyAction {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  padding: 0 1rem;
   border-radius: 999px;
   background: linear-gradient(to right, #65c0c0, #3f80a5);
   color: #ffffff;
-  font-size: 0.82rem;
-  font-weight: 800;
   text-decoration: none;
-  white-space: nowrap;
   box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.continueButton:hover {
+.continueButton {
+  min-height: 36px;
+  padding: 0 1rem;
+  font-size: 0.82rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.emptyAction {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.continueButton:hover,
+.emptyAction:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
 }
@@ -250,6 +280,7 @@
   color: #0f172a;
   font-size: 1rem;
   line-height: 1.25;
+  font-weight: 650;
 }
 
 .favoriteInfo p {
@@ -261,35 +292,36 @@
 .favoriteInfo strong {
   color: #003580;
   font-size: 1rem;
+  font-weight: 650;
 }
 
 .favoriteBadge {
   display: inline-flex;
   width: fit-content;
-  padding: 0.25rem 0.55rem;
+  padding: 0.28rem 0.62rem;
   border-radius: 999px;
-  background: #fff1f2;
-  color: #e11d48;
+  background: #ecfdf5;
+  color: #047857;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .removeFavoriteButton {
   width: fit-content;
   margin-top: 0.2rem;
-  padding: 0.48rem 0.75rem;
+  padding: 0.55rem 0.85rem;
   border: none;
   border-radius: 999px;
-  background: #dbbef8;
-  color: #8346d3;
+  background: #f3e8ff;
+  color: #7e22ce;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 650;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .removeFavoriteButton:hover {
-  background: #c9a6f2;
+  background: #e9d5ff;
   transform: translateY(-1px);
 }
 
@@ -322,6 +354,7 @@
 .emptyFavorites h4 {
   margin: 0 0 0.4rem;
   color: #003580;
+  font-weight: 650;
 }
 
 .emptyFavorites p {
@@ -331,288 +364,7 @@
   font-size: 0.92rem;
 }
 
-.emptyAction {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 999px;
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-@media (max-width: 900px) {
-  .profileLayout {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: auto;
-    padding: 5rem 2rem 2rem;
-  }
-
-  .overlay {
-    padding: 6rem 1.5rem 2rem;
-  }
-
-  .favoritesHeader {
-    align-items: flex-start;
-  }
-
-  .favoritesActions {
-    flex-wrap: wrap;
-  }
-
-  .favoritesGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .favoriteCard {
-    grid-template-columns: 120px 1fr;
-  }
-
-  .favoriteImage,
-  .favoriteImageLink {
-    width: 120px;
-  }
-}
-
-.favoriteMessage {
-  padding: 0.9rem 1rem;
-  border-radius: 16px;
-  background: #ecfdf5;
-  color: #047857;
-  font-size: 0.9rem;
-  font-weight: 800;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
-}
-
-.reservationCard {
-  background: #ffffff;
-  border: 1px solid #dbeafe;
-  border-radius: 18px;
-  padding: 1rem;
-  color: inherit;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.reservationCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.14);
-}
-
-.reservationCard .favoriteInfo {
-  padding: 0;
-}
-
-.reservationActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 0.9rem;
-}
-
-.rateReservationButton {
-  border: none;
-  border-radius: 999px;
-  padding: 0.65rem 1rem;
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.rateReservationButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
-}
-
-.reviewModalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 3000;
-  background: rgba(15, 23, 42, 0.58);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.reviewModal {
-  width: min(100%, 540px);
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 1.5rem;
-  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.35);
-}
-
-.reviewModalHeader {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.reviewModalHeader span {
-  display: inline-block;
-  color: #0f766e;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.35rem;
-}
-
-.reviewModalHeader h3 {
-  margin: 0;
-  color: #003580;
-  font-size: 1.45rem;
-  font-weight: 600;
-}
-
-.reviewCloseButton {
-  width: 38px;
-  height: 38px;
-  border: none;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #0f172a;
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.reviewCloseButton:hover {
-  background: #e2e8f0;
-}
-
-.reviewTripSummary {
-  padding: 1rem;
-  border-radius: 18px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1rem;
-}
-
-.reviewTripSummary strong {
-  display: block;
-  color: #0f172a;
-  font-size: 1rem;
-  margin-bottom: 0.35rem;
-}
-
-.reviewTripSummary p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
-.reviewStars {
-  display: flex;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
-}
-
-.reviewStarButton,
-.reviewStarActive {
-  border: none;
-  background: transparent;
-  font-size: 2rem;
-  cursor: pointer;
-  line-height: 1;
-  transition: transform 0.2s ease;
-}
-
-.reviewStarButton {
-  color: #cbd5e1;
-}
-
-.reviewStarActive {
-  color: #f59e0b;
-}
-
-.reviewStarButton:hover,
-.reviewStarActive:hover {
-  transform: scale(1.08);
-}
-
-.reviewTextarea {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #cbd5e1;
-  border-radius: 16px;
-  padding: 0.9rem;
-  resize: vertical;
-  font-family: inherit;
-  color: #0f172a;
-  background: #f8fafc;
-}
-
-.reviewTextarea:focus {
-  outline: none;
-  border-color: #3f80a5;
-  box-shadow: 0 0 0 3px rgba(63, 128, 165, 0.16);
-  background: #ffffff;
-}
-
-.reviewModalMessage {
-  margin: 0.8rem 0 0;
-  padding: 0.75rem 0.9rem;
-  border-radius: 14px;
-  background: #eef6ff;
-  color: #003580;
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.reviewModalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.7rem;
-  margin-top: 1rem;
-}
-
-.reviewCancelButton,
-.reviewSubmitButton {
-  border: none;
-  border-radius: 999px;
-  padding: 0.75rem 1.1rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.reviewCancelButton {
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.reviewCancelButton:hover {
-  background: #e2e8f0;
-}
-
-.reviewSubmitButton {
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
-}
-
-.reviewSubmitButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
-}
-
-.reviewSubmitButton:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
+/* ==================== RESUMEN DEL PERFIL ==================== */
 
 .profileSummaryGrid {
   display: grid;
@@ -626,16 +378,16 @@
   border-radius: 20px;
   padding: 1.2rem;
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
-
   display: flex;
   flex-direction: column;
   min-height: 220px;
 }
+
 .profileSummaryCard span {
   display: inline-block;
   color: #0f766e;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.6rem;
@@ -647,6 +399,7 @@
   font-size: 2rem;
   line-height: 1;
   margin-bottom: 0.6rem;
+  font-weight: 700;
 }
 
 .profileSummaryCard p {
@@ -663,480 +416,18 @@
   background: linear-gradient(to right, #65c0c0, #3f80a5);
   color: #ffffff;
   font-size: 0.84rem;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
-
   margin-top: auto;
   width: fit-content;
 }
 
-.menuItem {
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.menuItem:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-@media (max-width: 900px) {
-  .profileSummaryGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 620px) {
-  .reviewModal {
-    padding: 1.2rem;
-    border-radius: 20px;
-  }
-
-  .reviewModalActions {
-    flex-direction: column;
-  }
-
-  .reviewCancelButton,
-  .reviewSubmitButton {
-    width: 100%;
-  }
-}
-
-@media (max-width: 620px) {
-  .favoritesHeader {
-    flex-direction: column;
-  }
-
-  .favoritesActions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .continueButton {
-    width: 100%;
-  }
-
-  .favoriteCard {
-    grid-template-columns: 1fr;
-  }
-
-  .favoriteImageLink {
-    width: 100%;
-  }
-
-  .favoriteImage {
-    width: 100%;
-    height: 180px;
-    min-height: auto;
-  }
-
-  .favoriteInfo {
-    padding: 1rem;
-  }
-
-  .removeFavoriteButton {
-    width: 100%;
-    text-align: center;
-  }
-}
-.profileLayout {
-  display: flex;
-  min-height: 100vh;
-}
-
-.sidebar {
-  width: 200px;
-  background: linear-gradient(to bottom, #f8fafc, #ffffff);
-  border-right: 1px solid #e5e7eb;
-  padding: 5rem 2.5rem 2.5rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgb(56, 224, 92), #1e40af);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 2rem 0 2rem;
-}
-
-.userInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  font-size: 0.9rem;
-  margin-bottom: 1.8rem;
-}
-
-.userInfo span {
-  color: #6b7280;
-  font-size: 0.8rem;
-  word-break: break-word;
-}
-
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-}
-
-.menuItem {
-  padding: 1rem 1.1rem;
-  border-radius: 14px;
-  font-size: 0.95rem;
-  color: #003580;
-  font-weight: 600;
-  text-decoration: none;
-  position: relative;
-  background-color: #f8fafc;
-  transition: background-color 0.2s ease;
-}
-
-.menuItem:hover {
-  background-color: #f1f5ff;
-}
-
-.menuItemActive {
-  background-color: #eef3ff;
-}
-
-.menuItemActive::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 12%;
-  height: 76%;
-  width: 4px;
-  background-color: #003580;
-  border-radius: 4px;
-}
-
-.rightBlock {
-  flex: 1;
-  position: relative;
-  min-height: 100vh;
-  margin-top: -1px;
-}
-
-.bgPlane {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.78) saturate(0.95);
-}
-
-.overlay {
-  position: relative;
-  min-height: 100vh;
-  padding: 6.5rem 3rem 3rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  background: linear-gradient(
-    to top,
-    rgba(0, 53, 128, 0.45),
-    transparent
-  );
-}
-
-.profileContent {
-  width: min(100%, 1050px);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-}
-
-.favoritesSection {
-  background: rgba(255, 255, 255, 0.94);
-  border-radius: 24px;
-  padding: 1.5rem;
-  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.22);
-  backdrop-filter: blur(8px);
-}
-
-.favoritesHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.2rem;
-}
-
-.favoritesLabel {
-  display: inline-block;
-  color: #0f766e;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.25rem;
-}
-
-.favoritesHeader h3 {
-  margin: 0;
-  color: #003580;
-  font-size: 1.45rem;
-}
-
-.favoritesActions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  flex-wrap: nowrap;
-}
-
-.favoritesCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 0 0.85rem;
-  border-radius: 999px;
-  background: #ecfeff;
-  color: #0f766e;
-  font-size: 0.8rem;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.continueButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 36px;
-  padding: 0 1rem;
-  border-radius: 999px;
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  font-size: 0.82rem;
-  font-weight: 800;
-  text-decoration: none;
-  white-space: nowrap;
-  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.continueButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
-}
-
-.favoritesGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.favoriteCard {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 1rem;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  overflow: hidden;
-  color: inherit;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.favoriteCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.14);
-}
-
-.favoriteImageLink {
-  display: block;
-  width: 140px;
-  height: 100%;
-}
-
-.favoriteImage {
-  width: 140px;
-  height: 100%;
-  min-height: 135px;
-  object-fit: cover;
-  display: block;
-}
-
-.favoriteInfo {
-  padding: 1rem 1rem 1rem 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.45rem;
-}
-
-.favoriteTitleLink {
-  text-decoration: none;
-  color: inherit;
-}
-
-.favoriteTitleLink:hover h4 {
-  color: #003580;
-}
-
-.favoriteInfo h4 {
-  margin: 0.35rem 0 0;
-  color: #0f172a;
-  font-size: 1rem;
-  line-height: 1.25;
-}
-
-.favoriteInfo p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.84rem;
-}
-
-.favoriteInfo strong {
-  color: #003580;
-  font-size: 1rem;
-}
-
-.favoriteBadge {
-  display: inline-flex;
-  width: fit-content;
-  padding: 0.25rem 0.55rem;
-  border-radius: 999px;
-  background: #fff1f2;
-  color: #e11d48;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-.removeFavoriteButton {
-  width: fit-content;
-  margin-top: 0.2rem;
-  padding: 0.48rem 0.75rem;
-  border: none;
-  border-radius: 999px;
-  background: #dbbef8;
-  color: #8346d3;
-  font-size: 0.78rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.removeFavoriteButton:hover {
-  background: #c9a6f2;
-  transform: translateY(-1px);
-}
-
-.emptyText,
-.errorText {
-  margin: 0;
-  padding: 1rem;
-  border-radius: 14px;
-  font-weight: 600;
-}
-
-.emptyText {
-  background: #f8fafc;
-  color: #64748b;
-}
-
-.errorText {
-  background: #fef2f2;
-  color: #b91c1c;
-}
-
-.emptyFavorites {
-  padding: 2rem;
-  text-align: center;
-  border-radius: 18px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-}
-
-.emptyFavorites h4 {
-  margin: 0 0 0.4rem;
-  color: #003580;
-}
-
-.emptyFavorites p {
-  margin: 0 auto;
-  max-width: 420px;
-  color: #64748b;
-  font-size: 0.92rem;
-}
-
-.emptyAction {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 999px;
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-@media (max-width: 900px) {
-  .profileLayout {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: auto;
-    padding: 5rem 2rem 2rem;
-  }
-
-  .overlay {
-    padding: 6rem 1.5rem 2rem;
-  }
-
-  .favoritesHeader {
-    align-items: flex-start;
-  }
-
-  .favoritesActions {
-    flex-wrap: wrap;
-  }
-
-  .favoritesGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .favoriteCard {
-    grid-template-columns: 120px 1fr;
-  }
-
-  .favoriteImage,
-  .favoriteImageLink {
-    width: 120px;
-  }
-}
-
-.favoriteMessage {
-  padding: 0.9rem 1rem;
-  border-radius: 16px;
-  background: #ecfdf5;
-  color: #047857;
-  font-size: 0.9rem;
-  font-weight: 800;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
-}
+/* ==================== TARJETAS DE RESERVAS ==================== */
 
 .reservationCard {
   background: #ffffff;
   border: 1px solid #dbeafe;
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 1rem;
   color: inherit;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
@@ -1148,284 +439,6 @@
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.14);
 }
 
-.reservationCard .favoriteInfo {
-  padding: 0;
-}
-
-.reservationActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 0.9rem;
-}
-
-.rateReservationButton {
-  border: none;
-  border-radius: 999px;
-  padding: 0.65rem 1rem;
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.rateReservationButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
-}
-
-.reviewModalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 3000;
-  background: rgba(15, 23, 42, 0.58);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.reviewModal {
-  width: min(100%, 540px);
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 1.5rem;
-  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.35);
-}
-
-.reviewModalHeader {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.reviewModalHeader span {
-  display: inline-block;
-  color: #0f766e;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.35rem;
-}
-
-.reviewModalHeader h3 {
-  margin: 0;
-  color: #003580;
-  font-size: 1.45rem;
-  font-weight: 600;
-}
-
-.reviewCloseButton {
-  width: 38px;
-  height: 38px;
-  border: none;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #0f172a;
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.reviewCloseButton:hover {
-  background: #e2e8f0;
-}
-
-.reviewTripSummary {
-  padding: 1rem;
-  border-radius: 18px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1rem;
-}
-
-.reviewTripSummary strong {
-  display: block;
-  color: #0f172a;
-  font-size: 1rem;
-  margin-bottom: 0.35rem;
-}
-
-.reviewTripSummary p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
-.reviewStars {
-  display: flex;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
-}
-
-.reviewStarButton,
-.reviewStarActive {
-  border: none;
-  background: transparent;
-  font-size: 2rem;
-  cursor: pointer;
-  line-height: 1;
-  transition: transform 0.2s ease;
-}
-
-.reviewStarButton {
-  color: #cbd5e1;
-}
-
-.reviewStarActive {
-  color: #f59e0b;
-}
-
-.reviewStarButton:hover,
-.reviewStarActive:hover {
-  transform: scale(1.08);
-}
-
-.reviewTextarea {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #cbd5e1;
-  border-radius: 16px;
-  padding: 0.9rem;
-  resize: vertical;
-  font-family: inherit;
-  color: #0f172a;
-  background: #f8fafc;
-}
-
-.reviewTextarea:focus {
-  outline: none;
-  border-color: #3f80a5;
-  box-shadow: 0 0 0 3px rgba(63, 128, 165, 0.16);
-  background: #ffffff;
-}
-
-.reviewModalMessage {
-  margin: 0.8rem 0 0;
-  padding: 0.75rem 0.9rem;
-  border-radius: 14px;
-  background: #eef6ff;
-  color: #003580;
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.reviewModalActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.7rem;
-  margin-top: 1rem;
-}
-
-.reviewCancelButton,
-.reviewSubmitButton {
-  border: none;
-  border-radius: 999px;
-  padding: 0.75rem 1.1rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.reviewCancelButton {
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.reviewCancelButton:hover {
-  background: #e2e8f0;
-}
-
-.reviewSubmitButton {
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
-}
-
-.reviewSubmitButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
-}
-
-.reviewSubmitButton:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.profileSummaryGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.profileSummaryCard {
-  background: #ffffff;
-  border: 1px solid #dbeafe;
-  border-radius: 20px;
-  padding: 1.2rem;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
-
-  display: flex;
-  flex-direction: column;
-  min-height: 220px;
-}
-.profileSummaryCard span {
-  display: inline-block;
-  color: #0f766e;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.6rem;
-}
-
-.profileSummaryCard strong {
-  display: block;
-  color: #003580;
-  font-size: 2rem;
-  line-height: 1;
-  margin-bottom: 0.6rem;
-}
-
-.profileSummaryCard p {
-  margin: 0 0 1rem;
-  color: #475569;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.profileSummaryCard button {
-  border: none;
-  border-radius: 999px;
-  padding: 0.65rem 1rem;
-  background: linear-gradient(to right, #65c0c0, #3f80a5);
-  color: #ffffff;
-  font-size: 0.84rem;
-  font-weight: 700;
-  cursor: pointer;
-
-  margin-top: auto;
-  width: fit-content;
-}
-
-.menuItem {
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.menuItem:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
 .reservationTopRow {
   display: flex;
   justify-content: space-between;
@@ -1440,6 +453,14 @@
   color: #0f172a;
   font-size: 1.08rem;
   line-height: 1.3;
+  font-weight: 650;
+}
+
+.reservationSubtitle {
+  margin: 0.35rem 0 0;
+  color: #64748b;
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .reservationCode {
@@ -1452,8 +473,64 @@
   border: 1px solid #c7def5;
   color: #003580;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 650;
   white-space: nowrap;
+}
+
+.reservationStatusRow {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ecfeff, #f8fbff);
+  border: 1px solid #cfe8ec;
+}
+
+.reservationStatusRow span {
+  color: #0f766e;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.reservationStatusRow strong {
+  color: #003580;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.reservationInfoGrid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.reservationInfoGrid div {
+  padding: 0.78rem 0.85rem;
+  border-radius: 15px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.reservationInfoGrid span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reservationInfoGrid strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 650;
 }
 
 .reservationHolder {
@@ -1461,20 +538,28 @@
   flex-direction: column;
   gap: 0.2rem;
   margin: 0.95rem 0;
-  padding: 0.8rem 0.9rem;
-  border-radius: 14px;
+  padding: 0.85rem 0.9rem;
+  border-radius: 15px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
+}
+
+.reservationHolder span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 650;
 }
 
 .reservationHolder strong {
   color: #0f172a;
   font-size: 0.9rem;
+  font-weight: 650;
 }
 
-.reservationHolder span {
+.reservationHolder p {
+  margin: 0;
   color: #64748b;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   word-break: break-word;
 }
 
@@ -1495,7 +580,7 @@
   margin-bottom: 0.35rem;
   color: #0f766e;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -1504,87 +589,728 @@
   display: block;
   color: #003580;
   font-size: 0.92rem;
+  font-weight: 650;
 }
 
 .reservationFlightItem p {
   margin: 0.35rem 0 0;
   color: #475569;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-.reservationFooter {
+.reservationFlightItem small {
+  display: block;
+  margin-top: 0.3rem;
+  color: #0f766e;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.reservationPassengers {
+  margin-top: 0.95rem;
+  padding: 0.9rem;
+  border-radius: 16px;
+  background: #fbfdff;
+  border: 1px solid #dbeafe;
+}
+
+.reservationPassengers > span {
+  display: block;
+  margin-bottom: 0.7rem;
+  color: #003580;
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reservationPassengersList {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.reservationPassengerItem {
+  padding: 0.75rem 0.8rem;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.reservationPassengerItem strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.reservationPassengerItem p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.reservationPassengerItem small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.reservationActions {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.65rem;
   margin-top: 0.95rem;
   padding-top: 0.9rem;
   border-top: 1px solid #e2e8f0;
 }
 
-.reservationFooter > div {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.rateReservationButton {
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  background: linear-gradient(to right, #65c0c0, #3f80a5);
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.reservationFooter span {
+.rateReservationButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
+}
+
+/* ==================== MODAL DE VALORACIÓN ==================== */
+
+.reviewModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(15, 23, 42, 0.58);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.reviewModal {
+  width: min(100%, 540px);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.35);
+}
+
+.reviewModalHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.reviewModalHeader span {
+  display: inline-block;
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.reviewModalHeader h3 {
+  margin: 0;
+  color: #003580;
+  font-size: 1.45rem;
+  font-weight: 650;
+}
+
+.reviewCloseButton {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #0f172a;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.reviewCloseButton:hover {
+  background: #e2e8f0;
+}
+
+.reviewTripSummary {
+  padding: 1rem;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.reviewTripSummary strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+  font-weight: 650;
+}
+
+.reviewTripSummary p {
+  margin: 0;
   color: #64748b;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.reviewStars {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.reviewStarButton,
+.reviewStarActive {
+  border: none;
+  background: transparent;
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.reviewStarButton {
+  color: #cbd5e1;
+}
+
+.reviewStarActive {
+  color: #f59e0b;
+}
+
+.reviewStarButton:hover,
+.reviewStarActive:hover {
+  transform: scale(1.08);
+}
+
+.reviewTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 0.9rem;
+  resize: vertical;
+  font-family: inherit;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.reviewTextarea:focus {
+  outline: none;
+  border-color: #3f80a5;
+  box-shadow: 0 0 0 3px rgba(63, 128, 165, 0.16);
+  background: #ffffff;
+}
+
+.reviewModalMessage {
+  margin: 0.8rem 0 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  background: #eef6ff;
+  color: #003580;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
-.reservationFooter > strong {
-  color: #0f766e;
-  font-size: 0.96rem;
-  text-align: right;
+.reviewModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  margin-top: 1rem;
 }
 
-@media (max-width: 620px) {
-  .reservationTopRow,
-  .reservationFooter {
+.reviewCancelButton,
+.reviewSubmitButton {
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.1rem;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.reviewCancelButton {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.reviewCancelButton:hover {
+  background: #e2e8f0;
+}
+
+.reviewSubmitButton {
+  background: linear-gradient(to right, #65c0c0, #3f80a5);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
+}
+
+.reviewSubmitButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
+}
+
+.reviewSubmitButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ==================== MODAL PARA COMPLETAR RESERVA Y PAGO ==================== */
+
+.checkoutModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(4px);
+}
+
+.checkoutModal {
+  width: min(100%, 980px);
+  max-height: calc(100dvh - 3rem);
+  margin: 0;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.38);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.checkoutModalHeader {
+  position: relative;
+  padding: 1.45rem 5.2rem 1.45rem 1.65rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #003580, #3f80a5);
+}
+
+.checkoutModalHeader span {
+  display: inline-block;
+  color: #dff8ff;
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.checkoutModalHeader h3 {
+  margin: 0.35rem 0 0;
+  color: #ffffff;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.checkoutModalHeader p {
+  max-width: 680px;
+  margin: 0.65rem 0 0;
+  color: #ffffff;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  opacity: 0.93;
+}
+
+.checkoutCloseButton {
+  position: absolute;
+  top: 1.35rem;
+  right: 1.65rem;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.checkoutCloseButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.checkoutTripCard {
+  margin: 1.2rem 1.5rem 0;
+  display: grid;
+  grid-template-columns: 155px 1fr;
+  min-height: 150px;
+  overflow: hidden;
+  border: 1px solid #cae8ee;
+  border-radius: 20px;
+  background: #f1fcfe;
+}
+
+.checkoutTripCard img,
+.checkoutImagePlaceholder {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.checkoutImagePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #80c5d1, #3f80a5);
+  color: #ffffff;
+  font-size: 3rem;
+}
+
+.checkoutTripCard > div:last-child {
+  padding: 0.8rem 1rem;
+}
+
+.checkoutTripCard > div > span {
+  display: inline-block;
+  color: #0f766e;
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.checkoutTripCard h4 {
+  margin: 0.25rem 0 0;
+  color: #003580;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+.checkoutTripCard p {
+  margin: 0.35rem 0 0;
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.checkoutTripCard strong {
+  display: block;
+  margin-top: 0.55rem;
+  color: #0f766e;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.checkoutForm {
+  padding: 1.5rem;
+}
+
+.checkoutSection + .checkoutSection {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.checkoutSectionTitle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.95rem;
+}
+
+.checkoutSectionTitle > span {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #65c0c0, #3f80a5);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.checkoutSectionTitle h4 {
+  margin: 0;
+  color: #003580;
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.checkoutSectionTitle p {
+  margin: 0.2rem 0 0;
+  color: #64748b;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.checkoutFormGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.checkoutFormGrid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.checkoutFormGrid label small {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.checkoutFormGrid input,
+.checkoutFormGrid select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.75rem 0.8rem;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.checkoutFormGrid input:focus,
+.checkoutFormGrid select:focus {
+  outline: none;
+  border-color: #3f80a5;
+  box-shadow: 0 0 0 3px rgba(63, 128, 165, 0.16);
+}
+
+.checkoutFormGrid input[readonly] {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.checkoutFullWidth {
+  grid-column: 1 / -1;
+}
+
+.checkoutPassengersList {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.checkoutPassengerCard {
+  padding: 1rem;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  background: #fafdff;
+}
+
+.checkoutPassengerCard > strong {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #003580;
+  font-weight: 650;
+}
+
+.checkoutPaymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
+}
+
+.checkoutPaymentMethod,
+.checkoutPaymentMethodActive {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 0.65rem 0.9rem;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.83rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.checkoutPaymentMethodActive {
+  border-color: #3f80a5;
+  background: #eaf7fb;
+  color: #003580;
+}
+
+.checkoutTerms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+  color: #475569;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.checkoutTerms input {
+  margin-top: 0.15rem;
+  accent-color: #0f766e;
+}
+
+.checkoutError {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.checkoutActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.3rem;
+}
+
+.checkoutCancelButton,
+.checkoutConfirmButton {
+  border: none;
+  border-radius: 999px;
+  padding: 0.82rem 1.15rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.checkoutCancelButton {
+  background: #eef2ff;
+  color: #003580;
+}
+
+.checkoutConfirmButton {
+  background: linear-gradient(to right, #65c0c0, #3f80a5);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(63, 128, 165, 0.22);
+}
+
+.checkoutConfirmButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(63, 128, 165, 0.28);
+}
+
+.checkoutCancelButton:disabled,
+.checkoutConfirmButton:disabled,
+.checkoutCloseButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 900px) {
+  .profileLayout {
     flex-direction: column;
+  }
+
+  .sidebar {
+    width: auto;
+    padding: 5rem 2rem 2rem;
+  }
+
+  .overlay {
+    padding: 6rem 1.5rem 2rem;
+  }
+
+  .favoritesHeader {
     align-items: flex-start;
   }
 
-  .reservationCode {
-    margin-top: 0.15rem;
+  .favoritesActions {
+    flex-wrap: wrap;
   }
 
-  .reservationFooter > strong {
-    text-align: left;
+  .favoritesGrid {
+    grid-template-columns: 1fr;
   }
 
-  .reservationActions {
-    flex-direction: column;
+  .favoriteCard {
+    grid-template-columns: 120px 1fr;
   }
 
-  .reservationActions .rateReservationButton,
-  .reservationActions .removeFavoriteButton {
-    width: 100%;
-    text-align: center;
+  .favoriteImage,
+  .favoriteImageLink {
+    width: 120px;
   }
-}
 
-@media (max-width: 900px) {
   .profileSummaryGrid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 620px) {
-  .reviewModal {
-    padding: 1.2rem;
+@media (max-width: 700px) {
+  .checkoutModalOverlay {
+    padding: 0.6rem;
+  }
+
+  .checkoutModal {
+    margin: 0.6rem auto 1rem;
     border-radius: 20px;
   }
 
-  .reviewModalActions {
+  .checkoutModalHeader {
+    padding: 1.15rem 4.4rem 1.15rem 1.15rem;
+  }
+
+  .checkoutForm {
+    padding: 1.15rem;
+  }
+
+  .checkoutCloseButton {
+    top: 1rem;
+    right: 1.1rem;
+  }
+
+  .checkoutTripCard {
+    margin: 1rem 1.15rem 0;
+    grid-template-columns: 1fr;
+  }
+
+  .checkoutTripCard img,
+  .checkoutImagePlaceholder {
+    height: 155px;
+  }
+
+  .checkoutFormGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .checkoutFullWidth {
+    grid-column: auto;
+  }
+
+  .checkoutActions {
     flex-direction: column;
   }
 
-  .reviewCancelButton,
-  .reviewSubmitButton {
+  .checkoutCancelButton,
+  .checkoutConfirmButton {
     width: 100%;
   }
 }
@@ -1623,6 +1349,132 @@
 
   .removeFavoriteButton {
     width: 100%;
+    text-align: center;
+  }
+
+  .reservationTopRow,
+  .reservationStatusRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reservationStatusRow strong {
+    text-align: left;
+  }
+
+  .reservationInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .reservationActions {
+    flex-direction: column;
+  }
+
+  .reservationActions .rateReservationButton,
+  .reservationActions .removeFavoriteButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .reviewModal {
+    padding: 1.2rem;
+    border-radius: 20px;
+  }
+
+  .reviewModalActions {
+    flex-direction: column;
+  }
+
+  .reviewCancelButton,
+  .reviewSubmitButton {
+    width: 100%;
+  }
+}
+
+.reviewAlert {
+  width: 100%;
+  margin: 1rem 0 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #bae6fd;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #eff6ff, #ecfeff);
+  color: #0f3761;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(15, 55, 97, 0.12);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.reviewAlert:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(15, 55, 97, 0.16);
+}
+
+.reviewAlertIcon {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #075985;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.15rem;
+}
+
+.reviewAlert strong {
+  display: block;
+  font-size: 0.98rem;
+  margin-bottom: 0.2rem;
+}
+
+.reviewAlert p {
+  margin: 0;
+  color: #48627d;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.reviewNotice {
+  min-height: 2.25rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 999px;
+  background: #f0f9ff;
+  color: #075985;
+  border: 1px solid #bae6fd;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.reviewNotice p {
+  margin: 0;
+}
+
+.reviewNoticeDone {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+@media (max-width: 640px) {
+  .reviewAlert {
+    align-items: flex-start;
+    padding: 0.9rem;
+  }
+
+  .reviewNotice {
+    width: 100%;
+    justify-content: center;
+    border-radius: 16px;
     text-align: center;
   }
 }

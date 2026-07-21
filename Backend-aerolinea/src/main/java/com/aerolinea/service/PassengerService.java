@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.aerolinea.dto.PassengerDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,6 +99,37 @@ public class PassengerService {
         flightRepository.save(flight);
 
         return passengerRepository.save(passenger);
+    }
+    @Transactional
+    public List<Passenger> saveOnlineReservation(
+            List<PassengerDto> passengerDtos
+    ) {
+        if (passengerDtos == null || passengerDtos.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "La reserva online debe incluir al menos un pasajero."
+            );
+        }
+
+        List<Passenger> savedPassengers = new ArrayList<>();
+
+        for (PassengerDto dto : passengerDtos) {
+            if (dto.getFlightId() == null) {
+                throw new IllegalArgumentException(
+                        "Cada pasajero debe estar asociado a un vuelo."
+                );
+            }
+
+            Passenger passenger = dto.toEntity();
+
+            // El canal online se fija en backend: el front no puede alterarlo.
+            passenger.setChannel("ONLINE");
+
+            savedPassengers.add(
+                    savePassenger(passenger, dto.getFlightId())
+            );
+        }
+
+        return savedPassengers;
     }
 
     public List<String> getAvailableSeatsForFlight(

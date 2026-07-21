@@ -188,6 +188,13 @@ export const getAllPassengers = async (page = 0, size = 15) => {
 export const createPassenger = async (passengerData) => {
     return makeRequest('/passengers', 'POST', passengerData);
 };
+export const createOnlineReservationPassengers = async (reservationData) => {
+  const payload = Array.isArray(reservationData)
+    ? { passengers: reservationData }
+    : reservationData;
+
+  return makeRequest("/passengers/online-reservation", "POST", payload);
+};
 
 export const deletePassenger = async (id) => {
     return makeRequest(`/passengers/${id}`, 'DELETE');

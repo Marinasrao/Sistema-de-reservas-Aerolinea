@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -165,6 +164,11 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             @Param("origin") String origin,
             @Param("destination") String destination,
             @Param("date") LocalDate date
+    );
+
+    List<Flight> findByCategory_IdInAndDepartureDateGreaterThanEqual(
+            List<Long> categoryIds,
+            LocalDate date
     );
 }
 

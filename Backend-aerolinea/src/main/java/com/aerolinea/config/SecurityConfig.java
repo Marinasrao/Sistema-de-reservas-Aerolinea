@@ -49,6 +49,7 @@ public class SecurityConfig {
                                 "/api/categories/**",
                                 "/api/availability/**",
                                 "/api/flights/**",
+                                "/api/contact-messages/**",
                                 "/uploads/**",
                                 "/images/**",
                                 "/api/public/**",

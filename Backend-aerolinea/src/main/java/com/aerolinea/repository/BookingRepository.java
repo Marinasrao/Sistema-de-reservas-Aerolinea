@@ -1,4 +1,4 @@
-// BookingRepository.java
+
 package com.aerolinea.repository;
 
 import com.aerolinea.entity.Booking;

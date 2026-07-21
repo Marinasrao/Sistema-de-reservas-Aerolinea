@@ -33,7 +33,7 @@ public class FlightResponseDTO {
 
     private Long recommendationId;
 
-    // -------------------- NUEVO: CAMPOS DE CATEGORÍA --------------------
+    // --------------------  CAMPOS DE CATEGORÍA --------------------
     private Long categoryId;
     private String categoryTitle;
     private String categoryImage;

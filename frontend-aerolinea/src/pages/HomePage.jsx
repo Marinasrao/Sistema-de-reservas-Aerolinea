@@ -1,344 +1,380 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { useNavigate, Link, useSearchParams } from 'react-router-dom'
-import styles from './HomePage.module.css'
-import HeroCarousel from '../components/HeroCarousel.jsx'
-import DestinationAutocomplete from '../components/DestinationAutocomplete.jsx'
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import styles from "./HomePage.module.css";
+import HeroCarousel from "../components/HeroCarousel.jsx";
+import DestinationAutocomplete from "../components/DestinationAutocomplete.jsx";
 
-const API_BASE = 'http://localhost:8080/api'
+const API_BASE = "http://localhost:8080/api";
 
-const getStoredToken = auth => {
+const getStoredToken = (auth) => {
   return (
     auth?.token ||
-    localStorage.getItem('token') ||
-    localStorage.getItem('jwt') ||
-    localStorage.getItem('jwtToken') ||
-    localStorage.getItem('accessToken') ||
-    ''
-  )
-}
+    localStorage.getItem("token") ||
+    localStorage.getItem("jwt") ||
+    localStorage.getItem("jwtToken") ||
+    localStorage.getItem("accessToken") ||
+    ""
+  );
+};
 
-const getStoredUser = auth => {
-  if (auth?.user) return auth.user
+const getStoredUser = (auth) => {
+  if (auth?.user) return auth.user;
 
   try {
-    const storedUser = localStorage.getItem('user')
-    return storedUser ? JSON.parse(storedUser) : null
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
   } catch {
-    return null
+    return null;
   }
-}
+};
 
 const HomePage = ({ auth }) => {
-  const navigate = useNavigate()
-  const [urlParams] = useSearchParams()
+  const navigate = useNavigate();
+  const [urlParams] = useSearchParams();
 
-  const preselectedDestination = urlParams.get('destination') || ''
+  const preselectedDestination = urlParams.get("destination") || "";
 
-  const user = getStoredUser(auth)
-  const token = getStoredToken(auth)
-  const isLoggedIn = Boolean(user && token)
+  const user = getStoredUser(auth);
+  const token = getStoredToken(auth);
+  const isLoggedIn = Boolean(user && token);
 
   const [searchParams, setSearchParams] = useState({
-    origin: '',
+    origin: "",
     destination: preselectedDestination,
-    date: '',
-    returnDate: '',
+    date: "",
+    returnDate: "",
     passengers: 1,
-    tripType: 'roundtrip',
-    flightClass: 'economy'
-  })
+    tripType: "roundtrip",
+    flightClass: "economy",
+  });
 
-  const [recommendations, setRecommendations] = useState([])
-  const [reviewSummaries, setReviewSummaries] = useState({})
-  const [loadingRecommendations, setLoadingRecommendations] = useState(true)
+  const [recommendations, setRecommendations] = useState([]);
+  const [reviewSummaries, setReviewSummaries] = useState({});
+  const [loadingRecommendations, setLoadingRecommendations] = useState(true);
 
-  const [categories, setCategories] = useState([])
-  const [selectedCategories, setSelectedCategories] = useState([])
-  const [favoriteIds, setFavoriteIds] = useState([])
-  const [favoriteMessage, setFavoriteMessage] = useState('')
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState([]);
+  const [favoriteMessage, setFavoriteMessage] = useState("");
+  const [searchError, setSearchError] = useState("");
 
-  const filteredCategories = categories
+  const filteredCategories = categories;
 
   const favoriteIdSet = useMemo(() => {
-    return new Set(favoriteIds.map(Number))
-  }, [favoriteIds])
+    return new Set(favoriteIds.map(Number));
+  }, [favoriteIds]);
 
   useEffect(() => {
-    if (!preselectedDestination) return
+    if (!preselectedDestination) return;
 
-    setSearchParams(prev => ({
+    setSearchParams((prev) => ({
       ...prev,
-      destination: preselectedDestination
-    }))
+      destination: preselectedDestination,
+    }));
 
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
-    })
-  }, [preselectedDestination])
+      behavior: "smooth",
+    });
+  }, [preselectedDestination]);
 
-  const handleSearch = e => {
-    e.preventDefault()
+  const getMinimumReturnDate = (date) => {
+    if (!date) return "";
 
-    if (!searchParams.origin || !searchParams.destination || !searchParams.date)
-      return
+    const [year, month, day] = date.split("-").map(Number);
+    const nextDay = new Date(year, month - 1, day + 1);
 
-    let url = `/search-results?origin=${encodeURIComponent(
-      searchParams.origin
-    )}&destination=${encodeURIComponent(searchParams.destination)}&fromDate=${
-      searchParams.date
-    }`
+    return `${nextDay.getFullYear()}-${String(nextDay.getMonth() + 1).padStart(
+      2,
+      "0",
+    )}-${String(nextDay.getDate()).padStart(2, "0")}`;
+  };
 
-    if (searchParams.tripType === 'roundtrip' && searchParams.returnDate) {
-      url += `&toDate=${searchParams.returnDate}&tripType=roundtrip`
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setSearchError("");
+
+    if (
+      !searchParams.origin ||
+      !searchParams.destination ||
+      !searchParams.date
+    ) {
+      setSearchError(
+        "Completá origen, destino y fecha de salida para buscar vuelos.",
+      );
+      return;
     }
 
-    url += `&passengers=${searchParams.passengers}&flightClass=${searchParams.flightClass}`
+    if (searchParams.tripType === "roundtrip") {
+      if (!searchParams.returnDate) {
+        setSearchError("Seleccioná una fecha de regreso para continuar.");
+        return;
+      }
 
-    navigate(url)
-  }
+      if (searchParams.returnDate <= searchParams.date) {
+        setSearchError(
+          "La fecha de regreso debe ser posterior a la fecha de salida.",
+        );
+        return;
+      }
+    }
+
+    let url = `/search-results?origin=${encodeURIComponent(
+      searchParams.origin,
+    )}&destination=${encodeURIComponent(searchParams.destination)}&fromDate=${
+      searchParams.date
+    }`;
+
+    if (searchParams.tripType === "roundtrip") {
+      url += `&toDate=${searchParams.returnDate}&tripType=roundtrip`;
+    }
+
+    url += `&passengers=${searchParams.passengers}&flightClass=${searchParams.flightClass}`;
+
+    navigate(url);
+  };
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       try {
-        const r2 = await fetch(`${API_BASE}/recommendations/random`)
-        const d2 = await r2.json().catch(() => [])
+        const r2 = await fetch(`${API_BASE}/recommendations/random`);
+        const d2 = await r2.json().catch(() => []);
 
-        setRecommendations(Array.isArray(d2) ? d2 : [])
+        setRecommendations(Array.isArray(d2) ? d2 : []);
       } catch (err) {
-        console.error('Error cargando recomendaciones:', err)
-        setRecommendations([])
+        console.error("Error cargando recomendaciones:", err);
+        setRecommendations([]);
       } finally {
-        setLoadingRecommendations(false)
+        setLoadingRecommendations(false);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   useEffect(() => {
     if (!recommendations.length) {
-      setReviewSummaries({})
-      return
+      setReviewSummaries({});
+      return;
     }
 
-    let alive = true
+    let alive = true;
 
     const loadReviewSummaries = async () => {
       try {
-        const visibleRecommendations = recommendations.slice(0, 10)
+        const visibleRecommendations = recommendations.slice(0, 10);
 
         const entries = await Promise.all(
-          visibleRecommendations.map(async rec => {
+          visibleRecommendations.map(async (rec) => {
             try {
               const res = await fetch(
-                `${API_BASE}/reviews/recommendation/${rec.id}/summary`
-              )
+                `${API_BASE}/reviews/recommendation/${rec.id}/summary`,
+              );
 
               if (!res.ok) {
                 return [
                   rec.id,
                   {
                     averageRating: 0,
-                    totalReviews: 0
-                  }
-                ]
+                    totalReviews: 0,
+                  },
+                ];
               }
 
-              const data = await res.json()
+              const data = await res.json();
 
               return [
                 rec.id,
                 {
                   averageRating: Number(data.averageRating || 0),
-                  totalReviews: Number(data.totalReviews || 0)
-                }
-              ]
+                  totalReviews: Number(data.totalReviews || 0),
+                },
+              ];
             } catch {
               return [
                 rec.id,
                 {
                   averageRating: 0,
-                  totalReviews: 0
-                }
-              ]
+                  totalReviews: 0,
+                },
+              ];
             }
-          })
-        )
+          }),
+        );
 
         if (alive) {
-          setReviewSummaries(Object.fromEntries(entries))
+          setReviewSummaries(Object.fromEntries(entries));
         }
       } catch {
         if (alive) {
-          setReviewSummaries({})
+          setReviewSummaries({});
         }
       }
-    }
+    };
 
-    loadReviewSummaries()
+    loadReviewSummaries();
 
     return () => {
-      alive = false
-    }
-  }, [recommendations])
+      alive = false;
+    };
+  }, [recommendations]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${API_BASE}/categories`)
+        const res = await fetch(`${API_BASE}/categories`);
 
         if (!res.ok) {
-          throw new Error('Error backend categorías')
+          throw new Error("Error backend categorías");
         }
 
-        const data = await res.json()
-        setCategories(Array.isArray(data) ? data : [])
+        const data = await res.json();
+        setCategories(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error('Error al cargar categorías', err)
-        setCategories([])
+        console.error("Error al cargar categorías", err);
+        setCategories([]);
       }
-    }
+    };
 
-    fetchCategories()
-  }, [])
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
-    if (!isLoggedIn) return
+    if (!isLoggedIn) return;
 
     const fetchFavorites = async () => {
       try {
         const res = await fetch(`${API_BASE}/favorites`, {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
-        })
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!res.ok) {
-          throw new Error('No se pudieron cargar los favoritos')
+          throw new Error("No se pudieron cargar los favoritos");
         }
 
-        const data = await res.json()
-        const ids = Array.isArray(data) ? data.map(item => item.id) : []
-        setFavoriteIds(ids)
+        const data = await res.json();
+        const ids = Array.isArray(data) ? data.map((item) => item.id) : [];
+        setFavoriteIds(ids);
       } catch (err) {
-        console.error('Error cargando favoritos:', err)
-        setFavoriteIds([])
+        console.error("Error cargando favoritos:", err);
+        setFavoriteIds([]);
       }
-    }
+    };
 
-    fetchFavorites()
-  }, [isLoggedIn, token])
+    fetchFavorites();
+  }, [isLoggedIn, token]);
 
-  const getIconForCharacteristic = (name = '') => {
-    const key = name.toLowerCase()
+  const getIconForCharacteristic = (name = "") => {
+    const key = name.toLowerCase();
 
-    if (key.includes('equipaje') || key.includes('valija')) return '🧳'
-    if (key.includes('wifi') || key.includes('wi-fi')) return '📶'
+    if (key.includes("equipaje") || key.includes("valija")) return "🧳";
+    if (key.includes("wifi") || key.includes("wi-fi")) return "📶";
     if (
-      key.includes('comida') ||
-      key.includes('almuerzo') ||
-      key.includes('cena')
+      key.includes("comida") ||
+      key.includes("almuerzo") ||
+      key.includes("cena")
     )
-      return '🍴'
-    if (key.includes('asiento')) return '💺'
-    if (key.includes('hora') || key.includes('tiempo')) return '⏱️'
-    if (key.includes('prioridad')) return '⭐'
-    if (key.includes('check')) return '🛂'
-    if (key.includes('mascota') || key.includes('pet')) return '🐶'
+      return "🍴";
+    if (key.includes("asiento")) return "💺";
+    if (key.includes("hora") || key.includes("tiempo")) return "⏱️";
+    if (key.includes("prioridad")) return "⭐";
+    if (key.includes("check")) return "🛂";
+    if (key.includes("mascota") || key.includes("pet")) return "🐶";
 
-    return '✔️'
-  }
+    return "✔️";
+  };
 
-  const toggleCategory = categoryId => {
-    const id = Number(categoryId)
+  const toggleCategory = (categoryId) => {
+    const id = Number(categoryId);
 
-    setSelectedCategories(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    )
-  }
+    setSelectedCategories((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
 
   const toggleFavorite = async (e, recommendationId) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
-    const id = Number(recommendationId)
-    const alreadyFavorite = favoriteIdSet.has(id)
+    const id = Number(recommendationId);
+    const alreadyFavorite = favoriteIdSet.has(id);
 
-    setFavoriteIds(prev =>
+    setFavoriteIds((prev) =>
       alreadyFavorite
-        ? prev.filter(favId => Number(favId) !== id)
-        : [...prev, id]
-    )
+        ? prev.filter((favId) => Number(favId) !== id)
+        : [...prev, id],
+    );
 
     if (!isLoggedIn) {
       setFavoriteMessage(
-        'Selección temporal. Iniciá sesión para guardar tus favoritos.'
-      )
+        "Selección temporal. Iniciá sesión para guardar tus favoritos.",
+      );
 
       setTimeout(() => {
-        setFavoriteMessage('')
-      }, 3000)
+        setFavoriteMessage("");
+      }, 3000);
 
-      return
+      return;
     }
 
     try {
       const res = await fetch(`${API_BASE}/favorites/${id}`, {
-        method: alreadyFavorite ? 'DELETE' : 'POST',
+        method: alreadyFavorite ? "DELETE" : "POST",
         headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!res.ok) {
-        throw new Error('No se pudo actualizar el favorito')
+        throw new Error("No se pudo actualizar el favorito");
       }
 
-      const data = await res.json()
-      const ids = Array.isArray(data) ? data.map(item => item.id) : []
+      const data = await res.json();
+      const ids = Array.isArray(data) ? data.map((item) => item.id) : [];
 
-      setFavoriteIds(ids)
+      setFavoriteIds(ids);
       setFavoriteMessage(
         alreadyFavorite
-          ? 'Eliminado de tus favoritos.'
-          : 'Agregado a tus favoritos.'
-      )
+          ? "Eliminado de tus favoritos."
+          : "Agregado a tus favoritos.",
+      );
 
       setTimeout(() => {
-        setFavoriteMessage('')
-      }, 2500)
+        setFavoriteMessage("");
+      }, 2500);
     } catch (err) {
-      console.error('Error actualizando favorito:', err)
+      console.error("Error actualizando favorito:", err);
 
-      setFavoriteIds(prev =>
+      setFavoriteIds((prev) =>
         alreadyFavorite
           ? [...prev, id]
-          : prev.filter(favId => Number(favId) !== id)
-      )
+          : prev.filter((favId) => Number(favId) !== id),
+      );
 
       setFavoriteMessage(
-        'No se pudo actualizar el favorito. Intentá nuevamente.'
-      )
+        "No se pudo actualizar el favorito. Intentá nuevamente.",
+      );
 
       setTimeout(() => {
-        setFavoriteMessage('')
-      }, 3000)
+        setFavoriteMessage("");
+      }, 3000);
     }
-  }
+  };
 
   const categoryIcons = {
-    Nacionales: '🇦🇷',
-    Internacionales: '🌍',
-    'Low Cost': '💸',
-    Premium: '👑'
-  }
+    Nacionales: "🇦🇷",
+    Internacionales: "🌍",
+    "Low Cost": "💸",
+    Premium: "👑",
+  };
 
   const renderRatingStars = (value = 0) => {
-    const rounded = Math.round(Number(value || 0))
+    const rounded = Math.round(Number(value || 0));
 
     return Array.from({ length: 5 }, (_, index) => (
-      <span key={index}>{index < rounded ? '★' : '☆'}</span>
-    ))
-  }
+      <span key={index}>{index < rounded ? "★" : "☆"}</span>
+    ));
+  };
 
   return (
     <>
@@ -350,27 +386,27 @@ const HomePage = ({ auth }) => {
             <form onSubmit={handleSearch}>
               <div className={styles.searchTabs}>
                 <button
-                  type='button'
+                  type="button"
                   className={`${styles.tabButton} ${
-                    searchParams.tripType === 'roundtrip' ? styles.active : ''
+                    searchParams.tripType === "roundtrip" ? styles.active : ""
                   }`}
                   onClick={() =>
-                    setSearchParams({ ...searchParams, tripType: 'roundtrip' })
+                    setSearchParams({ ...searchParams, tripType: "roundtrip" })
                   }
                 >
                   Ida y vuelta
                 </button>
 
                 <button
-                  type='button'
+                  type="button"
                   className={`${styles.tabButton} ${
-                    searchParams.tripType === 'oneway' ? styles.active : ''
+                    searchParams.tripType === "oneway" ? styles.active : ""
                   }`}
                   onClick={() =>
                     setSearchParams({
                       ...searchParams,
-                      tripType: 'oneway',
-                      returnDate: ''
+                      tripType: "oneway",
+                      returnDate: "",
                     })
                   }
                 >
@@ -385,13 +421,13 @@ const HomePage = ({ auth }) => {
                     <span className={styles.locationIcon}>📍</span>
                     <DestinationAutocomplete
                       value={searchParams.origin}
-                      onChange={text =>
+                      onChange={(text) =>
                         setSearchParams({ ...searchParams, origin: text })
                       }
-                      placeholder='Ciudad de origen'
+                      placeholder="Ciudad de origen"
                       inputProps={{
                         required: true,
-                        className: styles.textInput
+                        className: styles.textInput,
                       }}
                     />
                   </div>
@@ -403,13 +439,13 @@ const HomePage = ({ auth }) => {
                     <span className={styles.locationIcon}>📍</span>
                     <DestinationAutocomplete
                       value={searchParams.destination}
-                      onChange={text =>
+                      onChange={(text) =>
                         setSearchParams({ ...searchParams, destination: text })
                       }
-                      placeholder='Ciudad de destino'
+                      placeholder="Ciudad de destino"
                       inputProps={{
                         required: true,
-                        className: styles.textInput
+                        className: styles.textInput,
                       }}
                     />
                   </div>
@@ -420,34 +456,44 @@ const HomePage = ({ auth }) => {
                   <div className={styles.inputWithIcon}>
                     <span className={styles.calendarIcon}>📅</span>
                     <input
-                      type='date'
+                      type="date"
                       value={searchParams.date}
-                      onChange={e =>
-                        setSearchParams({
-                          ...searchParams,
-                          date: e.target.value
-                        })
-                      }
+                      onChange={(e) => {
+                        const newDepartureDate = e.target.value;
+                        setSearchError("");
+
+                        setSearchParams((prev) => ({
+                          ...prev,
+                          date: newDepartureDate,
+                          returnDate:
+                            prev.returnDate &&
+                            prev.returnDate <= newDepartureDate
+                              ? ""
+                              : prev.returnDate,
+                        }));
+                      }}
                       required
                       className={styles.textInput}
                     />
                   </div>
                 </div>
 
-                {searchParams.tripType === 'roundtrip' && (
+                {searchParams.tripType === "roundtrip" && (
                   <div className={styles.inputGroup}>
                     <label>Fecha de regreso</label>
                     <div className={styles.inputWithIcon}>
                       <span className={styles.calendarIcon}>📅</span>
                       <input
-                        type='date'
+                        type="date"
                         value={searchParams.returnDate}
-                        onChange={e =>
+                        min={getMinimumReturnDate(searchParams.date)}
+                        onChange={(e) => {
+                          setSearchError("");
                           setSearchParams({
                             ...searchParams,
-                            returnDate: e.target.value
-                          })
-                        }
+                            returnDate: e.target.value,
+                          });
+                        }}
                         required
                         className={styles.textInput}
                       />
@@ -460,14 +506,14 @@ const HomePage = ({ auth }) => {
                   <div className={styles.inputWithIcon}>
                     <span className={styles.locationIcon}>👥</span>
                     <input
-                      type='number'
-                      min='1'
-                      max='10'
+                      type="number"
+                      min="1"
+                      max="10"
                       value={searchParams.passengers}
-                      onChange={e =>
+                      onChange={(e) =>
                         setSearchParams({
                           ...searchParams,
-                          passengers: parseInt(e.target.value, 10) || 1
+                          passengers: parseInt(e.target.value, 10) || 1,
                         })
                       }
                       required
@@ -482,23 +528,37 @@ const HomePage = ({ auth }) => {
                     <span className={styles.locationIcon}>💺</span>
                     <select
                       value={searchParams.flightClass}
-                      onChange={e =>
+                      onChange={(e) =>
                         setSearchParams({
                           ...searchParams,
-                          flightClass: e.target.value
+                          flightClass: e.target.value,
                         })
                       }
                       className={styles.textInput}
                     >
-                      <option value='economy'>Económica</option>
-                      <option value='business'>Ejecutiva</option>
-                      <option value='first'>Primera</option>
+                      <option value="economy">Económica</option>
+                      <option value="business">Ejecutiva</option>
+                      <option value="first">Primera</option>
                     </select>
                   </div>
                 </div>
               </div>
 
-              <button type='submit' className={styles.airlineSearchButton}>
+              {searchError && (
+                <p
+                  style={{
+                    margin: "0.9rem 0 0",
+                    color: "#b42318",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                  }}
+                  role="alert"
+                >
+                  {searchError}
+                </p>
+              )}
+
+              <button type="submit" className={styles.airlineSearchButton}>
                 Buscar vuelos
               </button>
             </form>
@@ -510,16 +570,16 @@ const HomePage = ({ auth }) => {
 
           {Array.isArray(categories) && categories.length > 0 ? (
             <div className={styles.categoriesGrid}>
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <div key={cat.id} className={styles.categoryCard}>
                   {cat.image ? (
                     <img
                       src={`http://localhost:8080/uploads/categories/${cat.image}`}
                       alt={cat.title}
                       className={styles.categoryImage}
-                      loading='lazy'
-                      onError={e => {
-                        e.currentTarget.src = '/placeholder.jpg'
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.jpg";
                       }}
                     />
                   ) : (
@@ -540,50 +600,90 @@ const HomePage = ({ auth }) => {
         </section>
 
         <section className={styles.filterSection}>
-          <h4 className={styles.filterTitle}>🎛️ Promociones por categorías</h4>
+          <div className={styles.filterHeader}>
+            <div>
+              <span className={styles.filterEyebrow}>OFERTAS DESTACADAS</span>
+
+              <h4 className={styles.filterTitle}>Promociones por categorías</h4>
+
+              <p className={styles.filterSubtitle}>
+                Elegí una o varias opciones para descubrir vuelos y promociones
+                disponibles.
+              </p>
+            </div>
+
+            <div className={styles.filterCounter}>
+              {selectedCategories.length === 0
+                ? "Ninguna seleccionada"
+                : `${selectedCategories.length} ${
+                    selectedCategories.length === 1
+                      ? "categoría seleccionada"
+                      : "categorías seleccionadas"
+                  }`}
+            </div>
+          </div>
 
           <div className={styles.filterRow}>
-            {filteredCategories.map(cat => (
-              <label
-                key={cat.id}
-                className={`${styles.filterOption} ${
-                  selectedCategories.includes(cat.id) ? styles.active : ''
-                }`}
-              >
-                <input
-                  type='checkbox'
-                  checked={selectedCategories.includes(cat.id)}
-                  onChange={() => toggleCategory(cat.id)}
-                />
+            <div className={styles.filterOptionsGrid}>
+              {filteredCategories.map((cat) => {
+                const isSelected = selectedCategories.includes(cat.id);
 
-                <span className={styles.filterIcon}>
-                  {categoryIcons[cat.title] || '✈️'}
-                </span>
+                return (
+                  <label
+                    key={cat.id}
+                    className={`${styles.filterOption} ${
+                      isSelected ? styles.active : ""
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleCategory(cat.id)}
+                    />
 
-                <span>{cat.title}</span>
-              </label>
-            ))}
+                    <span className={styles.filterIcon}>
+                      {categoryIcons[cat.title] || "✈️"}
+                    </span>
+
+                    <span className={styles.filterOptionText}>
+                      <strong>{cat.title}</strong>
+                      <small>
+                        {cat.promoText || "Explorá promociones disponibles"}
+                      </small>
+                    </span>
+
+                    <span className={styles.filterCheck}>
+                      {isSelected ? "✓" : ""}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
 
             <div className={styles.filterActions}>
               <button
-                className={styles.searchBtn}
-                onClick={() => {
-                  if (selectedCategories.length === 0) return
-                  navigate(
-                    `/category-results?categories=${selectedCategories.join(
-                      ','
-                    )}`
-                  )
-                }}
+                type="button"
+                className={styles.clearBtn}
+                onClick={() => setSelectedCategories([])}
+                disabled={selectedCategories.length === 0}
               >
-                Buscar
+                Limpiar selección
               </button>
 
               <button
-                className={styles.clearBtn}
-                onClick={() => setSelectedCategories([])}
+                type="button"
+                className={styles.searchBtn}
+                disabled={selectedCategories.length === 0}
+                onClick={() => {
+                  if (selectedCategories.length === 0) return;
+
+                  navigate(
+                    `/category-results?categories=${selectedCategories.join(",")}`,
+                  );
+                }}
               >
-                Limpiar
+                Ver promociones
+                <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
@@ -593,14 +693,14 @@ const HomePage = ({ auth }) => {
           <h3 className={styles.featuresTitle}>Características del vuelo</h3>
 
           <div className={styles.featuresGrid}>
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <div key={cat.id} className={styles.featuresCategory}>
                 <h4 className={styles.featuresCategoryTitle}>{cat.title}</h4>
 
                 {Array.isArray(cat.characteristics) &&
                 cat.characteristics.length > 0 ? (
                   <ul className={styles.featuresList}>
-                    {cat.characteristics.map(ch => (
+                    {cat.characteristics.map((ch) => (
                       <li key={ch.id} className={styles.featureItem}>
                         <span className={styles.featureIcon}>
                           {getIconForCharacteristic(ch.name)}
@@ -630,45 +730,45 @@ const HomePage = ({ auth }) => {
             <p style={{ opacity: 0.6 }}>Cargando recomendaciones...</p>
           ) : (
             <div className={styles.recsGrid}>
-              {recommendations.slice(0, 10).map(rec => {
-                const imageName = rec.mainImage || null
+              {recommendations.slice(0, 10).map((rec) => {
+                const imageName = rec.mainImage || null;
 
                 const imageSrc = imageName
                   ? `http://localhost:8080/uploads/recommendations/${imageName}`
-                  : null
+                  : null;
 
-                const isFavorite = favoriteIdSet.has(Number(rec.id))
+                const isFavorite = favoriteIdSet.has(Number(rec.id));
 
-                const summary = reviewSummaries[rec.id]
-                const totalReviews = Number(summary?.totalReviews || 0)
-                const averageRating = Number(summary?.averageRating || 0)
+                const summary = reviewSummaries[rec.id];
+                const totalReviews = Number(summary?.totalReviews || 0);
+                const averageRating = Number(summary?.averageRating || 0);
 
                 return (
                   <Link
                     to={`/recommendations/${rec.id}`}
                     key={rec.id}
                     className={`${styles.recCard} ${
-                      isFavorite ? styles.recCardFavorite : ''
+                      isFavorite ? styles.recCardFavorite : ""
                     }`}
                   >
                     <button
-                      type='button'
+                      type="button"
                       className={`${styles.favoriteButton} ${
-                        isFavorite ? styles.favoriteButtonActive : ''
+                        isFavorite ? styles.favoriteButtonActive : ""
                       }`}
-                      onClick={e => toggleFavorite(e, rec.id)}
+                      onClick={(e) => toggleFavorite(e, rec.id)}
                       aria-label={
                         isFavorite
-                          ? 'Quitar de favoritos'
-                          : 'Agregar a favoritos'
+                          ? "Quitar de favoritos"
+                          : "Agregar a favoritos"
                       }
                       title={
                         isFavorite
-                          ? 'Quitar de favoritos'
-                          : 'Agregar a favoritos'
+                          ? "Quitar de favoritos"
+                          : "Agregar a favoritos"
                       }
                     >
-                      {isFavorite ? '♥' : '♡'}
+                      {isFavorite ? "♥" : "♡"}
                     </button>
 
                     {imageSrc ? (
@@ -676,9 +776,9 @@ const HomePage = ({ auth }) => {
                         src={imageSrc}
                         alt={rec.title}
                         className={styles.recImage}
-                        loading='lazy'
-                        onError={e => {
-                          e.currentTarget.src = '/placeholder.jpg'
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.jpg";
                         }}
                       />
                     ) : (
@@ -690,9 +790,9 @@ const HomePage = ({ auth }) => {
 
                       {rec.departureDate && (
                         <p className={styles.recDates}>
-                          Ida:{' '}
+                          Ida:{" "}
                           {new Date(rec.departureDate).toLocaleDateString(
-                            'es-AR'
+                            "es-AR",
                           )}
                         </p>
                       )}
@@ -705,10 +805,10 @@ const HomePage = ({ auth }) => {
                             </span>
 
                             <span>
-                              {averageRating.toFixed(1)} · {totalReviews}{' '}
+                              {averageRating.toFixed(1)} · {totalReviews}{" "}
                               {totalReviews === 1
-                                ? 'valoración'
-                                : 'valoraciones'}
+                                ? "valoración"
+                                : "valoraciones"}
                             </span>
                           </>
                         ) : (
@@ -724,22 +824,22 @@ const HomePage = ({ auth }) => {
                       <div className={styles.recBottomRow}>
                         <span className={styles.recPrice}>
                           {rec.price != null
-                            ? `AR$ ${Number(rec.price).toLocaleString('es-AR')}`
-                            : 'Precio no disponible'}
+                            ? `AR$ ${Number(rec.price).toLocaleString("es-AR")}`
+                            : "Precio no disponible"}
                         </span>
                       </div>
 
                       <p className={styles.recTaxes}>Tasas incluidas</p>
                     </div>
                   </Link>
-                )
+                );
               })}
             </div>
           )}
         </section>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

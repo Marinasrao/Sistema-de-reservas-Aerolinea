@@ -1,750 +1,405 @@
 # ✈️ FlightBooking — Sistema de Reservas de Vuelos
 
-Proyecto full stack desarrollado con **React + Spring Boot** para gestionar vuelos, recomendaciones, reservas, pasajeros, usuarios, valoraciones y administración del sitio.
+![Java](https://img.shields.io/badge/Java-21-orange)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.3-brightgreen)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![Vite](https://img.shields.io/badge/Vite-4.5-646CFF)
+![MySQL](https://img.shields.io/badge/MySQL-8-4479A1)
+![License](https://img.shields.io/badge/License-Academic-lightgrey)
 
-La aplicación simula una plataforma de reservas aéreas donde los usuarios pueden buscar vuelos, explorar destinos recomendados, guardar favoritos, realizar reservas y puntuar sus experiencias de viaje.
+Proyecto Integrador Final desarrollado para la carrera de Desarrollo Full Stack.
+
+FlightBooking es una aplicación web basada en una arquitectura cliente-servidor con React, Spring Boot y MySQL. Permite buscar vuelos, consultar fechas y horarios disponibles, seleccionar asientos, registrar pasajeros, confirmar reservas, guardar destinos favoritos y valorar experiencias de viaje.
+
+También incluye un panel de administración para gestionar vuelos, categorías, recomendaciones, políticas, imágenes, pasajeros y usuarios administradores.
+
+## 🌟 Funcionalidades principales
+
+### Usuario
+
+- Registro de cuenta con activación por correo electrónico.
+- Inicio de sesión mediante JWT.
+- Búsqueda de vuelos por origen, destino, fechas, pasajeros y clase.
+- Calendario doble con disponibilidad de ida y vuelta.
+- Consulta de horarios disponibles.
+- Selección de vuelo y asiento.
+- Carga de los datos de cada pasajero.
+- Confirmación de reserva y pago simulado.
+- Consulta de reservas desde el perfil.
+- Guardado y eliminación de recomendaciones favoritas.
+- Valoración de destinos mediante estrellas y comentarios.
+- Consulta de políticas del viaje.
+- Envío de consultas mediante formulario de contacto.
+
+### Administración
+
+- Gestión de vuelos.
+- Gestión de pasajeros y asignación de asientos.
+- Gestión de recomendaciones y sus galerías.
+- Gestión de categorías y promociones.
+- Gestión del hero de la página principal.
+- Gestión de políticas.
+- Gestión de administradores.
+- Consulta de pasajeros asociados a cada vuelo.
 
 ---
 
-## 🧭 Tecnologías utilizadas
+## 🖼️ Imágenes del proyecto
 
-### Frontend
+### Resultado del buscador
 
-* React
-* Vite
-* React Router
-* CSS Modules
-* LocalStorage para persistencia temporal de reservas
-* Consumo de API REST
+<img width="1356" height="633" alt="Resultado del buscador" src="https://github.com/user-attachments/assets/2081d32e-419e-41f7-babe-bf3e22faf374" />
+
+### Recomendaciones
+
+<img width="1346" height="532" alt="Recomendaciones" src="https://github.com/user-attachments/assets/f19e639e-6acd-4d38-a184-52337592e5ea" />
+
+### Compartir en redes
+
+<img width="664" height="617" alt="Compartir en redes" src="https://github.com/user-attachments/assets/7e201621-d679-45fd-94e6-4f282b079b58" />
+
+### Categorías
+
+<img width="1334" height="409" alt="Categorías" src="https://github.com/user-attachments/assets/a61df726-bf5c-446b-9ee9-d934eb353dc8" />
+
+---
+
+## 🛠️ Tecnologías utilizadas
 
 ### Backend
 
-* Java 21
-* Spring Boot
-* Spring Data JPA
-* Spring Security
-* JWT
-* MySQL
-* Lombok
-* Maven
+- Java 21.
+- Eclipse Temurin OpenJDK 21.0.5 LTS.
+- Spring Boot 3.5.3.
+- Spring Web.
+- Spring Data JPA.
+- Spring Security.
+- Spring Validation.
+- Spring Mail.
+- JWT con JJWT 0.11.5.
+- MySQL Connector/J 8.0.33.
+- Lombok.
+- Apache Maven 3.9.9.
+
+### Frontend
+
+- Node.js 18.18.2.
+- npm 9.8.1.
+- React 19.1.0.
+- React DOM 19.1.0.
+- React Router DOM 7.6.3.
+- Vite 4.5.0.
+- Axios 1.10.0.
+- Material UI 7.2.0.
+- React Calendar 6.0.0.
+- React Icons 5.7.0.
+- React Slick 0.30.3.
+- Slick Carousel 1.8.1.
+- CSS Modules.
 
 ### Herramientas
 
-* Git / GitHub
-* VS Code
-* IntelliJ IDEA
-* Postman
-* MySQL Workbench
+- Git y GitHub.
+- Visual Studio Code.
+- IntelliJ IDEA.
+- Postman.
+- MySQL Workbench.
+- Mailtrap.
 
 ---
 
-## 🧩 Estructura general del proyecto
+## 📂 Estructura del proyecto
 
-```txt
+```text
 Proyecto Aerolinea/
 ├── Backend-aerolinea/
-├── frontend-aerolinea/
+├── Frontend-aerolinea/
+├── database/
+│   └── vuelos_prueba.sql
 ├── uploads/
 ├── README.md
 └── .gitignore
 ```
 
-### Carpetas importantes
+### Carpetas principales
 
-* `Backend-aerolinea`: contiene la API desarrollada con Spring Boot.
-* `frontend-aerolinea`: contiene la interfaz desarrollada con React.
-* `uploads`: contiene imágenes necesarias para visualizar correctamente categorías, recomendaciones y otros elementos del sitio.
-* `Backend-aerolinea/uploads`: contiene imágenes utilizadas por el backend para recomendaciones, categorías y hero.
-
----
-
-## 🛫 Funcionalidades principales
-
-### 🔍 Búsqueda de vuelos
-
-El sistema permite buscar vuelos a partir de:
-
-* Ciudad de origen.
-* Ciudad de destino.
-* Fecha de ida.
-* Fecha de vuelta.
-* Cantidad de pasajeros.
-* Clase del vuelo.
-
-Clases disponibles:
-
-* Economy.
-* Business.
-* First.
-
-### Mejoras implementadas
-
-* Página de resultados con calendario doble.
-* Calendario de ida y calendario de vuelta.
-* Fechas disponibles marcadas visualmente.
-* Fechas no disponibles diferenciadas.
-* Horarios disponibles por fecha seleccionada.
-* Mensajes de error cuando no se puede cargar la disponibilidad.
-* Resumen visual de búsqueda con origen, destino, pasajeros y clase.
-* Carruseles compactos de recomendaciones y categorías relacionadas.
+- `Backend-aerolinea`: API REST desarrollada con Spring Boot.
+- `Frontend-aerolinea`: interfaz desarrollada con React y Vite.
+- `database`: scripts SQL preparados para las pruebas del sistema.
+- `uploads`: imágenes utilizadas por categorías, recomendaciones, hero y otros elementos visuales.
 
 ---
 
-## 📅 Disponibilidad de vuelos
+## ✅ Requisitos previos
 
-Se incorporó un sistema de disponibilidad para mostrar fechas habilitadas de acuerdo al origen y destino seleccionados.
+- Java 21.
+- Apache Maven 3.9.9.
+- Node.js 18 o superior.
+- npm.
+- MySQL.
+- Git.
 
-### Funcionalidades
+---
 
-* Consulta de disponibilidad desde backend.
-* Fechas disponibles visibles en el calendario.
-* Fechas no disponibles bloqueadas visualmente.
-* Horarios asociados a una fecha disponible.
-* Separación entre disponibilidad de ida y disponibilidad de vuelta.
+## 🚀 Instalación
 
-### Endpoints relacionados
+### 1. Clonar el repositorio
 
-```txt
-GET /api/availability
-GET /api/availability/slots
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd "Proyecto Aerolinea"
 ```
 
----
+Reemplazar `<URL_DEL_REPOSITORIO>` por la dirección del repositorio en GitHub.
 
-## 💺 Gestión de pasajeros
+### 2. Crear la base de datos
 
-El sistema permite administrar pasajeros desde el panel correspondiente.
+Abrir MySQL Workbench y ejecutar:
 
-### Funcionalidades
-
-* Creación de pasajeros.
-* Asignación automática o manual de número de asiento.
-* Gestión de clase seleccionada.
-* Integración con vuelos disponibles.
-
----
-
-## 📌 Recomendaciones de destinos
-
-El sistema incluye una sección de recomendaciones de destinos en la página principal.
-
-Cada recomendación muestra:
-
-* Imagen del destino.
-* Título del destino.
-* Precio promocional.
-* Fecha de vuelo.
-* Valoración promedio.
-* Cantidad de valoraciones.
-* Botón para marcar como favorito.
-
-Al hacer clic en una recomendación, el usuario accede a la página de detalle del destino.
-
----
-
-## 🖼️ Detalle de recomendación
-
-La página de detalle permite visualizar información ampliada del destino.
-
-### Incluye
-
-* Descripción completa del destino.
-* Imagen principal.
-* Galería adicional.
-* Información del viaje.
-* Políticas del viaje.
-* Promedio de valoraciones.
-* Cantidad total de valoraciones.
-* Comentarios realizados por usuarios.
-* Botón para compartir destino.
-
----
-
-## ⭐ Valoraciones y puntuaciones
-
-Se implementó un sistema de valoraciones para que los usuarios puedan puntuar destinos asociados a sus reservas.
-
-### Flujo de puntuación
-
-El usuario puede puntuar desde:
-
-```txt
-Perfil → Mis reservas → Puntuar vuelo
+```sql
+CREATE DATABASE IF NOT EXISTS aerolinea_db;
+USE aerolinea_db;
 ```
 
-Al hacer clic, se abre una ventana emergente con:
+### 3. Configurar el backend
 
-* Resumen de la reserva.
-* Selector de estrellas.
-* Comentario opcional.
-* Botón para publicar la valoración.
+Ingresar en:
 
-### Visualización de valoraciones
-
-Las valoraciones se muestran en:
-
-* Detalle de recomendación.
-* Cards de recomendaciones del Home.
-
-En las cards se visualiza:
-
-* Promedio de estrellas.
-* Cantidad de valoraciones.
-* Estado “Sin valoraciones” cuando todavía no existen puntuaciones.
-
-### Endpoints principales
-
-```txt
-GET /api/reviews/recommendation/{recommendationId}
-GET /api/reviews/recommendation/{recommendationId}/summary
-POST /api/reviews/recommendation/{recommendationId}
+```text
+Backend-aerolinea/src/main/resources/
 ```
 
----
+El repositorio incluye:
 
-## ❤️ Favoritos
-
-Los usuarios autenticados pueden marcar recomendaciones como favoritas.
-
-### Funcionalidades
-
-* Agregar recomendación a favoritos desde el Home.
-* Quitar recomendación de favoritos.
-* Visualizar favoritos desde el perfil.
-* Persistencia de favoritos asociada al usuario autenticado.
-
-### Endpoint principal
-
-```txt
-/api/favorites
+```text
+application.properties.example
 ```
 
----
+Crear una copia con el nombre:
 
-## 👤 Perfil de usuario
-
-El perfil fue mejorado visual y funcionalmente.
-
-### Secciones disponibles
-
-* Mi perfil.
-* Mis reservas.
-* Mis favoritos.
-
-### Mejoras implementadas
-
-* Sidebar funcional.
-* Cambio dinámico de secciones.
-* Visualización de datos del usuario.
-* Listado de reservas.
-* Listado de favoritos.
-* Acceso a puntuación de reservas.
-* Botones y cards visualmente alineados.
-
----
-
-## 🧾 Reservas
-
-Desde los resultados de búsqueda, el usuario puede avanzar a una reserva.
-
-### Flujo
-
-```txt
-Home → Buscar vuelo → Resultados → Reservar → Perfil → Mis reservas
+```text
+application.properties
 ```
 
-### Funcionalidades
+Completar los valores locales:
 
-* Pre-reserva desde resultados.
-* Visualización de reserva en perfil.
-* Información de origen, destino, fechas, pasajeros y clase.
-* Opción para eliminar reserva.
-* Opción para puntuar el viaje reservado.
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/aerolinea_db
+spring.datasource.username=TU_USUARIO
+spring.datasource.password=TU_CONTRASEÑA
 
----
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
 
-## 🗂️ Categorías
+jwt.secret=TU_CLAVE_JWT
 
-El sistema incluye categorías para clasificar destinos y promociones.
-
-Categorías utilizadas:
-
-* Nacionales.
-* Internacionales.
-* Low Cost.
-* Premium.
-
-### Visualización pública
-
-Las categorías se muestran en:
-
-* Home.
-* Filtros por categoría.
-* Bloque compacto dentro de resultados.
-
-### Panel administrador
-
-Se mejoró la gestión de categorías desde el panel admin.
-
-Funcionalidades disponibles:
-
-* Listar categorías.
-* Agregar nueva categoría.
-* Editar categoría existente.
-* Guardar cambios.
-* Cancelar edición.
-* Eliminar categoría.
-* Cambiar imagen.
-* Gestionar filtrado de categorías.
-
-### Mejora importante
-
-Se agregó un botón visible de **Agregar categoría**, respondiendo a la observación de que antes no existía una acción clara para crear nuevas categorías.
-
----
-
-## 📋 Políticas del viaje
-
-Se incorporó una sección de políticas para informar condiciones importantes del viaje.
-
-### Funcionalidades
-
-* Visualización pública de políticas.
-* Administración de políticas desde el panel admin.
-* Orden de visualización.
-* Cards informativas en resultados y detalle.
-
-### Endpoints relacionados
-
-```txt
-GET /api/policies
-/api/admin/policies
+spring.mail.host=TU_HOST_SMTP
+spring.mail.port=TU_PUERTO_SMTP
+spring.mail.username=TU_USUARIO_SMTP
+spring.mail.password=TU_CONTRASEÑA_SMTP
 ```
 
----
+> `application.properties` no se incluye en el repositorio para evitar publicar credenciales privadas.
 
-## 🎨 HomePage
+### 4. Iniciar el backend
 
-La página principal incluye:
-
-* Hero dinámico con imágenes.
-* Buscador funcional.
-* Categorías destacadas.
-* Filtros por categorías.
-* Características del vuelo.
-* Recomendaciones para el usuario.
-* Cards con favoritos.
-* Cards con valoraciones.
-
-### Mejoras visuales
-
-* Ajustes de buscador principal.
-* Corrección de colores y estados hover.
-* Mejoras en las cards de recomendaciones.
-* Incorporación de estrellas en recomendaciones.
-* Ajustes de espaciado, tipografía y estructura.
-
----
-
-## 🔎 Página de resultados
-
-La página de resultados fue ampliada con una experiencia más completa.
-
-### Incluye
-
-* Encabezado con resumen de búsqueda.
-* Calendario doble.
-* Leyenda de disponibilidad.
-* Manejo de errores.
-* Horarios de ida.
-* Horarios de vuelta.
-* Bloque de destino recomendado.
-* Imagen decorativa de ventanilla de avión.
-* Políticas del viaje.
-* Botón para reservar.
-* Carrusel compacto de recomendaciones.
-* Carrusel compacto de categorías.
-
-### Mejoras visuales
-
-* Ajuste del bloque de destino recomendado.
-* Diseño con imagen de fondo.
-* Cards compactas mejoradas.
-* Corrección de tamaños y espaciados.
-* Separación visual entre secciones.
-
----
-
-## 🛠️ Panel de administración
-
-El panel de administración permite gestionar diferentes secciones del sistema.
-
-### Módulos disponibles
-
-* Vuelos.
-* Pasajeros.
-* Recomendaciones.
-* Categorías.
-* Hero del Home.
-* Políticas.
-* Administradores.
-
-### Mejoras implementadas
-
-* Acceso a gestión de categorías con botón claro para crear.
-* Edición y eliminación de categorías.
-* Gestión de políticas.
-* Ajustes visuales en formularios y tablas.
-* Sidebar de administración organizado.
-
----
-
-## 🔐 Autenticación y seguridad
-
-El sistema cuenta con autenticación y manejo de roles.
-
-## Imagenes del Proyecto
-
-## Resultado del buscador
-<img width="1356" height="633" alt="resultado de buscador" src="https://github.com/user-attachments/assets/2081d32e-419e-41f7-babe-bf3e22faf374" />
-
-## Recomendaciones
-<img width="1346" height="532" alt="recomendaciones" src="https://github.com/user-attachments/assets/f19e639e-6acd-4d38-a184-52337592e5ea"  />
-
-  ## Compartir en redes
-  <img width="664" height="617" alt="compartir en redes" src="https://github.com/user-attachments/assets/7e201621-d679-45fd-94e6-4f282b079b58" />
-
-  ## Categorias
-  <img width="1334" height="409" alt="categorias" src="https://github.com/user-attachments/assets/a61df726-bf5c-446b-9ee9-d934eb353dc8" />
-
- 
-
-
-
-
-
-##
-
-
-### Funcionalidades
-
-* Registro de usuarios.
-* Login.
-* Activación de cuenta por email.
-* JWT para autenticación.
-* Roles de usuario y administrador.
-* Protección de rutas administrativas.
-* Configuración de CORS para entorno local.
-
-### Roles
-
-* `ROLE_USER`
-* `ROLE_ADMIN`
-
----
-
-## ✉️ Sistema de mailing
-
-Se incorporó envío de emails desde backend.
-
-### Funcionalidades
-
-* Envío de email de activación.
-* Endpoint de prueba de correo.
-* Configuración de servicio de mail.
-
----
-
-## 🔐 Acceso al panel de administración
-
-Para acceder a la sección administrativa del sistema:
-
-```txt
-http://localhost:5173/login
-```
-
-Credenciales de administrador para prueba local:
-
-```txt
-Usuario: admin@admin1.com
-Contraseña: Admin1234
-```
-
-Desde este panel es posible gestionar:
-
-* Vuelos.
-* Recomendaciones.
-* Categorías.
-* Hero.
-* Pasajeros.
-* Políticas.
-* Administradores.
-
----
-
-## 🧩 Puertos utilizados
-
-```txt
-Frontend: http://localhost:5173
-Backend:  http://localhost:8080
-MySQL:    puerto 3306
-```
-
-Es necesario tener backend, frontend y base de datos activos para el correcto funcionamiento del sistema.
-
----
-
-## 🚀 Cómo iniciar el proyecto
-
-### 1. Backend
-
-Abrir la carpeta:
-
-```txt
-Backend-aerolinea
-```
-
-Verificar la configuración de base de datos en `application.properties`.
-
-Ejecutar desde el IDE o por terminal:
+Desde `Backend-aerolinea`:
 
 ```bash
 mvn spring-boot:run
 ```
 
-El backend inicia en:
+También puede iniciarse desde IntelliJ IDEA.
 
-```txt
+El backend queda disponible en:
+
+```text
 http://localhost:8080
 ```
 
----
+### 5. Iniciar el frontend
 
-### 2. Frontend
-
-Abrir la carpeta:
-
-```txt
-frontend-aerolinea
-```
-
-Instalar dependencias:
+Desde `Frontend-aerolinea`:
 
 ```bash
 npm install
-```
-
-Ejecutar el proyecto:
-
-```bash
 npm run dev
 ```
 
-El frontend inicia en:
+El frontend queda disponible en:
 
-```txt
+```text
 http://localhost:5173
 ```
 
 ---
 
-## 🗄️ Base de datos
+## 🧩 Puertos utilizados
 
-El proyecto utiliza MySQL.
+| Servicio | Dirección                   |
+| -------- | --------------------------- |
+| Frontend | `http://localhost:5173`     |
+| Backend  | `http://localhost:8080`     |
+| API REST | `http://localhost:8080/api` |
+| MySQL    | `localhost:3306`            |
 
-Base de datos utilizada:
+---
 
-```txt
+## 🗄️ Base de datos y vuelos de prueba
+
+La base de datos utilizada es:
+
+```text
 aerolinea_db
 ```
 
-La configuración de conexión se encuentra en:
+El proyecto incluye:
 
-```txt
-Backend-aerolinea/src/main/resources/application.properties
-```
-
----
-## 🧪 Script de vuelos de prueba y evaluación funcional
-
-Para facilitar la evaluación funcional del sistema, el proyecto incluye un script SQL con vuelos futuros de prueba.
-
-Ubicación:
-
-```txt
+```text
 database/vuelos_prueba.sql
 ```
 
-### Cómo cargar los vuelos de prueba
+El script genera vuelos con fechas futuras calculadas desde el momento de ejecución.
+
+### Cómo ejecutarlo
 
 1. Abrir MySQL Workbench.
-2. Seleccionar la base de datos `aerolinea_db`.
-3. Abrir el archivo `database/vuelos_prueba.sql`.
+2. Seleccionar `aerolinea_db`.
+3. Abrir `database/vuelos_prueba.sql`.
 4. Ejecutar el script completo.
-5. Verificar la consulta final, que muestra los vuelos insertados.
+5. Verificar los vuelos insertados mediante la consulta final.
 
-El script utiliza fechas dinámicas a partir de la fecha de ejecución, evitando que los vuelos queden vencidos durante la evaluación.
+Los vuelos no se generan automáticamente al iniciar la aplicación.
 
-### Gestión de pasajeros y asignación de asientos
+---
 
-El panel administrativo permite registrar pasajeros vinculados a un vuelo real de la tabla `flights`.
-
-Cada pasajero queda asociado a:
-
-* Un vuelo específico.
-* Una clase de vuelo.
-* Un asiento único dentro de ese vuelo.
-* Un canal de compra: `COUNTER` u `ONLINE`.
-
-| Clase    | Asientos disponibles por vuelo |
-| -------- | ------------------------------ |
-| ECONOMY  | A1 a A120                      |
-| BUSINESS | B1 a B24                       |
-| FIRST    | F1 a F8                        |
-
-El sistema consulta los asientos disponibles por vuelo y clase antes de guardar el pasajero. Además, valida desde backend que un asiento no pueda asignarse dos veces dentro del mismo vuelo.
-
-### Flujo de prueba
-
-1. Ejecutar `database/vuelos_prueba.sql`.
-2. Iniciar sesión como administrador.
-3. Ingresar al módulo “Pasajeros”.
-4. Completar los datos personales.
-5. Seleccionar origen, destino y una fecha generada por el script.
-6. Presionar “Buscar vuelos”.
-7. Elegir un vuelo disponible.
-8. Seleccionar la clase ECONOMY, BUSINESS o FIRST.
-9. Elegir un asiento manualmente o utilizar “Asignar automáticamente”.
-10. Guardar el pasajero.
-11. Verificar el registro en “Listado de pasajeros”, donde se muestra vuelo, ruta, fecha, horario, clase y asiento.
-
-### Importante sobre los destinos
-
-Los selectores de origen y destino muestran las ciudades cargadas en las recomendaciones del sitio, para mantener visible el catálogo completo de destinos.
-
-Sin embargo, para crear un pasajero debe existir un vuelo real para la ruta y fecha seleccionadas. Por ese motivo, luego de elegir origen, destino y fecha se debe presionar “Buscar vuelos”.
-
-El archivo `database/vuelos_prueba.sql` garantiza rutas futuras para realizar esta prueba durante la evaluación.
-
-## 🧪 Pruebas sugeridas
-
-### Usuario final
-
-1. Iniciar sesión o registrarse.
-2. Buscar un vuelo desde el Home.
-3. Seleccionar fechas disponibles.
-4. Revisar horarios de ida y vuelta.
-5. Avanzar a reserva.
-6. Ir al perfil.
-7. Entrar en “Mis reservas”.
-8. Puntuar un vuelo reservado.
-9. Verificar que la valoración aparezca en el detalle y en la card del Home.
+## 🔐 Credenciales de prueba
 
 ### Administrador
 
-1. Iniciar sesión como administrador.
-2. Ingresar al panel admin.
-3. Ir a Gestión de Categorías.
-4. Agregar una categoría nueva.
-5. Editar una categoría existente.
-6. Guardar cambios.
-7. Eliminar una categoría si corresponde.
-8. Gestionar políticas del viaje.
-9. Verificar imágenes del hero y recomendaciones.
+```text
+Usuario: admin@admin1.com
+Contraseña: Admin1234
+```
+
+Acceso:
+
+```text
+http://localhost:5173/login
+```
+
+> Las credenciales funcionan cuando el usuario administrador correspondiente se encuentra cargado en la base de datos.
 
 ---
 
-## 🧩 Sprint 1
+## 💺 Pasajeros y asignación de asientos
 
-En el primer sprint se trabajó sobre la estructura inicial del sistema.
+Los pasajeros quedan asociados a:
 
-### Funcionalidades principales
+- Un vuelo específico.
+- Una clase.
+- Un asiento.
+- Un canal de compra: `COUNTER` u `ONLINE`.
 
-* Estructura del proyecto full stack.
-* Home inicial.
-* Header y footer.
-* Recomendaciones.
-* Categorías.
-* Panel administrador inicial.
-* Gestión de vuelos.
-* Gestión de pasajeros.
+| Clase    | Numeración    |
+| -------- | ------------- |
+| Economy  | `A1` a `A120` |
+| Business | `B1` a `B24`  |
+| First    | `F1` a `F8`   |
 
----
+El backend valida que un asiento no pueda asignarse dos veces dentro del mismo vuelo.
 
-## 🧩 Sprint 2
-
-En el segundo sprint se incorporaron funcionalidades avanzadas de seguridad, administración y experiencia de usuario.
-
-### Funcionalidades implementadas
-
-* Registro e inicio de sesión.
-* Activación por email.
-* Roles de usuario y administrador.
-* Perfil de usuario.
-* Gestión de administradores.
-* Gestión de categorías.
-* Características asociadas a categorías.
-* Mejoras visuales del Home.
-* Integración de imágenes desde uploads.
-* Configuración de CORS y seguridad.
+Las reservas realizadas desde el sitio usan el canal `ONLINE`. Las ventas cargadas desde administración utilizan `COUNTER`. Ambos canales comparten el mismo control de disponibilidad.
 
 ---
 
-## 🧩 Sprint 3
+## 🔐 Autenticación y seguridad
 
-En el tercer sprint se incorporaron mejoras vinculadas a reservas, favoritos, valoraciones y experiencia final de usuario.
+El sistema implementa:
 
-### Funcionalidades implementadas
-
-* Reservas desde resultados de búsqueda.
-* Sección “Mis reservas” en perfil.
-* Sección “Mis favoritos” en perfil.
-* Sistema de favoritos.
-* Sistema de valoraciones.
-* Promedio de estrellas.
-* Comentarios de usuarios.
-* Visualización de estrellas en cards.
-* Políticas del viaje.
-* Calendario doble de disponibilidad.
-* Manejo de errores en disponibilidad.
-* Mejoras visuales en SearchResults.
-* Mejoras visuales en Profile.
-* Mejoras en Admin Categorías.
-* Botón para agregar categoría.
-* Edición, cancelación y eliminación de categorías.
+- Registro de usuarios.
+- Activación de cuenta mediante correo electrónico.
+- Inicio de sesión con JWT.
+- Identificación del usuario autenticado.
+- Roles `ROLE_USER` y `ROLE_ADMIN`.
+- Protección de rutas administrativas.
+- Validaciones desde backend.
+- Configuración de CORS para el entorno local.
 
 ---
 
-## 🖼️ Imágenes y recursos
+## 🔌 API REST
 
-El proyecto incluye carpetas de imágenes necesarias para visualizar correctamente:
-
-* Hero principal.
-* Categorías.
-* Recomendaciones.
-* Galerías de destinos.
-* Recursos visuales del frontend.
-
-Por este motivo, las carpetas `uploads` forman parte del repositorio.
+| Módulo          | Ruta base               | Descripción                                          |
+| --------------- | ----------------------- | ---------------------------------------------------- |
+| Autenticación   | `/api/auth`             | Registro, activación, login y usuario actual         |
+| Vuelos          | `/api/flights`          | CRUD, búsquedas, ciudades, categorías y asientos     |
+| Disponibilidad  | `/api/availability`     | Fechas y horarios disponibles                        |
+| Reservas        | `/api/bookings`         | Registro de reservas                                 |
+| Pasajeros       | `/api/passengers`       | Pasajeros, reservas online y asignación de asientos  |
+| Categorías      | `/api/categories`       | Categorías, promociones y contenido editorial        |
+| Recomendaciones | `/api/recommendations`  | CRUD, detalle, imágenes y recomendaciones aleatorias |
+| Favoritos       | `/api/favorites`        | Favoritos del usuario autenticado                    |
+| Valoraciones    | `/api/reviews`          | Comentarios, puntuaciones y resúmenes                |
+| Políticas       | `/api/policies`         | Políticas públicas                                   |
+| Administración  | `/api/admin`            | Usuarios, políticas y características                |
+| Hero            | `/api/hero`             | Gestión de imágenes de portada                       |
+| Imágenes        | `/api/images`           | Carga y consulta de archivos                         |
+| Contacto        | `/api/contact-messages` | Envío de consultas                                   |
 
 ---
 
-## 📌 Estado actual
+## 🧪 Recorrido sugerido para la evaluación
 
-El sistema cuenta con funcionalidades completas para:
+### Preparación
 
-* Búsqueda de vuelos.
-* Visualización de disponibilidad.
-* Reservas.
-* Perfil de usuario.
-* Favoritos.
-* Valoraciones.
-* Administración de categorías.
-* Administración de políticas.
-* Recomendaciones.
-* Gestión de imágenes.
+1. Crear o seleccionar `aerolinea_db`.
+2. Configurar `application.properties`.
+3. Ejecutar `database/vuelos_prueba.sql`.
+4. Iniciar el backend.
+5. Iniciar el frontend.
 
-El proyecto se encuentra preparado para presentación académica y pruebas locales.
+### Administrador
+
+1. Iniciar sesión con las credenciales de administrador.
+2. Ingresar al panel administrativo.
+3. Revisar o crear categorías.
+4. Crear una recomendación con imágenes.
+5. Crear vuelos futuros.
+6. Consultar el listado de vuelos.
+7. Registrar un pasajero.
+8. Seleccionar vuelo, clase y asiento.
+9. Verificar el pasajero en el listado.
+10. Revisar hero, políticas y administradores.
+
+### Usuario
+
+1. Registrar una cuenta.
+2. Activarla mediante correo.
+3. Iniciar sesión.
+4. Buscar un vuelo.
+5. Seleccionar fechas y horarios.
+6. Elegir el vuelo.
+7. Completar los datos de los pasajeros.
+8. Seleccionar los asientos.
+9. Completar el pago simulado.
+10. Confirmar la reserva.
+11. Revisar `Perfil → Mis reservas`.
+12. Guardar una recomendación como favorita.
+13. Consultarla desde `Mis favoritos`.
+14. Puntuar una experiencia.
+15. Verificar la valoración publicada.
+
+---
+
+## 📌 Consideraciones importantes
+
+- Para reservar debe existir un vuelo real para la ruta y fecha seleccionadas.
+- Las ciudades pueden aparecer en los selectores aunque todavía no exista un vuelo para todas las combinaciones.
+- Las carpetas `uploads` forman parte del repositorio porque contienen recursos necesarios.
+- El pago es una simulación académica y no procesa transacciones reales.
+- El envío de correos requiere una cuenta SMTP de prueba configurada.
+- El backend y el frontend están preparados para ejecutarse localmente en los puertos indicados.
 
 ---
 
@@ -752,9 +407,10 @@ El proyecto se encuentra preparado para presentación académica y pruebas local
 
 **Marina Rao**
 
+Proyecto Integrador Final de Desarrollo Full Stack.
+
 ---
 
 ## 📄 Licencia
 
 Proyecto de uso académico.
-

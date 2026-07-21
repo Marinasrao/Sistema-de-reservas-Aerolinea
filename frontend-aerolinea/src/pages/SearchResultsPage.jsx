@@ -20,6 +20,32 @@ const normalizeText = (value = "") => {
     .trim();
 };
 
+const normalizeFlightClass = (value) => {
+  const normalized = String(value || "economy")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+
+  if (
+    normalized === "first" ||
+    normalized === "primera" ||
+    normalized === "first_class"
+  ) {
+    return "first";
+  }
+
+  if (
+    normalized === "business" ||
+    normalized === "ejecutiva" ||
+    normalized === "executive"
+  ) {
+    return "business";
+  }
+
+  return "economy";
+};
+
 export default function SearchResultsPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -27,7 +53,7 @@ export default function SearchResultsPage() {
   const origin = params.get("origin");
   const destination = params.get("destination");
   const passengers = params.get("passengers") || "1";
-  const flightClass = params.get("flightClass") || "economy";
+  const flightClass = normalizeFlightClass(params.get("flightClass"));
 
   const rawFromDate =
     params.get("fromDate") ||
@@ -35,10 +61,7 @@ export default function SearchResultsPage() {
     params.get("departureDate") ||
     "";
 
-  const rawToDate =
-    params.get("toDate") ||
-    params.get("returnDate") ||
-    "";
+  const rawToDate = params.get("toDate") || params.get("returnDate") || "";
 
   const fromDate = rawFromDate ? rawFromDate.substring(0, 10) : "";
   const toDate = rawToDate ? rawToDate.substring(0, 10) : "";
@@ -46,7 +69,7 @@ export default function SearchResultsPage() {
   const requiresReturnFlight = Boolean(toDate);
 
   const [selectedDepartureDate, setSelectedDepartureDate] = useState(
-    fromDate || ""
+    fromDate || "",
   );
   const [selectedReturnDate, setSelectedReturnDate] = useState(toDate || "");
 
@@ -122,27 +145,25 @@ export default function SearchResultsPage() {
 
   const departureDateAvailable = useMemo(
     () => isDateAvailable(selectedDepartureDate, departureAvailability),
-    [selectedDepartureDate, departureAvailability]
+    [selectedDepartureDate, departureAvailability],
   );
 
   const returnDateAvailable = useMemo(
     () => isDateAvailable(selectedReturnDate, returnAvailability),
-    [selectedReturnDate, returnAvailability]
+    [selectedReturnDate, returnAvailability],
   );
 
   const canReserve =
     departureDateAvailable &&
     selectedDepartureFlight &&
     (!requiresReturnFlight ||
-      (returnDateAvailable &&
-        selectedReturnDate &&
-        selectedReturnFlight));
+      (returnDateAvailable && selectedReturnDate && selectedReturnFlight));
 
   const destinationImage = safeRecoUrl(
     destinationRecommendation?.mainImage ||
       destinationRecommendation?.imageUrl ||
       destinationRecommendation?.image1 ||
-      ""
+      "",
   );
 
   const destinationTitle =
@@ -163,18 +184,35 @@ export default function SearchResultsPage() {
   const handleModifySearch = () => {
     navigate(
       `/?origin=${encodeURIComponent(
-        origin || ""
-      )}&destination=${encodeURIComponent(destination || "")}`
+        origin || "",
+      )}&destination=${encodeURIComponent(destination || "")}`,
     );
   };
 
   const handleSelectDepartureDate = (date) => {
     setSelectedDepartureDate(date);
     setSelectedDepartureFlight(null);
+
+    if (selectedReturnDate && selectedReturnDate < date) {
+      setSelectedReturnDate("");
+      setSelectedReturnFlight(null);
+      setReservationError(
+        "La fecha de vuelta anterior fue quitada. Elegí una vuelta posterior a la ida.",
+      );
+      return;
+    }
+
     setReservationError("");
   };
 
   const handleSelectReturnDate = (date) => {
+    if (selectedDepartureDate && date < selectedDepartureDate) {
+      setReservationError(
+        "La fecha de vuelta debe ser posterior a la fecha de ida.",
+      );
+      return;
+    }
+
     setSelectedReturnDate(date);
     setSelectedReturnFlight(null);
     setReservationError("");
@@ -193,28 +231,28 @@ export default function SearchResultsPage() {
   const handleReserve = () => {
     if (!departureDateAvailable) {
       setReservationError(
-        "No hay vuelos disponibles para la fecha de ida seleccionada. Elegí una fecha marcada en verde."
+        "No hay vuelos disponibles para la fecha de ida seleccionada. Elegí una fecha marcada en verde.",
       );
       return;
     }
 
     if (!selectedDepartureFlight) {
       setReservationError(
-        "Seleccioná un horario de ida disponible antes de continuar con la reserva."
+        "Seleccioná un horario de ida disponible antes de continuar con la reserva.",
       );
       return;
     }
 
     if (requiresReturnFlight && !returnDateAvailable) {
       setReservationError(
-        "No hay vuelos disponibles para la fecha de vuelta seleccionada. Elegí una fecha marcada en verde."
+        "No hay vuelos disponibles para la fecha de vuelta seleccionada. Elegí una fecha marcada en verde.",
       );
       return;
     }
 
     if (requiresReturnFlight && !selectedReturnFlight) {
       setReservationError(
-        "Seleccioná un horario de vuelta disponible antes de continuar con la reserva."
+        "Seleccioná un horario de vuelta disponible antes de continuar con la reserva.",
       );
       return;
     }
@@ -236,7 +274,6 @@ export default function SearchResultsPage() {
       },
     });
   };
-
   useEffect(() => {
     setSelectedDepartureDate(fromDate || "");
     setSelectedReturnDate(toDate || "");
@@ -271,11 +308,11 @@ export default function SearchResultsPage() {
 
     fetch(
       `${API}/availability?origin=${encodeURIComponent(
-        origin
+        origin,
       )}&destination=${encodeURIComponent(
-        destination
+        destination,
       )}&fromDate=${start}&toDate=${toDateRange}`,
-      { signal: controller.signal }
+      { signal: controller.signal },
     )
       .then((res) => {
         if (!res.ok) {
@@ -298,11 +335,11 @@ export default function SearchResultsPage() {
 
     fetch(
       `${API}/availability?origin=${encodeURIComponent(
-        destination
+        destination,
       )}&destination=${encodeURIComponent(
-        origin
+        origin,
       )}&fromDate=${start}&toDate=${toDateRange}`,
-      { signal: controller.signal }
+      { signal: controller.signal },
     )
       .then((res) => {
         if (!res.ok) {
@@ -344,11 +381,11 @@ export default function SearchResultsPage() {
 
     fetch(
       `${API}/availability/slots?origin=${encodeURIComponent(
-        origin
+        origin,
       )}&destination=${encodeURIComponent(
-        destination
+        destination,
       )}&date=${selectedDepartureDate}`,
-      { signal: controller.signal }
+      { signal: controller.signal },
     )
       .then((res) => {
         if (!res.ok) {
@@ -387,11 +424,9 @@ export default function SearchResultsPage() {
 
     fetch(
       `${API}/availability/slots?origin=${encodeURIComponent(
-        destination
-      )}&destination=${encodeURIComponent(
-        origin
-      )}&date=${selectedReturnDate}`,
-      { signal: controller.signal }
+        destination,
+      )}&destination=${encodeURIComponent(origin)}&date=${selectedReturnDate}`,
+      { signal: controller.signal },
     )
       .then((res) => {
         if (!res.ok) {
@@ -461,9 +496,7 @@ export default function SearchResultsPage() {
         return res.json();
       })
       .then((data) => {
-        const recommendationsData = Array.isArray(data)
-          ? data
-          : [];
+        const recommendationsData = Array.isArray(data) ? data : [];
 
         setRecommendations(recommendationsData);
 
@@ -527,9 +560,7 @@ export default function SearchResultsPage() {
 
     if (!text) return;
 
-    setShareMessage(
-      `Mirá este destino recomendado en FlightBooking: ${text}.`
-    );
+    setShareMessage(`Mirá este destino recomendado en FlightBooking: ${text}.`);
   }, [destinationRecommendation, destination]);
 
   const copyShareText = async () => {
@@ -561,11 +592,9 @@ export default function SearchResultsPage() {
       window.open(
         "https://www.instagram.com/",
         "_blank",
-        "noopener,noreferrer"
+        "noopener,noreferrer",
       );
-      setShareNotice(
-        "Copiamos el contenido para que lo pegues en Instagram."
-      );
+      setShareNotice("Copiamos el contenido para que lo pegues en Instagram.");
       return;
     }
 
@@ -588,8 +617,7 @@ export default function SearchResultsPage() {
               {origin} → {destination}
             </span>
             <span>
-              {passengers}{" "}
-              {Number(passengers) === 1 ? "pasajero" : "pasajeros"}
+              {passengers} {Number(passengers) === 1 ? "pasajero" : "pasajeros"}
             </span>
             <span>{classLabels[flightClass] || "Económica"}</span>
           </div>
@@ -617,6 +645,7 @@ export default function SearchResultsPage() {
           selectedDate={selectedReturnDate}
           onSelectDate={handleSelectReturnDate}
           availableDates={returnAvailability}
+          minDate={selectedDepartureDate}
         />
       </div>
 
@@ -692,8 +721,8 @@ export default function SearchResultsPage() {
             {!requiresReturnFlight
               ? "Solo ida"
               : returnDateAvailable
-              ? "Disponible"
-              : "No disponible"}
+                ? "Disponible"
+                : "No disponible"}
           </span>
         </div>
       </div>
@@ -718,8 +747,7 @@ export default function SearchResultsPage() {
 
             <div className={styles.slotsGrid}>
               {departureSlots.map((slot, index) => {
-                const isSelected =
-                  selectedDepartureFlight?.id === slot.id;
+                const isSelected = selectedDepartureFlight?.id === slot.id;
 
                 return (
                   <button
@@ -738,9 +766,7 @@ export default function SearchResultsPage() {
 
                     <div className={styles.flightDetails}>
                       <p>{slot.airline}</p>
-                      {slot.flightNumber && (
-                        <small>{slot.flightNumber}</small>
-                      )}
+                      {slot.flightNumber && <small>{slot.flightNumber}</small>}
                       {slot.arrivalTime && (
                         <small>Llega {slot.arrivalTime}</small>
                       )}
@@ -822,9 +848,7 @@ export default function SearchResultsPage() {
 
         <div className={styles.destinationInfo}>
           <span className={styles.destinationEyebrow}>
-            {loadingRecommendation
-              ? "Buscando destino"
-              : "Destino recomendado"}
+            {loadingRecommendation ? "Buscando destino" : "Destino recomendado"}
           </span>
 
           <h3>{destinationTitle}</h3>
@@ -840,14 +864,12 @@ export default function SearchResultsPage() {
               <span>
                 Desde AR${" "}
                 {Number(destinationRecommendation.price).toLocaleString(
-                  "es-AR"
+                  "es-AR",
                 )}
               </span>
             )}
 
-            {selectedDepartureDate && (
-              <span>Ida {selectedDepartureDate}</span>
-            )}
+            {selectedDepartureDate && <span>Ida {selectedDepartureDate}</span>}
 
             {requiresReturnFlight && selectedReturnDate && (
               <span>Vuelta {selectedReturnDate}</span>
@@ -918,7 +940,7 @@ export default function SearchResultsPage() {
               !canReserve ? styles.resultsReserveBtnPending : ""
             }`}
             onClick={handleReserve}
-            aria-disabled={!canReserve}
+            disabled={!canReserve}
           >
             Reservar
           </button>
@@ -936,12 +958,12 @@ export default function SearchResultsPage() {
             .filter(
               (rec) =>
                 normalizeText(rec.destination || rec.title) !==
-                normalizeText(destination)
+                normalizeText(destination),
             )
             .slice(0, 8)
             .map((rec) => {
               const imageSrc = safeRecoUrl(
-                rec.mainImage || rec.imageUrl || rec.image1 || ""
+                rec.mainImage || rec.imageUrl || rec.image1 || "",
               );
 
               return (
@@ -962,7 +984,7 @@ export default function SearchResultsPage() {
                     <span>
                       {rec.price != null
                         ? `Desde AR$ ${Number(rec.price).toLocaleString(
-                            "es-AR"
+                            "es-AR",
                           )}`
                         : "Ver destino"}
                     </span>
@@ -1012,9 +1034,7 @@ export default function SearchResultsPage() {
           <div className={styles.shareModal}>
             <div className={styles.modalHeader}>
               <div>
-                <span className={styles.shareEyebrow}>
-                  Compartir producto
-                </span>
+                <span className={styles.shareEyebrow}>Compartir producto</span>
                 <h3>Compartir este destino</h3>
               </div>
 
@@ -1059,9 +1079,7 @@ export default function SearchResultsPage() {
               <span>{productUrl}</span>
             </div>
 
-            {shareNotice && (
-              <p className={styles.shareNotice}>{shareNotice}</p>
-            )}
+            {shareNotice && <p className={styles.shareNotice}>{shareNotice}</p>}
 
             <div className={styles.shareOptions}>
               <button type="button" onClick={() => handleShare("facebook")}>
