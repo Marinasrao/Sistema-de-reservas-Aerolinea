@@ -201,6 +201,20 @@ spring.mail.password=TU_CONTRASEÑA_SMTP
 
 > `application.properties` no se incluye en el repositorio para evitar publicar credenciales privadas.
 
+El archivo real `application.properties` no se incluye en GitHub porque contiene credenciales privadas.
+
+Para configurar el proyecto:
+
+1. Copiar el archivo:
+
+   `Backend-aerolinea/src/main/resources/application.example.properties`
+
+2. Crear una copia con el nombre:
+
+   `Backend-aerolinea/src/main/resources/application.properties`
+
+3. Completar en esa copia las credenciales locales de MySQL y Mailtrap.
+
 ### 4. Iniciar el backend
 
 Desde `Backend-aerolinea`:
