@@ -26,7 +26,7 @@ function generateFlightNumber(
   origin,
   destination,
   departureTime,
-  airline = "AeroLinea"
+  airline = "AeroLinea",
 ) {
   if (!origin || !destination || !departureTime) return "";
 
@@ -87,35 +87,40 @@ const AddFlightPage = () => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const [categoriesResponse, recommendationsResponse] = await Promise.all([
+        const [categoriesResponse, citiesResponse] = await Promise.all([
           fetch("http://localhost:8080/api/categories"),
-          fetch("http://localhost:8080/api/recommendations"),
+          fetch("http://localhost:8080/api/cities"),
         ]);
 
-        const categoriesData = categoriesResponse.ok
-          ? await categoriesResponse.json()
-          : [];
+        if (!categoriesResponse.ok) {
+          throw new Error(
+            `Error al cargar categorías: ${categoriesResponse.status}`,
+          );
+        }
 
-        const recommendationsData = recommendationsResponse.ok
-          ? await recommendationsResponse.json()
-          : [];
+        if (!citiesResponse.ok) {
+          throw new Error(`Error al cargar ciudades: ${citiesResponse.status}`);
+        }
+
+        const categoriesData = await categoriesResponse.json();
+        const citiesData = await citiesResponse.json();
 
         setCategories(Array.isArray(categoriesData) ? categoriesData : []);
 
-        const routeCities = [
-          ...new Set([
-            "Buenos Aires",
-            ...(Array.isArray(recommendationsData) ? recommendationsData : [])
-              .map((recommendation) => recommendation.destination)
-              .filter(Boolean)
-              .map((destination) => destination.trim())
-              .filter((destination) => destination.length >= 3),
-          ]),
-        ].sort((a, b) => a.localeCompare(b, "es"));
+        const cityNames = (Array.isArray(citiesData) ? citiesData : [])
+          .filter((city) => city?.active !== false)
+          .map((city) => city?.name)
+          .filter(Boolean)
+          .map((name) => name.trim())
+          .filter((name) => name.length > 0);
 
-        setCities(routeCities);
+        setCities(
+          [...new Set(cityNames)].sort((a, b) => a.localeCompare(b, "es")),
+        );
       } catch (error) {
         console.error("No se pudieron cargar los datos del formulario:", error);
+        setCategories([]);
+        setCities([]);
       }
     };
 
@@ -161,7 +166,7 @@ const AddFlightPage = () => {
       flightData.origin,
       flightData.destination,
       flightData.departureTime,
-      flightData.airline
+      flightData.airline,
     );
 
     setFlightData((previous) => {
@@ -264,16 +269,15 @@ const AddFlightPage = () => {
       flightData.arrivalTime
     ) {
       const departure = new Date(
-        `${flightData.departureDate}T${flightData.departureTime}`
+        `${flightData.departureDate}T${flightData.departureTime}`,
       );
 
       const arrival = new Date(
-        `${flightData.arrivalDate}T${flightData.arrivalTime}`
+        `${flightData.arrivalDate}T${flightData.arrivalTime}`,
       );
 
       if (arrival <= departure) {
-        newErrors.arrivalDate =
-          "La llegada debe ser posterior a la salida.";
+        newErrors.arrivalDate = "La llegada debe ser posterior a la salida.";
       }
     }
 
@@ -371,15 +375,14 @@ const AddFlightPage = () => {
       </h1>
 
       {errors.global && (
-        <div className={styles.globalError}>
-          🚫 {errors.global}
-        </div>
+        <div className={styles.globalError}>🚫 {errors.global}</div>
       )}
 
       <form onSubmit={handleSubmit} className={styles.form} noValidate>
         <section className={styles.formSection}>
           <div className={styles.sectionHeader}>
             <span>01</span>
+
             <div>
               <h2>Información operativa</h2>
               <p>Definí la aerolínea, el estado y la aeronave asignada.</p>
@@ -389,6 +392,7 @@ const AddFlightPage = () => {
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="airline">Aerolínea</label>
+
               <select
                 id="airline"
                 name="airline"
@@ -404,6 +408,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="aircraftType">Aeronave</label>
+
               <select
                 id="aircraftType"
                 name="aircraftType"
@@ -419,6 +424,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="flightStatus">Estado operativo</label>
+
               <select
                 id="flightStatus"
                 name="flightStatus"
@@ -438,8 +444,10 @@ const AddFlightPage = () => {
         <section className={styles.formSection}>
           <div className={styles.sectionHeader}>
             <span>02</span>
+
             <div>
               <h2>Ruta e itinerario</h2>
+
               <p>
                 El número de vuelo se asigna automáticamente según la ruta y la
                 salida.
@@ -450,6 +458,7 @@ const AddFlightPage = () => {
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="origin">Origen</label>
+
               <select
                 id="origin"
                 name="origin"
@@ -475,6 +484,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="destination">Destino</label>
+
               <select
                 id="destination"
                 name="destination"
@@ -500,6 +510,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="categoryId">Categoría</label>
+
               <select
                 id="categoryId"
                 name="categoryId"
@@ -525,6 +536,7 @@ const AddFlightPage = () => {
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="departureDate">Fecha de salida</label>
+
               <input
                 type="date"
                 id="departureDate"
@@ -544,6 +556,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="departureTime">Horario de salida</label>
+
               <input
                 type="time"
                 id="departureTime"
@@ -562,6 +575,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="flightNumber">Número de vuelo asignado</label>
+
               <input
                 type="text"
                 id="flightNumber"
@@ -583,6 +597,7 @@ const AddFlightPage = () => {
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="arrivalDate">Fecha de llegada</label>
+
               <input
                 type="date"
                 id="arrivalDate"
@@ -600,6 +615,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="arrivalTime">Horario de llegada</label>
+
               <input
                 type="time"
                 id="arrivalTime"
@@ -619,8 +635,10 @@ const AddFlightPage = () => {
         <section className={styles.formSection}>
           <div className={styles.sectionHeader}>
             <span>03</span>
+
             <div>
               <h2>Capacidad y tarifa</h2>
+
               <p>
                 La disponibilidad futura se calculará automáticamente a partir
                 de las reservas confirmadas.
@@ -631,6 +649,7 @@ const AddFlightPage = () => {
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="economySeats">Capacidad económica</label>
+
               <input
                 type="number"
                 min="0"
@@ -650,6 +669,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="businessSeats">Capacidad ejecutiva</label>
+
               <input
                 type="number"
                 min="0"
@@ -669,6 +689,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="firstSeats">Capacidad primera clase</label>
+
               <input
                 type="number"
                 min="0"
@@ -688,6 +709,7 @@ const AddFlightPage = () => {
 
             <div className={styles.formGroup}>
               <label htmlFor="price">Tarifa base</label>
+
               <input
                 type="number"
                 min="1"
@@ -716,8 +738,8 @@ const AddFlightPage = () => {
 
           <div className={styles.availabilityNotice}>
             <strong>Disponibilidad automática:</strong> al guardar un vuelo en
-            estado “Programado”, su fecha y horario estarán disponibles para
-            los usuarios en el calendario de reservas.
+            estado “Programado”, su fecha y horario estarán disponibles para los
+            usuarios en el calendario de reservas.
           </div>
         </section>
 

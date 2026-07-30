@@ -12,6 +12,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -38,10 +43,20 @@ public class SecurityConfig {
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        .requestMatchers(HttpMethod.OPTIONS, "/**")
+                        .permitAll()
+
+                        .requestMatchers("/api/admin/**")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers("/api/categories/admin/**")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        /*
+                         * Rutas públicas.
+                         */
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/recommendations/**",
@@ -54,33 +69,32 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/api/public/**",
                                 "/test-email",
-                                "/api/policies/**"
-                        ).permitAll()
+                                "/api/policies/**",
+                                "/api/cities/**"
+                        )
+                        .permitAll()
 
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/passengers/available-seats"
-                        ).permitAll()
+                        )
+                        .permitAll()
 
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/reviews/**"
-                        ).permitAll()
+                        )
+                        .permitAll()
 
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/reviews/**"
-                        ).authenticated()
+                        )
+                        .authenticated()
 
-                        .requestMatchers("/api/admin/**")
-                        .hasAuthority("ROLE_ADMIN")
-
-                        .requestMatchers("/api/categories/admin/**")
-                        .hasAuthority("ROLE_ADMIN")
-
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated()
                 )
-
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -90,23 +104,32 @@ public class SecurityConfig {
     }
 
     @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration config =
-                new org.springframework.web.cors.CorsConfiguration();
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(
-                java.util.List.of("http://localhost:5173")
+                List.of(
+                        "http://localhost:5173",
+                        "http://localhost:5174"
+                )
         );
 
         config.setAllowedMethods(
-                java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "OPTIONS"
+                )
         );
 
-        config.setAllowedHeaders(java.util.List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
-                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", config);
 

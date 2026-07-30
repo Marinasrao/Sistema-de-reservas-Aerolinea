@@ -27,11 +27,13 @@ import CategoryResultsPage from "./pages/CategoryResultsPage";
 import AdminPoliciesPage from "./pages/AdminPoliciesPage";
 import ReservationPage from "./pages/ReservationPage";
 import ReservationConfirmationPage from "./pages/ReservationConfirmationPage";
+import AdminCitiesPage from "./pages/AdminCitiesPage";
 
 const RequireAdmin = ({ children, auth }) => {
   if (!auth.user || !auth.isAdmin) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 
@@ -39,17 +41,20 @@ const RequireUser = ({ children, auth }) => {
   if (!auth.user) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 
 function App() {
   const [auth, setAuth] = useState(() => {
     const savedAuth = localStorage.getItem("auth");
-    return savedAuth ? JSON.parse(savedAuth) : { isAdmin: false, user: null };
+
+    return savedAuth
+      ? JSON.parse(savedAuth)
+      : { isAdmin: false, user: null };
   });
 
   const onLogin = async ({ email, password }) => {
-    //  Login → obtener token
     const res = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -62,10 +67,8 @@ function App() {
       throw new Error(data.message || "Error de login");
     }
 
-    // Guardar token
     localStorage.setItem("token", data.token);
 
-    // Obtener usuario actual
     const meRes = await fetch("http://localhost:8080/api/auth/me", {
       headers: {
         Authorization: `Bearer ${data.token}`,
@@ -111,8 +114,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* RUTAS ADMIN –  */}
-
         <Route
           path="/admin"
           element={
@@ -122,36 +123,43 @@ function App() {
           }
         >
           <Route index element={<AdminPanel />} />
+
           <Route
             path="listar-vuelos"
             element={<FlightsListPage adminView={true} />}
           />
+
           <Route path="add-flight" element={<AddFlightPage />} />
           <Route path="edit-flight/:id" element={<AddFlightPage />} />
           <Route path="delete-flight/:id" element={<DeleteFlightPage />} />
           <Route path="hero" element={<AdminHeroManager />} />
+
           <Route
             path="recommendations"
             element={<AdminRecommendationsPage />}
           />
+
           <Route
             path="recommendations/edit/:id"
             element={<EditRecommendationPage />}
           />
+
           <Route path="categories" element={<AdminCategoriesPage />} />
+          <Route path="cities" element={<AdminCitiesPage />} />
           <Route path="passengers" element={<PassengersListPage />} />
           <Route path="add-passenger" element={<AddPassengerPage />} />
           <Route path="admin-users" element={<AdminUsersPage />} />
           <Route path="admin-user" element={<AdminUserFormPage />} />
           <Route path="admin-user/:id" element={<AdminUserFormPage />} />
+
           <Route
             path="characteristics"
             element={<AdminCharacteristicsPage />}
           />
+
           <Route path="policies" element={<AdminPoliciesPage />} />
         </Route>
 
-        {/* RUTAS PÚBLICAS */}
         <Route
           path="/"
           element={<PublicLayout auth={auth} onLogout={handleLogout} />}
@@ -162,26 +170,32 @@ function App() {
           <Route path="flights" element={<FlightsListPage />} />
           <Route path="booking" element={<BookingFormPage />} />
           <Route path="reservation" element={<ReservationPage auth={auth} />} />
-          <Route path="reservation-confirmation"        element={
+
+          <Route
+            path="reservation-confirmation"
+            element={
               <RequireUser auth={auth}>
                 <ReservationConfirmationPage auth={auth} />
               </RequireUser>
             }
           />
+
           <Route
             path="recommendations/:id"
             element={<RecommendationDetailPage />}
           />
+
           <Route path="reco/:id" element={<RecommendationDetailPage />} />
           <Route path="search" element={<SearchResultsPage />} />
           <Route path="search-results" element={<SearchResultsPage />} />
+
           <Route
-            path="/recommendations/:id/gallery"
+            path="recommendations/:id/gallery"
             element={<RecommendationGalleryPage />}
           />
+
           <Route path="category-results" element={<CategoryResultsPage />} />
 
-          {/* PROFILE — SOLO USUARIO LOGUEADO */}
           <Route
             path="profile"
             element={
@@ -191,7 +205,7 @@ function App() {
             }
           />
         </Route>
-        {/* DEFAULT */}
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
